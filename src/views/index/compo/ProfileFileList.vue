@@ -2,10 +2,9 @@
 import { getFileList } from '@/api/file/file.ts'
 import { onMounted, ref } from 'vue'
 import { ElMessage } from 'element-plus'
+import { emitter } from '@/event/eventBus.ts'
 const tableLoading = ref(false)
-const handleClick = () => {
-  console.log('click')
-}
+
 
 let tableData = []
 const get_file_list = async () => {
@@ -21,8 +20,7 @@ const get_file_list = async () => {
 }
 
 const onDownload = (row) => {
-  console.log(row)
-  let aElement:HTMLAnchorElement = document.createElement('a')
+  const aElement:HTMLAnchorElement = document.createElement('a')
   aElement.href = import.meta.env.VITE_API_URL + '/' + row.toUser + '/' + row.fileName
   aElement.download = row.fileName
   aElement.target = '_blank'
@@ -32,6 +30,8 @@ const onDownload = (row) => {
 
 onMounted(_ => {
   get_file_list()
+
+  emitter.on('refresh-file', get_file_list)
 })
 </script>
 

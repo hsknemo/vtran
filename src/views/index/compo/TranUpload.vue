@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { reactive, ref } from 'vue'
 import type { UploadRequestOptions } from 'element-plus/es/components/upload/src/upload'
 import { setFileToUserList } from '@/api/file/file.ts'
 import { ElMessage } from 'element-plus'
@@ -8,26 +8,28 @@ import { useLocalStorage } from '@vueuse/core'
 interface Data {
   fileList: File[]
 }
+const fileList = ref([])
 const data:Data = reactive({
   fileList: [],
 })
 const onHttpRequest = (option:UploadRequestOptions) => {
   if (option.file) {
-    data.fileList.push(option.file)
+    // data.fileList.push(option.file)
   }
 }
 
 const sendFile = async () => {
   const formData:FormData = new FormData()
-  if (!data.fileList.length) {
+  if (!fileList.value.length) {
     return ElMessage.error('请选择文件！')
   }
   if (!onLineUserList.curSelectUser) {
     return ElMessage.error('请选择发送给的用户！')
   }
-  data.fileList.forEach(file => {
+
+  fileList.value.forEach(file => {
     formData.append('name', file.name)
-    formData.append('file', file)
+    formData.append('file', file.raw)
   })
   formData.append('toUserId', onLineUserList.curSelectUser)
   formData.append('fromUserId', JSON.parse(useLocalStorage('user', '{}').value).id)
@@ -46,8 +48,9 @@ const sendFile = async () => {
   <el-upload
     class="upload-demo"
     drag
-    :http-request="onHttpRequest"
+    v-model:file-list="fileList"
     multiple
+    :http-request="onHttpRequest"
   >
     <el-icon class="el-icon--upload"><upload-filled /></el-icon>
     <div class="el-upload__text">

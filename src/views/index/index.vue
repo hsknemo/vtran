@@ -23,14 +23,16 @@ function initWS() {
       isHeart: true, // 是否心跳
       isReconnection: true, // 是否断开重连
       received(data) {
-        let parseData = JSON.parse(data)
+        const parseData = JSON.parse(data)
+        console.log('【parseData.type】', parseData.type)
         switch (parseData.type) {
           default:
             break
           case 'refreshMessage':
             emitter.emit(parseData.data + '-'  +parseData.value)
+          case 'profile-message':
+            emitter.emit('profile-message', parseData)
         }
-        console.log('init ws 收到消息', data)
         ws.value = data
       },
     })
