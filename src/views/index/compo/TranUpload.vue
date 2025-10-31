@@ -4,6 +4,7 @@ import type { UploadRequestOptions } from 'element-plus/es/components/upload/src
 import { setFileToUserList } from '@/api/file/file.ts'
 import { ElMessage } from 'element-plus'
 import { onLineUserList } from '@/views/index/store/store.ts'
+import { useLocalStorage } from '@vueuse/core'
 interface Data {
   fileList: File[]
 }
@@ -28,6 +29,8 @@ const sendFile = async () => {
     formData.append('name', file.name)
     formData.append('file', file)
   })
+  formData.append('toUserId', onLineUserList.curSelectUser)
+  formData.append('fromUserId', JSON.parse(useLocalStorage('user', '{}').value).id)
   try {
     const res = await setFileToUserList(formData)
     ElMessage.success(res.data.msg)

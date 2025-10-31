@@ -94,12 +94,15 @@ onMounted(() => {
       <ShowUser @exit="onExit" />
     </template>
 
-    <div class="tip">选择发送给用户</div>
-    <online-user />
-    <div class="tip">选择/拖拽文件</div>
-    <TranUpload />
-    <div class="tip">发送给我的文件列表</div>
-    <ProfileFileList />
+    <template v-if="!reactive_data.showPage">
+      <div class="tip">选择发送给用户</div>
+      <online-user />
+      <div class="tip">选择/拖拽文件</div>
+      <TranUpload />
+      <div class="tip">发送给我的文件列表</div>
+      <ProfileFileList />
+    </template>
+
   </main>
 </template>
 
