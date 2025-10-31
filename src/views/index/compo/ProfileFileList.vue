@@ -5,13 +5,13 @@ import { ElMessage } from 'element-plus'
 import { emitter } from '@/event/eventBus.ts'
 const tableLoading = ref(false)
 
-
 let tableData = []
 const get_file_list = async () => {
   try {
     tableLoading.value = true
     const res = await getFileList()
     tableData = res.data
+    emitter.emit('refresh-bell-length', tableData.length)
   } catch (e) {
     ElMessage.error('文件列表获取失败：', e.message)
   } finally {
@@ -32,11 +32,13 @@ onMounted(_ => {
   get_file_list()
 
   emitter.on('refresh-file', get_file_list)
+
 })
 </script>
 
-<template>
-  <el-table v-loading="tableLoading" :data="tableData" style="width: 100%">
+<template >
+  <el-table
+    v-loading="tableLoading" :data="tableData" style="width: 100%">
     <el-table-column fixed prop="fileName" label="文件名称" width="400" />
     <el-table-column prop="insertTime" label="发送时间" width="220" />
     <el-table-column prop="fromUserName" label="发送人" width="120" />

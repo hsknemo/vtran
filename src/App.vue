@@ -2,6 +2,7 @@
 </script>
 
 <template>
+  <section id="logo"></section>
   <RouterView />
 </template>
 
@@ -66,5 +67,19 @@ nav a:first-of-type {
     padding: 1rem 0;
     margin-top: 1rem;
   }
+}
+</style>
+<style lang="scss">
+@mixin flexStyle($align:'center', $justContent:'space-around') {
+  display: flex;
+  align-items: $align;
+  justify-content: $justContent;
+}
+
+#logo {
+  width: 50px;
+  height: 50px;
+  background-size: 100% 100%;
+  background-image: url("/Tran.png");
 }
 </style>

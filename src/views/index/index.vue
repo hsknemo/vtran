@@ -15,6 +15,9 @@ const reactive_data = reactive({
   showPage: true,
 })
 
+const isTableShow = ref(true)
+
+
 function initWS() {
   if (!ws.value) {
     ws.value = new Socket({
@@ -70,8 +73,15 @@ const onClosePage = () => {
   reactive_data.showPage = false
 }
 
+const slide_table_list = (bellBool:boolean) => {
+  isTableShow.value = bellBool
+}
+
+
 onMounted(() => {
   checkAuth()
+
+  emitter.on('slide-table-list', slide_table_list)
 
 })
 </script>
@@ -101,8 +111,12 @@ onMounted(() => {
       <online-user />
       <div class="tip">选择/拖拽文件</div>
       <TranUpload />
-      <div class="tip">发送给我的文件列表</div>
-      <ProfileFileList />
+
+      <section v-show="isTableShow">
+        <div class="tip">发送给我的文件列表</div>
+        <ProfileFileList />
+      </section>
+
     </template>
 
   </main>

@@ -6,8 +6,14 @@ const emit = defineEmits(['exit'])
 const user = reactive({
   username: '',
 })
-
+const bellLen = ref(0)
+const bellV = ref(true)
 const audio = ref('audio')
+
+const onBellClick = _ => {
+  bellV.value = !bellV.value
+  emitter.emit('slide-table-list', bellV.value)
+}
 
 const getUser = () => {
   const u = localStorage.getItem('user')
@@ -35,6 +41,10 @@ onMounted(_ => {
     audio.value.play()
   })
 
+  emitter.on('refresh-bell-length', (len) => {
+    bellLen.value = len
+  })
+
   emitter.on('profile-message', (data) => {
     if (!audio.value) {
       audio.value = ref('audio')
@@ -58,8 +68,10 @@ onMounted(_ => {
     <h1>欢迎你：{{ user.username }}</h1>
     <audio ref="audio" src="/record/message.mp3"></audio>
     <section class="btn_group">
-      <el-button class="ani_bell" text :icon="Bell">
-        <span class="success">22</span>
+      <el-button
+        @click="onBellClick"
+        class="ani_bell" text :icon="Bell">
+        <span class="success">{{ bellLen }}</span>
       </el-button>
       <el-button text @click="onExit">退出</el-button>
     </section>
