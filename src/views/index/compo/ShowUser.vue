@@ -6,6 +6,7 @@ const emit = defineEmits(['exit'])
 const user = reactive({
   username: '',
 })
+const msg = ref('')
 const bellLen = ref(0)
 const bellV = ref(true)
 const audio = ref('audio')
@@ -21,9 +22,8 @@ const getUser = () => {
   return {}
 }
 
-const onInit = _ => {
+const onInit = (args:never) => {
   const u = getUser()
-  console.log(u, '获取到的用户')
   user.username = u.username
 }
 
@@ -33,15 +33,44 @@ const onExit = _ => {
   emit('exit')
 }
 
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
+const isTyping = ref(true)
+const typingSpeed = 1000 / 10
+const onStartWelcomeMsg = async () => {
+  const content = import.meta.env.VITE_WELCOME_MESSAGE + ':'+ user.username
+  for (let i = 0; i < content.split('').length; i++) {
+    await delay(typingSpeed)
+    msg.value += content[i]
+  }
+  if (msg.value.length === content.length) {
+    isTyping.value = false
+    await delay(1000)
+    cancelStartWelComeMsg()
+  }
+}
+
+const cancelStartWelComeMsg = async _ => {
+  for (let i = msg.value.split('').length; i >0; i--) {
+    await delay(typingSpeed)
+    msg.value = msg.value.slice(0, i - 1)
+  }
+  if (!msg.value) {
+    onStartWelcomeMsg()
+  }
+}
+
 onMounted(_ => {
   onInit()
+
+  onStartWelcomeMsg()
 
   document.addEventListener('click', function () {
     audio.value.muted = true
     audio.value.play()
   })
 
-  emitter.on('refresh-bell-length', (len) => {
+  emitter.on('refresh-bell-length', (len:number) => {
     bellLen.value = len
   })
 
@@ -60,17 +89,16 @@ onMounted(_ => {
     }, 500)
   })
 })
-
 </script>
 
 <template>
   <div class="v_tran_user_panel">
-    <h1>欢迎你：{{ user.username }}</h1>
+    <h3 class="typing">
+      <span class="cursor">{{ msg }}</span>
+    </h3>
     <audio ref="audio" src="/record/message.mp3"></audio>
     <section class="btn_group">
-      <el-button
-        @click="onBellClick"
-        class="ani_bell" text :icon="Bell">
+      <el-button @click="onBellClick" class="ani_bell" text :icon="Bell">
         <span class="success">{{ bellLen }}</span>
       </el-button>
       <el-button text @click="onExit">退出</el-button>
@@ -79,26 +107,43 @@ onMounted(_ => {
 </template>
 
 <style scoped lang="scss">
-@mixin flexStyle($align:'center', $justContent:'space-around') {
+@mixin flexStyle($align: 'center', $justContent: 'space-around') {
   display: flex;
   align-items: $align;
   justify-content: $justContent;
 }
 
-
+@keyframes blink {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
 
 .v_tran_user_panel {
   @include flexStyle(center, space-between);
-  h1 {
+  h3 {
     color: #fff;
     font-weight: bold;
+
+    &.typing {
+      &::after {
+        content: '_';
+        font-size: 14px;
+        padding-left: 4px;
+        animation: blink 0.5s infinite;
+      }
+    }
   }
 
   .success {
     color: #fff;
     font-weight: bold;
   }
-
-
 }
 </style>

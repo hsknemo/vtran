@@ -4,6 +4,7 @@
 <template>
   <section id="logo"></section>
   <RouterView />
+  <el-backtop :right="10" :bottom="200" />
 </template>
 
 <style scoped>
@@ -82,4 +83,5 @@ nav a:first-of-type {
   background-size: 100% 100%;
   background-image: url("/Tran.png");
 }
+
 </style>

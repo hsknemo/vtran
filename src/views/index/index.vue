@@ -9,6 +9,7 @@ import Login from '@/views/index/compo/Login.vue'
 import ShowUser from '@/views/index/compo/ShowUser.vue'
 import { emitter } from '../../event/eventBus.ts'
 import { useLocalStorage } from '@vueuse/core'
+import { Refresh } from '@element-plus/icons-vue'
 const ws = ref('')
 const reactive_data = reactive({
   page: false,
@@ -77,6 +78,10 @@ const slide_table_list = (bellBool:boolean) => {
   isTableShow.value = bellBool
 }
 
+const tableRef = ref('tableRef')
+const onTableRefresh = () => {
+  tableRef.value.get_file_list()
+}
 
 onMounted(() => {
   checkAuth()
@@ -113,19 +118,32 @@ onMounted(() => {
       <TranUpload />
 
       <section v-show="isTableShow">
-        <div class="tip">发送给我的文件列表</div>
-        <ProfileFileList />
+        <div class="tip">
+          发送给我的文件列表
+          <section class="btn_control_area">
+            <el-button text @click="onTableRefresh" :icon="Refresh"> </el-button>
+          </section>
+        </div>
+        <ProfileFileList ref="tableRef" />
       </section>
 
+
     </template>
+
 
   </main>
 </template>
 
 <style scoped lang="scss">
+@mixin flexStyle($align:'center', $justContent:'space-around') {
+  display: flex;
+  align-items: $align;
+  justify-content: $justContent;
+}
 .tran-container {
   .tip {
     margin: 10px 0;
+    @include flexStyle(center);
   }
 }
 </style>
