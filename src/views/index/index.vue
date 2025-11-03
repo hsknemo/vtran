@@ -10,6 +10,7 @@ import ShowUser from '@/views/index/compo/ShowUser.vue'
 import { emitter } from '../../event/eventBus.ts'
 import { useLocalStorage } from '@vueuse/core'
 import { Refresh } from '@element-plus/icons-vue'
+import socketReacktive from '@/stores/socket.ts'
 const ws = ref('')
 const reactive_data = reactive({
   page: false,
@@ -20,8 +21,8 @@ const isTableShow = ref(true)
 
 
 function initWS() {
-  if (!ws.value) {
-    ws.value = new Socket({
+  if (!socketReacktive.ws) {
+    socketReacktive.ws = new Socket({
       url: import.meta.env.VITE_WS_LINK_ADDR,
       name: '',
       isHeart: true, // 是否心跳
@@ -34,16 +35,21 @@ function initWS() {
             break
           case 'refreshMessage':
             emitter.emit(parseData.data + '-'  +parseData.value)
+            break
           case 'profile-message':
             emitter.emit('profile-message', parseData)
+            break
+          // 聊天事件
+          case 'client-chat-message':
+            emitter.emit('client-chat-message', parseData)
+            break
         }
-        ws.value = data
       },
     })
     const data = {
       type: 'init',
     }
-    ws.value.connect(data)
+    socketReacktive.ws.connect(data)
   }
 }
 

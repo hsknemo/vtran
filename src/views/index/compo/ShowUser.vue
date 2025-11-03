@@ -1,19 +1,28 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
-import { Bell } from '@element-plus/icons-vue'
+import { Bell, ChatDotRound } from '@element-plus/icons-vue'
 import { emitter } from '@/event/eventBus.ts'
+import Chat from '@/views/index/compo/Chat.vue'
 const emit = defineEmits(['exit'])
 const user = reactive({
   username: '',
+})
+const dialogSet = reactive({
+  show: true,
 })
 const msg = ref('')
 const bellLen = ref(0)
 const bellV = ref(true)
 const audio = ref('audio')
+const chatLen = ref(0)
 
 const onBellClick = _ => {
   bellV.value = !bellV.value
   emitter.emit('slide-table-list', bellV.value)
+}
+
+const onChatClick = arg => {
+  dialogSet.show = true
 }
 
 const getUser = () => {
@@ -60,6 +69,18 @@ const cancelStartWelComeMsg = async _ => {
   }
 }
 
+const playAudio = _ => {
+  if (!audio.value) {
+    audio.value = ref('audio')
+  }
+  audio.value.muted = false
+  audio.value.play()
+
+  setTimeout(_ => {
+    audio.value.muted = true
+  }, 500)
+}
+
 onMounted(_ => {
   onInit()
 
@@ -75,18 +96,16 @@ onMounted(_ => {
   })
 
   emitter.on('profile-message', (data) => {
-    if (!audio.value) {
-      audio.value = ref('audio')
-    }
-    audio.value.muted = false
-    audio.value.play()
-
+    playAudio()
     // 接收到发送给自己的文件 刷新文件列表
     emitter.emit('refresh-file')
 
-    setTimeout(_ => {
-      audio.value.muted = true
-    }, 500)
+
+  })
+
+  emitter.on('chat-message-bell', data => {
+    playAudio()
+    chatLen.value += 1
   })
 })
 </script>
@@ -98,12 +117,17 @@ onMounted(_ => {
     </h3>
     <audio ref="audio" src="/record/message.mp3"></audio>
     <section class="btn_group">
+      <el-button @click="onChatClick" class="ani_bell" text :icon="ChatDotRound">
+        <span class="success">{{ chatLen }}</span>
+      </el-button>
+
       <el-button @click="onBellClick" class="ani_bell" text :icon="Bell">
         <span class="success">{{ bellLen }}</span>
       </el-button>
       <el-button text @click="onExit">退出</el-button>
     </section>
   </div>
+  <Chat v-model:popControl="dialogSet" />
 </template>
 
 <style scoped lang="scss">
