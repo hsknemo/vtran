@@ -23,7 +23,7 @@ const isTableShow = ref(true)
 function initWS() {
   if (!socketReacktive.ws) {
     socketReacktive.ws = new Socket({
-      url: import.meta.env.VITE_WS_LINK_ADDR,
+      url: 'ws://' + window.location.hostname + ':'+ import.meta.env.VITE_WS_LINK_ADDR,
       name: '',
       isHeart: true, // 是否心跳
       isReconnection: true, // 是否断开重连

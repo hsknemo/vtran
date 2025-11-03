@@ -8,7 +8,7 @@ const user = reactive({
   username: '',
 })
 const dialogSet = reactive({
-  show: true,
+  show: false,
 })
 const msg = ref('')
 const bellLen = ref(0)
