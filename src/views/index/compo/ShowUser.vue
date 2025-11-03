@@ -3,6 +3,7 @@ import { onMounted, reactive, ref } from 'vue'
 import { Bell, ChatDotRound } from '@element-plus/icons-vue'
 import { emitter } from '@/event/eventBus.ts'
 import Chat from '@/views/index/compo/Chat.vue'
+import { ElNotification } from 'element-plus'
 const emit = defineEmits(['exit'])
 const user = reactive({
   username: '',
@@ -70,15 +71,20 @@ const cancelStartWelComeMsg = async _ => {
 }
 
 const playAudio = _ => {
-  if (!audio.value) {
-    audio.value = ref('audio')
-  }
-  audio.value.muted = false
-  audio.value.play()
+  try {
+    if (!audio.value) {
+      audio.value = ref('audio')
+    }
+    audio.value.muted = false
+    audio.value.play()
 
-  setTimeout(_ => {
-    audio.value.muted = true
-  }, 500)
+    setTimeout(_ => {
+      audio.value.muted = true
+    }, 500)
+  } catch (e) {
+    audio.value.muted = false
+    audio.value.play()
+  }
 }
 
 onMounted(_ => {
@@ -96,16 +102,17 @@ onMounted(_ => {
   })
 
   emitter.on('profile-message', (data) => {
-    playAudio()
     // 接收到发送给自己的文件 刷新文件列表
     emitter.emit('refresh-file')
-
-
+    ElNotification({
+      title: `接收到新文件`,
+      type: 'success',
+    })
   })
 
   emitter.on('chat-message-bell', data => {
-    playAudio()
     chatLen.value += 1
+    playAudio()
   })
 })
 </script>

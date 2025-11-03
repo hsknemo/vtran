@@ -1,21 +1,19 @@
 <script setup lang="ts">
-import { defineComponent, onMounted, reactive, ref } from 'vue'
+import { defineComponent, nextTick, onMounted, ref } from 'vue'
 import { Promotion, CloseBold } from '@element-plus/icons-vue'
 import { onLineUserList } from '@/views/index/store/store.ts'
-import { ElMessage } from 'element-plus'
+import { chatMsgList } from '@/views/index/store/chat.ts'
+import { ElMessage, ElNotification } from 'element-plus'
 import socketReactive from '@/stores/socket.ts'
 import { useLocalStorage } from '@vueuse/core'
 import { emitter } from '@/event/eventBus.ts'
 const highlightIndex = ref(-1)
 const userMsg = ref('')
-const chatMsgList = reactive({
-  list: {},
-  currentUser: '',
-})
+
 defineComponent({
   name: 'ChatMessage',
 })
-defineProps({
+const props = defineProps({
   popControl: {
     type: Object,
     default: () => ({
@@ -23,6 +21,8 @@ defineProps({
     }),
   },
 })
+
+const chat_area = ref('chat_area')
 
 const onChatToUser = (row, index) => {
   highlightIndex.value = index
@@ -36,6 +36,15 @@ const onCloseLinkPanel = () => {
 
 const onMsgTip = () => {
   ElMessage.success('愉快的聊天吧')
+}
+
+const scrollToView = async () => {
+  await nextTick(_ => {
+    // 滚动到底部
+    setTimeout(_ => {
+      chat_area.value.scrollIntoView({ behavior: 'smooth', block: 'end' })
+    }, 50)
+  })
 }
 
 const onSend = async () => {
@@ -58,17 +67,35 @@ const onSend = async () => {
     msg: chatMsgList.currentUser.sendMsg,
   })
 
+  scrollToView()
+
   userMsg.value = ''
 }
 
 const getCurChatMsg = ({ data }) => {
   console.log('获取当前的聊天信息...', data.sendMsg)
-  chatMsgList.list[chatMsgList.currentUser.id] = chatMsgList.list[chatMsgList.currentUser.id] || []
-  chatMsgList.list[chatMsgList.currentUser.id].push({
+  chatMsgList.list[data.fromUser.id] = chatMsgList.list[data.fromUser.id] || []
+  chatMsgList.list[data.fromUser.id].push({
     isFrom: true,
     msg: data.sendMsg,
   })
+
+  // 消息提醒数字增加
   emitter.emit('chat-message-bell', data)
+
+  if (!props.popControl.show) {
+    ElNotification({
+      title: `有一条新的消息！---- 来自${data.fromUser.username}`,
+      message: data.sendMsg,
+      type: 'info',
+    })
+  } else {
+    scrollToView()
+  }
+}
+
+const onClosePop = () => {
+  chatMsgList.currentUser = ''
 }
 
 onMounted(() => {
@@ -78,6 +105,7 @@ onMounted(() => {
 
 <template>
   <el-dialog
+    @close="onClosePop"
     class="tran_dialog"
     v-model="popControl.show"
     title="聊天"
@@ -89,6 +117,7 @@ onMounted(() => {
       <div class="left">
         <header class="tran_chat_header">用户列表</header>
         <main class="tran_chat_user_list">
+
           <div
             class="user_list_item"
             :class="[
@@ -101,10 +130,16 @@ onMounted(() => {
             v-for="(item, index) in onLineUserList.onlineList"
             @click="onChatToUser(item, index)"
           >
+
             <section :username="item.username.slice(0, 1)" class="user_name">
               {{ item.username }}
             </section>
+            <div class="avtor_msg_total" v-if="chatMsgList.list[item.id]">
+              <el-badge :value="chatMsgList.list[item.id].length">
+              </el-badge>
+            </div>
           </div>
+
         </main>
       </div>
 
@@ -118,7 +153,7 @@ onMounted(() => {
             </div>
           </header>
           <main class="tran_chat_area">
-            <section class="section_pop_chat">
+            <section class="section_pop_chat" ref="chat_area">
               <div
                 class="chat_pop"
                 :key="index"
@@ -172,10 +207,18 @@ $block_bg_color: #1d1d1d;
     height: calc(100% - 10%);
 
     .user_list_item {
+      position: relative;
       @include radius_box(#262626, 10px 10px);
       margin-bottom: 10px;
       transition: all 0.3s linear;
       border: 2px solid transparent;
+
+      .avtor_msg_total {
+        position: absolute;
+        top: 0;
+        right: 0;
+      }
+
       &:hover,
       &.active {
         cursor: pointer;
@@ -193,10 +236,12 @@ $block_bg_color: #1d1d1d;
 
       .user_name {
         @include flexStyle(center);
+        justify-content: space-between;
+        white-space: nowrap;
         &:before {
           content: attr(username);
-          width: 20px;
-          height: 20px;
+          width: 25px;
+          height: 25px;
           margin-right: 10px;
           background-color: #3d3d3d;
           text-align: center;
@@ -209,7 +254,7 @@ $block_bg_color: #1d1d1d;
           width: 5px;
           height: 5px;
           border-radius: 50%;
-          margin-left: 60px;
+          margin-left: 10px;
           background-color: #696d69;
         }
       }

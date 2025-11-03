@@ -17,9 +17,18 @@ const onRefresh = async () => {
     ElMessage.error(e.msg)
   }
 }
+
+const loopFetch = () => {
+  setTimeout(() => {
+    onRefresh()
+    loopFetch()
+  }, 5000)
+}
+
 onMounted((_) => {
   onRefresh()
   emitter.on('refresh-user', onRefresh)
+  loopFetch()
 })
 
 

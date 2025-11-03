@@ -42,4 +42,8 @@ const onLoginPage = () => {
   </div>
 </template>
 
-<style scoped></style>
+<style lang="scss">
+.tran_item {
+  margin-top: 10px;
+}
+</style>

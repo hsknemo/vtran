@@ -56,8 +56,8 @@ defineExpose({
   <el-table
     height="400px"
     v-loading="tableLoading" :data="tableData" style="width: 100%">
-    <el-table-column type="index" width="50" />
-    <el-table-column fixed prop="fileName" label="文件名称" width="400" />
+    <el-table-column type="index" label="序号" width="80" />
+    <el-table-column prop="fileName" label="文件名称" width="400" />
     <el-table-column prop="insertTime" label="发送时间" width="220" />
     <el-table-column prop="fromUserName" label="发送人" width="120" />
     <el-table-column fixed="right" label="操作" min-width="120">

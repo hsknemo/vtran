@@ -23,7 +23,7 @@
     font-size: 90px;
     left: 53%;
     transform: translate(-50%, -50%) rotate(199deg);
-    z-index: 0;
+    z-index: -1;
   }
   &:after {
     font-size: 86px;
