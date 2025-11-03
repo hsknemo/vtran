@@ -205,6 +205,7 @@ $block_bg_color: #1d1d1d;
     @include radius_box();
     margin-top: 10px;
     height: calc(100% - 10%);
+    overflow: auto;
 
     .user_list_item {
       position: relative;
