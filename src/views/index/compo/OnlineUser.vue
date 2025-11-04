@@ -12,16 +12,17 @@ import type { InterfaceOnlineUser } from '@/views/index/store/type/store.ts'
 const onRefresh = async () => {
   try {
     const res: InterfaceOnlineUser[] = await onlineUser({})
-    onLineUserList.onlineList = res.data
+    onLineUserList.onlineList = res.data || []
   } catch (e) {
     ElMessage.error(e.msg)
   }
 }
 
 const loopFetch = () => {
-  setTimeout(() => {
+  window._user_online_timeout = setTimeout(() => {
     onRefresh()
     loopFetch()
+    clearTimeout(window._user_online_timeout)
   }, 5000)
 }
 

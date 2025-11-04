@@ -32,7 +32,7 @@ const sendFile = async () => {
     formData.append('file', file.raw)
   })
   formData.append('toUserId', onLineUserList.curSelectUser)
-  formData.append('fromUserId', JSON.parse(useLocalStorage('user', '{}').value).id)
+  formData.append('fromUserId', JSON.parse(useLocalStorage('user').value).id)
   try {
     const res = await setFileToUserList(formData)
     ElMessage.success(res.data.msg)

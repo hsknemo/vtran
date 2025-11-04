@@ -4,6 +4,7 @@ import { loginUser } from '@/api/user/user.ts'
 import { ElMessage } from 'element-plus'
 import { loginOrRegisAction } from '@/utils/LoginAndRegis.ts'
 import { emitter } from '@/event/eventBus.ts'
+import { face_smile_to_life } from '@/utils/happyiness.ts'
 const emit = defineEmits(['close-login-page', 'show-create-page'])
 
 // 显式定义组件名（解决ESLint警告）
@@ -24,6 +25,7 @@ const onLogin = async () => {
     emit('close-login-page')
     loginOrRegisAction(res.data.token, res.data.data)
     ElMessage.success(res.msg)
+    face_smile_to_life()
     emitter.emit('refresh-user')
   } catch (e) {
     ElMessage.error(e.message)

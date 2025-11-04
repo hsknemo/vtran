@@ -1,5 +1,6 @@
 import axios, { type AxiosRequestConfig } from 'axios'
 import { ElMessage } from 'element-plus'
+import { emitter } from '@/event/eventBus.ts'
 // axios 配置拦截器
 axios.defaults.timeout = 30000;
 axios.defaults.baseURL = import.meta.env.VITE_API_URL + '/api';
@@ -13,10 +14,14 @@ axios.interceptors.request.use(
 );
 axios.interceptors.response.use(
   response => {
+    if (response.status === 401) {
+      clearTimeout(window._user_online_timeout)
+      emitter.emit('logout')
+    }
     if (!response?.data?.status) {
       throw new Error(response.data.msg)
     }
-    return response.data;
+    return response.data || [];
   },
   error => {
     const { response } = error;

@@ -7,7 +7,7 @@ interface InterfaceUserLocalStorage {
   id: string,
 }
 
-const v:InterfaceUserLocalStorage = JSON.parse(useLocalStorage('user', '{}').value)
+const v:InterfaceUserLocalStorage = JSON.parse(useLocalStorage('user').value)
 
 const userName = v.username
 

@@ -4,6 +4,7 @@ import { Bell, ChatDotRound } from '@element-plus/icons-vue'
 import { emitter } from '@/event/eventBus.ts'
 import Chat from '@/views/index/compo/Chat.vue'
 import { ElNotification } from 'element-plus'
+import { useLocalStorage } from '@vueuse/core'
 const emit = defineEmits(['exit'])
 const user = reactive({
   username: '',
@@ -38,9 +39,9 @@ const onInit = (args:never) => {
 }
 
 const onExit = _ => {
+  emit('exit')
   localStorage.removeItem('user')
   localStorage.removeItem('Auth')
-  emit('exit')
 }
 
 

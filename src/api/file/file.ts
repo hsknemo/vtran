@@ -1,6 +1,6 @@
 import { request } from '@/api/index.ts'
 import { useLocalStorage } from '@vueuse/core'
-const getToken = () => useLocalStorage('Auth', '').value
+const getToken = () => useLocalStorage('Auth').value
 
 export const setFileToUserList = (data:FormData) => request({
   method: 'post',

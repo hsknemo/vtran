@@ -11,7 +11,6 @@ import { emitter } from '../../event/eventBus.ts'
 import { useLocalStorage } from '@vueuse/core'
 import { Refresh } from '@element-plus/icons-vue'
 import socketReacktive from '@/stores/socket.ts'
-const ws = ref('')
 const reactive_data = reactive({
   page: false,
   showPage: true,
@@ -60,21 +59,29 @@ const onPageControl = (bool: boolean) => {
 const checkAuth = () => {
   const token = localStorage.getItem('Auth')
   if (!token) {
+    localStorage.removeItem('Auth')
+    localStorage.removeItem('user')
     reactive_data.showPage = true
     return onPageControl(true)
   }
   initWS()
   onClosePage()
 
-  const user = JSON.parse(useLocalStorage('user', '{}').value)
+  const user = JSON.parse(useLocalStorage('user').value)
   emitter.on(`refresh-user-list-${user.username}`, () => {
     emitter.emit('refresh-user')
   })
 }
 
+
 const onExit = () => {
+  localStorage.removeItem('Auth')
+  localStorage.removeItem('user')
   checkAuth()
 }
+
+emitter.on('logout', onExit)
+
 
 const onClosePage = () => {
   reactive_data.showPage = false
@@ -136,8 +143,9 @@ onMounted(() => {
 
     </template>
 
-
+<!--    <el-backtop :right="100" :bottom="200" target=".tran-container" :visibility-height="1"/>-->
   </main>
+
 </template>
 
 <style scoped lang="scss">
@@ -147,6 +155,8 @@ onMounted(() => {
   justify-content: $justContent;
 }
 .tran-container {
+  height: 100%;
+  //overflow: auto;
   .tip {
     margin: 10px 0;
     @include flexStyle(center);

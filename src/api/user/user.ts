@@ -20,7 +20,7 @@ export const loginUser = (data:object) => request({
 export const onlineUser = (data:object) => request({
   method: 'get',
   headers: {
-    Authorization: useLocalStorage('Auth', '').value
+    Authorization: useLocalStorage('Auth').value
   },
   url: '/user/online',
   data: data

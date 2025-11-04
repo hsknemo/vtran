@@ -1,0 +1,293 @@
+<script setup lang="ts">
+import { ElMessage } from 'element-plus'
+import { CloseBold, Plus, Promotion, Switch, User, Back } from '@element-plus/icons-vue'
+import CreateGroupForm from '@/views/index/compo/CreateGroupForm.vue'
+import { onMounted, reactive, ref } from 'vue'
+import { findOwnGroup, findOwnGroupUser } from '@/api/group/group.ts'
+import { useLocalStorage } from '@vueuse/core'
+import { chatMsgList } from '@/views/index/store/chat.ts'
+import InvitionUser from '@/views/index/compo/InvitionUser.vue'
+const groupShow = ref(false)
+const highlightIndex = ref(-1)
+const userMsg = ref('')
+const groupChat = reactive({
+  list: [],
+  curGroupUserList: [],
+})
+const user_list_drawer = ref(false)
+const direction = ref('rtl')
+const handleClose = (done) => {
+  done()
+}
+const props = defineProps({
+  groupPopControl: {
+    type: Object,
+    default: () => {
+      return {
+        show: false,
+      }
+    },
+  },
+})
+
+const onCloseLinkPanel = () => {
+  chatMsgList.currentGroup = ''
+}
+
+const onClosePop = () => {
+  props.groupPopControl.show = false
+}
+
+const onCreateGroup = () => {
+  groupShow.value = true
+}
+const onCloseCreateGroup = () => {
+  groupShow.value = false
+}
+
+/**
+ * 获取群列表
+ */
+const findOwnGroupFetch = async () => {
+  try {
+    const res = await findOwnGroup({
+      userId: JSON.parse(useLocalStorage('user').value).id,
+    })
+    groupChat.list = res.data
+  } catch (e) {
+    ElMessage.error('获取群列表失败')
+  }
+}
+
+const onChatToGroupUser = (row, index) => {
+  highlightIndex.value = index
+  chatMsgList.currentGroup = row
+}
+
+const onSend = () => {}
+
+const onMsgTip = () => {
+  ElMessage.success('愉快的聊天吧')
+}
+
+const onGetGroupUserList = () => {
+  user_list_drawer.value = !user_list_drawer.value
+  if (user_list_drawer.value) {
+    getGroupUserList()
+  } else {
+    groupChat.curGroupUserList = []
+  }
+}
+
+const getGroupUserList = async () => {
+  try {
+    const res = await findOwnGroupUser({
+      groupId: chatMsgList.currentGroup.id,
+    })
+    groupChat.curGroupUserList = res.data
+  } catch (e) {
+    ElMessage.error('获取群用户列表失败')
+  }
+}
+const invitationPanel = ref(false)
+const onInvitionUser = () => {
+  invitationPanel.value = !invitationPanel.value
+}
+
+/**
+ * 邀请人入组后 刷新列表 刷新组用户列表 刷新组用户
+ * @param groupId
+ */
+const onRefreshCurrentGroup = async (groupId:string) => {
+  await findOwnGroupFetch()
+  let groupData = groupChat.list.filter(item => item.id === groupId)
+  chatMsgList.currentGroup = groupData[0]
+  await getGroupUserList()
+}
+
+onMounted(() => {
+  findOwnGroupFetch()
+})
+</script>
+
+<template>
+  <el-dialog
+    @close="onClosePop"
+    class="tran_dialog"
+    v-model="groupPopControl.show"
+    title="组聊天"
+    :close-on-click-modal="false"
+    width="800"
+  >
+    <CreateGroupForm @form-reback="onCloseCreateGroup" v-if="groupShow" />
+    <main class="tran_chat_main" v-else>
+      <div class="left">
+        <header class="tran_chat_header">
+          <span>我的组</span>
+          <div class="btn_group">
+            <el-tooltip class="box-item" effect="light" content="创建组" placement="bottom">
+              <el-button @click="onCreateGroup" text :icon="Plus"></el-button>
+            </el-tooltip>
+          </div>
+        </header>
+
+        <main class="tran_chat_user_list">
+          <div
+            class="user_list_item"
+            :class="[
+              {
+                active: index === highlightIndex,
+              },
+            ]"
+            :key="index"
+            v-for="(item, index) in groupChat.list"
+            @click="onChatToGroupUser(item, index)"
+          >
+            <section :username="item.name.slice(0, 1)" class="group_name">
+              {{ item.name }}
+            </section>
+          </div>
+        </main>
+      </div>
+
+      <div class="right">
+        <template v-if="chatMsgList.currentGroup">
+          <header class="tran_chat_msg_header group">
+            <div class="user_name">
+              <section class="chat_tit">群聊：{{ chatMsgList.currentGroup.name }}</section>
+              <section @click="onGetGroupUserList" class="drawer_control">
+                <el-tooltip content="用户列表" effect="light">
+                  <el-icon><Switch /></el-icon>
+                </el-tooltip>
+              </section>
+            </div>
+
+            <div class="btn_group">
+              <el-button @click="onCloseLinkPanel" text :icon="CloseBold"></el-button>
+            </div>
+          </header>
+          <main class="tran_chat_area">
+            <section class="section_pop_chat" ref="chat_area">
+              <div
+                class="chat_pop"
+                :key="index"
+                :class="[item.isFrom ? 'user_left_pop' : 'user_right_pop']"
+                v-for="(item, index) in chatMsgList.groupList[chatMsgList.currentGroup.id]"
+              >
+                <div class="msg">
+                  {{ item.msg }}
+                </div>
+              </div>
+            </section>
+          </main>
+          <footer class="tran_chat_footer">
+            <el-input @keydown.enter="onSend" type="textarea" v-model="userMsg"></el-input>
+            <el-button @click="onSend" :icon="Promotion">发送</el-button>
+          </footer>
+        </template>
+
+        <div v-else class="tran_chat_logo_panel" @click="onMsgTip"></div>
+      </div>
+    </main>
+    <el-drawer
+      modal-class="chat_drawer"
+      :modal="false"
+      modal-penetrable
+      v-model="user_list_drawer"
+      title="用户列表"
+      :direction="direction"
+      :before-close="handleClose"
+    >
+      <section class="control_bar">
+        <el-tooltip placement="left" effect="light"
+                    :content="invitationPanel ? '返回' : '邀请成员'">
+          <el-button @click="onInvitionUser" :icon="invitationPanel ? Back : User" text>
+          </el-button>
+        </el-tooltip>
+      </section>
+      <InvitionUser
+        @refresh-current-group="onRefreshCurrentGroup"
+        :groupId="chatMsgList.currentGroup.id"
+        :hasGroupUser="chatMsgList.currentGroup.userList"
+        v-if="invitationPanel" />
+      <section v-else class="user_list">
+        <div
+          class="user_list_item"
+          :key="index"
+          v-for="(item, index) in groupChat.curGroupUserList"
+        >
+          <section
+            class="user_name"
+            :class="[
+              {
+                is_group_creator: item.id === chatMsgList.currentGroup.createUserId,
+              },
+            ]"
+          >
+            <el-icon v-if="item.id === chatMsgList.currentGroup.createUserId"><User /></el-icon>
+            <span class="name">{{ item.username }}</span>
+          </section>
+        </div>
+      </section>
+    </el-drawer>
+  </el-dialog>
+</template>
+
+<style scoped lang="scss">
+@use '@/assets/chat';
+</style>
+<style lang="scss">
+@mixin flexStyle($align: 'center', $justContent: 'space-around') {
+  display: flex;
+  align-items: $align;
+  justify-content: $justContent;
+}
+
+@mixin control_bar {
+  .control_bar {
+    margin-bottom: 5px;
+  }
+}
+
+@mixin user_list() {
+  .user_list {
+    height: calc(100% - 60px);
+    overflow: auto;
+
+    .user_list_item {
+      padding: 10px;
+      background-color: #1d1d1d;
+      margin-bottom: 10px;
+      border-radius: 5px;
+      &:last-child {
+        margin-bottom: unset;
+      }
+      .user_name {
+        @include flexStyle(center);
+
+        &.is_group_creator {
+          --color: gold;
+          .el-icon {
+            color: var(--color);
+          }
+          .name {
+            font-weight: bold;
+            color: var(--color);
+            margin-left: 10px;
+          }
+        }
+      }
+    }
+  }
+}
+.chat_drawer {
+  pointer-events: none !important;
+  .el-drawer {
+    pointer-events: auto !important;
+  }
+
+  @include user_list();
+
+  @include control_bar();
+}
+</style>

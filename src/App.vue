@@ -1,11 +1,26 @@
 <script setup lang="ts">
+import { onLineUserList } from '@/views/index/store/store.ts'
+
+
 </script>
 
 <template>
-  <section id="logo"></section>
+  <section id="logo">
+    <el-tooltip
+      v-if="onLineUserList.onlineList.length"
+      effect="light"
+      content="当前加入用户数，感谢使用Tran"
+      placement="right"
+    >
+         <span class="regis_user">
+            {{ onLineUserList.onlineList.length }}
+         </span>
+    </el-tooltip>
+
+  </section>
   <RouterView />
-  <el-backtop :right="10" :bottom="200" />
 </template>
+
 
 <style scoped>
 header {
@@ -71,6 +86,13 @@ nav a:first-of-type {
 }
 </style>
 <style lang="scss">
+#app {
+  height: 100%;
+  overflow: hidden;
+}
+body {
+  overflow: hidden;
+}
 @mixin flexStyle($align:'center', $justContent:'space-around') {
   display: flex;
   align-items: $align;
@@ -82,6 +104,21 @@ nav a:first-of-type {
   height: 50px;
   background-size: 100% 100%;
   background-image: url("/Tran.png");
+}
+
+@mixin hover-highlight-text($startColor:#e7ff00, $endColor:#f46527) {
+  &:hover {
+    background-image: linear-gradient(to right,  $startColor, $endColor);
+    background-clip: text;
+    color: transparent;
+  }
+}
+.regis_user {
+  color: gold;
+  font-weight: bold;
+  padding-left: 50px;
+  font-size: 30px;
+  @include hover-highlight-text()
 }
 
 </style>
