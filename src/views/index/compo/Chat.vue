@@ -10,6 +10,7 @@ import { emitter } from '@/event/eventBus.ts'
 import GroupChat from '@/views/index/compo/GroupChat.vue'
 const highlightIndex = ref(-1)
 const userMsg = ref('')
+const isSaveUserChatMsg = ref(false)
 
 defineComponent({
   name: 'ChatMessage',
@@ -25,7 +26,7 @@ const props = defineProps({
 
 const chat_area = ref('chat_area')
 const groupPopControl = reactive({
-  show: true,
+  show: false,
 })
 
 const onChatToUser = (row, index) => {
@@ -73,6 +74,8 @@ const onSend = async () => {
   scrollToView()
 
   userMsg.value = ''
+
+  saveUserInfo()
 }
 
 const getCurChatMsg = ({ data }) => {
@@ -95,19 +98,60 @@ const getCurChatMsg = ({ data }) => {
   } else {
     scrollToView()
   }
+
+  saveUserInfo()
 }
 
 const onClosePop = () => {
   chatMsgList.currentUser = ''
 }
 
-onMounted(() => {
-  emitter.on('client-chat-message', getCurChatMsg)
-})
+
 
 const onOpenGroup = () => {
   groupPopControl.show = true
 }
+
+const saveUserInfo = () => {
+  let isSave = localStorage.getItem('isSaveUserChatMsg')
+  if (isSave == 'true') {
+    try {
+      localStorage.setItem('userChatData', JSON.stringify(chatMsgList.list))
+    } catch (e) {
+      ElMessage.warning('用户聊天信息保存失败', e)
+    }
+  }
+}
+
+const onChangeUserChatSave = (val) => {
+  console.log('保存群消息', val)
+  if (val) {
+    localStorage.setItem('isSaveUserChatMsg', 'true')
+    saveUserInfo()
+  } else {
+    localStorage.setItem('isSaveUserChatMsg', 'false')
+  }
+}
+/**
+ * 挂载时候是否要读取用户聊天信息
+ */
+const mountedGetUserChatMsgData = () => {
+  let isSave = localStorage.getItem('isSaveUserChatMsg')
+  if (isSave == 'true') {
+    isSaveUserChatMsg.value = true
+    let userChatMsgData = localStorage.getItem('userChatData')
+    if (userChatMsgData) {
+      chatMsgList.list = JSON.parse(userChatMsgData)
+    }
+  }
+}
+
+
+onMounted(() => {
+  emitter.on('client-chat-message', getCurChatMsg)
+
+  mountedGetUserChatMsgData()
+})
 </script>
 
 <template>
@@ -126,9 +170,8 @@ const onOpenGroup = () => {
       <!--      用户列表区域-->
       <div class="left">
         <header class="tran_chat_header">
-          <span>用户列表</span>
+          <span>用户列</span>
           <div class="btn_group">
-
             <el-tooltip
               class="box-item"
               effect="light"
@@ -136,6 +179,17 @@ const onOpenGroup = () => {
               placement="bottom"
             >
               <el-button @click="onOpenGroup" text :icon="HomeFilled"></el-button>
+            </el-tooltip>
+
+            <el-tooltip class="box-item" effect="light" content="保存消息到本地" placement="bottom">
+              <el-switch
+                @change="onChangeUserChatSave"
+                v-model="isSaveUserChatMsg"
+                style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949"
+                inline-prompt
+                active-text="是"
+                inactive-text="否"
+              />
             </el-tooltip>
           </div>
         </header>

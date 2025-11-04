@@ -97,12 +97,14 @@ $block_bg_color: #1d1d1d;
 
 @mixin section_pop_chat() {
   .section_pop_chat {
+    width: 100%;
     .chat_pop {
       width: 100%;
       @include flexStyle(center);
       margin-bottom: 10px;
       .msg {
         width: fit-content;
+        word-break: break-all;
         @include radius_box(#353535, 10px 10px, 5px);
       }
       .dict {
@@ -115,6 +117,27 @@ $block_bg_color: #1d1d1d;
       &.user_left_pop {
         .msg {
           background-color: #388e3c;
+        }
+      }
+
+      &.group_chat_pop {
+        &.user_right_pop {
+          flex-direction: row-reverse;
+        }
+
+        .time {
+          font-size: 12px;
+        }
+
+        .msg {
+          margin: 0 10px;
+        }
+
+        .user_show {
+          font-weight:  bold;
+          --size: 30px;
+          width: fit-content;
+          height: var(--size);
         }
       }
     }

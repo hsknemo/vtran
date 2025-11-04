@@ -11,6 +11,7 @@ import { emitter } from '../../event/eventBus.ts'
 import { useLocalStorage } from '@vueuse/core'
 import { Refresh } from '@element-plus/icons-vue'
 import socketReacktive from '@/stores/socket.ts'
+
 const reactive_data = reactive({
   page: false,
   showPage: true,
@@ -18,11 +19,10 @@ const reactive_data = reactive({
 
 const isTableShow = ref(true)
 
-
 function initWS() {
   if (!socketReacktive.ws) {
     socketReacktive.ws = new Socket({
-      url: 'ws://' + window.location.hostname + ':'+ import.meta.env.VITE_WS_LINK_ADDR,
+      url: 'ws://' + window.location.hostname + ':' + import.meta.env.VITE_WS_LINK_ADDR,
       name: '',
       isHeart: true, // 是否心跳
       isReconnection: true, // 是否断开重连
@@ -33,7 +33,7 @@ function initWS() {
           default:
             break
           case 'refreshMessage':
-            emitter.emit(parseData.data + '-'  +parseData.value)
+            emitter.emit(parseData.data + '-' + parseData.value)
             break
           case 'profile-message':
             emitter.emit('profile-message', parseData)
@@ -41,6 +41,10 @@ function initWS() {
           // 聊天事件
           case 'client-chat-message':
             emitter.emit('client-chat-message', parseData)
+            break
+          // 组聊天事件
+          case 'client-chat-group-message':
+            emitter.emit('client-chat-group-message', parseData)
             break
         }
       },
@@ -73,7 +77,6 @@ const checkAuth = () => {
   })
 }
 
-
 const onExit = () => {
   localStorage.removeItem('Auth')
   localStorage.removeItem('user')
@@ -82,12 +85,11 @@ const onExit = () => {
 
 emitter.on('logout', onExit)
 
-
 const onClosePage = () => {
   reactive_data.showPage = false
 }
 
-const slide_table_list = (bellBool:boolean) => {
+const slide_table_list = (bellBool: boolean) => {
   isTableShow.value = bellBool
 }
 
@@ -100,7 +102,6 @@ onMounted(() => {
   checkAuth()
 
   emitter.on('slide-table-list', slide_table_list)
-
 })
 </script>
 
@@ -134,26 +135,24 @@ onMounted(() => {
         <div class="tip">
           发送给我的文件列表
           <section class="btn_control_area">
-            <el-button text @click="onTableRefresh" :icon="Refresh"> </el-button>
+            <el-button text @click="onTableRefresh" :icon="Refresh"></el-button>
           </section>
         </div>
         <ProfileFileList ref="tableRef" />
       </section>
-
-
     </template>
 
-<!--    <el-backtop :right="100" :bottom="200" target=".tran-container" :visibility-height="1"/>-->
+    <!--    <el-backtop :right="100" :bottom="200" target=".tran-container" :visibility-height="1"/>-->
   </main>
-
 </template>
 
 <style scoped lang="scss">
-@mixin flexStyle($align:'center', $justContent:'space-around') {
+@mixin flexStyle($align: 'center', $justContent: 'space-around') {
   display: flex;
   align-items: $align;
   justify-content: $justContent;
 }
+
 .tran-container {
   height: 100%;
   //overflow: auto;

@@ -15,10 +15,8 @@ const validateName = (rule: any, value: any, callback: any) => {
     callback(new Error('请输入群名称'))
   } else {
     if (ruleForm.name !== '') {
-      if (!ruleFormRef.value) return
-      ruleFormRef.value.validateField('name')
+      return true
     }
-    callback()
   }
 }
 const rules = reactive<FormRules<typeof ruleForm>>({
@@ -43,6 +41,7 @@ const resetForm = (formEl: FormInstance | undefined) => {
   selectUserList.value.clear()
 }
 const submitForm = async (formEl: FormInstance | undefined) => {
+  if (!formEl) return
   formEl.validate(valide => {
     if (valide) {
       createGroupFetch()
@@ -103,7 +102,7 @@ const createGroupFetch = async () => {
     </el-form-item>
     <el-form-item>
       <div class="block_control">
-        <el-button type="primary" @click="submitForm(ruleFormRef)">
+        <el-button type="primary" @click="() => submitForm(ruleFormRef)">
           确认
         </el-button>
         <el-button @click="resetForm(ruleFormRef)">重置</el-button>

@@ -2,11 +2,15 @@
 import { ElMessage } from 'element-plus'
 import { CloseBold, Plus, Promotion, Switch, User, Back } from '@element-plus/icons-vue'
 import CreateGroupForm from '@/views/index/compo/CreateGroupForm.vue'
-import { onMounted, reactive, ref } from 'vue'
+import { nextTick, onMounted, reactive, ref } from 'vue'
 import { findOwnGroup, findOwnGroupUser } from '@/api/group/group.ts'
 import { useLocalStorage } from '@vueuse/core'
 import { chatMsgList } from '@/views/index/store/chat.ts'
 import InvitionUser from '@/views/index/compo/InvitionUser.vue'
+import socketReactive from '@/stores/socket.ts'
+import { emitter } from '@/event/eventBus.ts'
+import moment from 'moment'
+const isSaveGroup = ref(false)
 const groupShow = ref(false)
 const highlightIndex = ref(-1)
 const userMsg = ref('')
@@ -54,6 +58,7 @@ const findOwnGroupFetch = async () => {
       userId: JSON.parse(useLocalStorage('user').value).id,
     })
     groupChat.list = res.data
+    groupShow.value = false
   } catch (e) {
     ElMessage.error('获取群列表失败')
   }
@@ -63,8 +68,43 @@ const onChatToGroupUser = (row, index) => {
   highlightIndex.value = index
   chatMsgList.currentGroup = row
 }
+const chat_area = ref('chat_area')
 
-const onSend = () => {}
+const scrollToView = async () => {
+  await nextTick(_ => {
+    // 滚动到底部
+    setTimeout(_ => {
+      chat_area.value.scrollIntoView({ behavior: 'smooth', block: 'end' })
+    }, 50)
+  })
+}
+
+const onSend = () => {
+  if (userMsg.value === '') return ElMessage.warning('输入内容为空')
+  let ifUserList = (chatMsgList.currentGroup.userList.length == 1)
+  chatMsgList.currentGroup.session_id = chatMsgList.currentGroup.id
+  chatMsgList.currentGroup.sendMsg = userMsg
+  chatMsgList.currentGroup.from = JSON.parse(useLocalStorage('user').value)
+  // 有群用户的情况下 推送消息给其他用户
+  if (!ifUserList) {
+    socketReactive?.ws?.ws?.send(
+      JSON.stringify({
+        type: 'client-chat-group-message',
+        data: chatMsgList.currentGroup,
+      }),
+    )
+  }
+
+  chatMsgList.groupList[chatMsgList.currentGroup.id] = chatMsgList.groupList[chatMsgList.currentGroup.id] || []
+  chatMsgList.groupList[chatMsgList.currentGroup.id].push({
+    isFrom: false,
+    msg: chatMsgList.currentGroup.sendMsg,
+  })
+
+  scrollToView()
+  userMsg.value = ''
+  saveGroupInfo()
+}
 
 const onMsgTip = () => {
   ElMessage.success('愉快的聊天吧')
@@ -100,13 +140,71 @@ const onInvitionUser = () => {
  */
 const onRefreshCurrentGroup = async (groupId:string) => {
   await findOwnGroupFetch()
-  let groupData = groupChat.list.filter(item => item.id === groupId)
+  const groupData = groupChat.list.filter(item => item.id === groupId)
   chatMsgList.currentGroup = groupData[0]
   await getGroupUserList()
 }
 
+/**
+ * @description 接收群消息
+ * @param data
+ */
+const getCurChatMsg = ({ data }) => {
+  console.log('获取当前的聊天信息...', data.sendMsg)
+  chatMsgList.groupList[data.session_id] = chatMsgList.groupList[data.session_id] || []
+  chatMsgList.groupList[data.session_id].push({
+    isFrom: true,
+    username: data.fromUser.username,
+    msg: data.sendMsg,
+  })
+
+  scrollToView()
+
+  saveGroupInfo()
+}
+
+const saveGroupInfo = () => {
+  let isSave = localStorage.getItem('isSaveGroup')
+  if (isSave == 'true') {
+    try {
+      localStorage.setItem('groupData', JSON.stringify(chatMsgList.groupList))
+    } catch (e) {
+      ElMessage.warning('组信息保存失败', e)
+    }
+  }
+}
+
+const onChangeGroupSave = (val) => {
+  console.log('保存群消息', val)
+  if (val) {
+    localStorage.setItem('isSaveGroup', 'true')
+    saveGroupInfo()
+  } else {
+    localStorage.setItem('isSaveGroup', 'false')
+  }
+}
+
+/**
+ * 挂载时候是否要读取组信息
+ */
+const mountedGetGroupData = () => {
+  let isSave = localStorage.getItem('isSaveGroup')
+  if (isSave == 'true') {
+    isSaveGroup.value = true
+    let groupData = localStorage.getItem('groupData')
+    if (groupData) {
+      chatMsgList.groupList = JSON.parse(groupData)
+    }
+  }
+}
+
 onMounted(() => {
   findOwnGroupFetch()
+
+  // 接收群消息
+  emitter.on('client-chat-group-message', getCurChatMsg)
+
+  mountedGetGroupData()
 })
 </script>
 
@@ -119,7 +217,9 @@ onMounted(() => {
     :close-on-click-modal="false"
     width="800"
   >
-    <CreateGroupForm @form-reback="onCloseCreateGroup" v-if="groupShow" />
+    <CreateGroupForm
+      @group-created="findOwnGroupFetch"
+      @form-reback="onCloseCreateGroup" v-if="groupShow" />
     <main class="tran_chat_main" v-else>
       <div class="left">
         <header class="tran_chat_header">
@@ -127,6 +227,16 @@ onMounted(() => {
           <div class="btn_group">
             <el-tooltip class="box-item" effect="light" content="创建组" placement="bottom">
               <el-button @click="onCreateGroup" text :icon="Plus"></el-button>
+            </el-tooltip>
+            <el-tooltip class="box-item" effect="light" content="保存消息到本地" placement="bottom">
+              <el-switch
+                @change="onChangeGroupSave"
+                v-model="isSaveGroup"
+                style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949"
+                inline-prompt
+                active-text="是"
+                inactive-text="否"
+              />
             </el-tooltip>
           </div>
         </header>
@@ -146,6 +256,11 @@ onMounted(() => {
             <section :username="item.name.slice(0, 1)" class="group_name">
               {{ item.name }}
             </section>
+
+            <div class="avtor_msg_total" v-if="chatMsgList.groupList[item.id]">
+              <el-badge :value="chatMsgList.groupList[item.id].length">
+              </el-badge>
+            </div>
           </div>
         </main>
       </div>
@@ -169,14 +284,21 @@ onMounted(() => {
           <main class="tran_chat_area">
             <section class="section_pop_chat" ref="chat_area">
               <div
-                class="chat_pop"
+                class="chat_pop group_chat_pop"
                 :key="index"
                 :class="[item.isFrom ? 'user_left_pop' : 'user_right_pop']"
                 v-for="(item, index) in chatMsgList.groupList[chatMsgList.currentGroup.id]"
               >
-                <div class="msg">
-                  {{ item.msg }}
+                <div class="user_show">
+                  {{ item.isFrom ? item.username : '我' }}
                 </div>
+                <div>
+
+                  <div class="msg">
+                    {{ item.msg }}
+                  </div>
+                </div>
+
               </div>
             </section>
           </main>
