@@ -146,9 +146,16 @@ const mountedGetUserChatMsgData = () => {
   }
 }
 
-
+const clearChatAllOnExit = () => {
+  chatMsgList.list = {}
+  chatMsgList.currentUser = ''
+  chatMsgList.groupList = {}
+  chatMsgList.currentGroup = ''
+}
 onMounted(() => {
   emitter.on('client-chat-message', getCurChatMsg)
+
+  emitter.on('clear-chat-all', clearChatAllOnExit)
 
   mountedGetUserChatMsgData()
 })

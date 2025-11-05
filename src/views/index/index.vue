@@ -2,6 +2,7 @@
 import TranUpload from '@/views/index/compo/TranUpload.vue'
 import OnlineUser from '@/views/index/compo/OnlineUser.vue'
 import ProfileFileList from '@/views/index/compo/ProfileFileList.vue'
+import ProfileSentOtherUserList from '@/views/index/compo/ProfileSentOtherUserList.vue'
 import Socket from '@/utils/socket.js'
 import { onMounted, reactive, ref } from 'vue'
 import CreateUser from '@/views/index/compo/CreateUser.vue'
@@ -11,6 +12,7 @@ import { emitter } from '../../event/eventBus.ts'
 import { useLocalStorage } from '@vueuse/core'
 import { Refresh } from '@element-plus/icons-vue'
 import socketReacktive from '@/stores/socket.ts'
+import { onLineUserList } from '@/views/index/store/store.ts'
 
 const reactive_data = reactive({
   page: false,
@@ -32,6 +34,10 @@ function initWS() {
         switch (parseData.type) {
           default:
             break
+          case 'pong':
+            // 心跳回应:
+            emitter.emit('pone')
+            break
           case 'refreshMessage':
             emitter.emit(parseData.data + '-' + parseData.value)
             break
@@ -45,6 +51,10 @@ function initWS() {
           // 组聊天事件
           case 'client-chat-group-message':
             emitter.emit('client-chat-group-message', parseData)
+            break
+          // 群聊加入事件
+          case 'chat-group-add-user-event':
+            emitter.emit('chat-group-add-user-event', parseData)
             break
         }
       },
@@ -80,6 +90,12 @@ const checkAuth = () => {
 const onExit = () => {
   localStorage.removeItem('Auth')
   localStorage.removeItem('user')
+  localStorage.removeItem('isSaveGroup')
+  localStorage.removeItem('groupData')
+  localStorage.removeItem('isSaveUserChatMsg')
+  localStorage.removeItem('userChatData')
+  emitter.emit('clear-chat-all')
+  onLineUserList.onlineList = []
   checkAuth()
 }
 
@@ -94,12 +110,27 @@ const slide_table_list = (bellBool: boolean) => {
 }
 
 const tableRef = ref('tableRef')
+const profileSentRef = ref('profileSentRef')
 const onTableRefresh = () => {
   tableRef.value.get_file_list()
 }
 
+const onTableRefreshProfile = () => {
+  profileSentRef.value.get_file_list()
+}
+
+/**
+ * 刷新两个表格数据
+ */
+const get_all_table_list = () => {
+  onTableRefresh()
+  onTableRefreshProfile()
+}
+
 onMounted(() => {
   checkAuth()
+
+  emitter.on('refresh-file', get_all_table_list)
 
   emitter.on('slide-table-list', slide_table_list)
 })
@@ -139,6 +170,16 @@ onMounted(() => {
           </section>
         </div>
         <ProfileFileList ref="tableRef" />
+      </section>
+
+      <section v-show="isTableShow">
+        <div class="tip">
+          我发送的文件列表
+          <section class="btn_control_area">
+            <el-button text @click="onTableRefreshProfile" :icon="Refresh"></el-button>
+          </section>
+        </div>
+        <ProfileSentOtherUserList ref="profileSentRef"/>
       </section>
     </template>
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElNotification } from 'element-plus'
 import { CloseBold, Plus, Promotion, Switch, User, Back } from '@element-plus/icons-vue'
 import CreateGroupForm from '@/views/index/compo/CreateGroupForm.vue'
 import { nextTick, onMounted, reactive, ref } from 'vue'
@@ -71,9 +71,9 @@ const onChatToGroupUser = (row, index) => {
 const chat_area = ref('chat_area')
 
 const scrollToView = async () => {
-  await nextTick(_ => {
+  await nextTick((_) => {
     // 滚动到底部
-    setTimeout(_ => {
+    setTimeout((_) => {
       chat_area.value.scrollIntoView({ behavior: 'smooth', block: 'end' })
     }, 50)
   })
@@ -81,7 +81,7 @@ const scrollToView = async () => {
 
 const onSend = () => {
   if (userMsg.value === '') return ElMessage.warning('输入内容为空')
-  let ifUserList = (chatMsgList.currentGroup.userList.length == 1)
+  let ifUserList = chatMsgList.currentGroup.userList.length == 1
   chatMsgList.currentGroup.session_id = chatMsgList.currentGroup.id
   chatMsgList.currentGroup.sendMsg = userMsg
   chatMsgList.currentGroup.from = JSON.parse(useLocalStorage('user').value)
@@ -95,7 +95,8 @@ const onSend = () => {
     )
   }
 
-  chatMsgList.groupList[chatMsgList.currentGroup.id] = chatMsgList.groupList[chatMsgList.currentGroup.id] || []
+  chatMsgList.groupList[chatMsgList.currentGroup.id] =
+    chatMsgList.groupList[chatMsgList.currentGroup.id] || []
   chatMsgList.groupList[chatMsgList.currentGroup.id].push({
     isFrom: false,
     msg: chatMsgList.currentGroup.sendMsg,
@@ -138,9 +139,9 @@ const onInvitionUser = () => {
  * 邀请人入组后 刷新列表 刷新组用户列表 刷新组用户
  * @param groupId
  */
-const onRefreshCurrentGroup = async (groupId:string) => {
+const onRefreshCurrentGroup = async (groupId: string) => {
   await findOwnGroupFetch()
-  const groupData = groupChat.list.filter(item => item.id === groupId)
+  const groupData = groupChat.list.filter((item) => item.id === groupId)
   chatMsgList.currentGroup = groupData[0]
   await getGroupUserList()
 }
@@ -198,11 +199,25 @@ const mountedGetGroupData = () => {
   }
 }
 
+const addGroupFromUser = async ({ data }) => {
+  let userId = JSON.parse(useLocalStorage('user').value).id
+  if (data.createUserId == userId) {
+    return
+  }
+  ElNotification({
+    title: `有一条新的消息！---- 来自群聊添加`,
+    message: `您被添加到新的群聊【${data.name}】，正在刷新群列表...`,
+    type: 'success',
+  })
+  await findOwnGroupFetch()
+}
 onMounted(() => {
   findOwnGroupFetch()
 
   // 接收群消息
   emitter.on('client-chat-group-message', getCurChatMsg)
+
+  emitter.on('chat-group-add-user-event', addGroupFromUser)
 
   mountedGetGroupData()
 })
@@ -219,7 +234,9 @@ onMounted(() => {
   >
     <CreateGroupForm
       @group-created="findOwnGroupFetch"
-      @form-reback="onCloseCreateGroup" v-if="groupShow" />
+      @form-reback="onCloseCreateGroup"
+      v-if="groupShow"
+    />
     <main class="tran_chat_main" v-else>
       <div class="left">
         <header class="tran_chat_header">
@@ -258,8 +275,7 @@ onMounted(() => {
             </section>
 
             <div class="avtor_msg_total" v-if="chatMsgList.groupList[item.id]">
-              <el-badge :value="chatMsgList.groupList[item.id].length">
-              </el-badge>
+              <el-badge :value="chatMsgList.groupList[item.id].length"> </el-badge>
             </div>
           </div>
         </main>
@@ -293,12 +309,10 @@ onMounted(() => {
                   {{ item.isFrom ? item.username : '我' }}
                 </div>
                 <div>
-
                   <div class="msg">
                     {{ item.msg }}
                   </div>
                 </div>
-
               </div>
             </section>
           </main>
@@ -321,8 +335,11 @@ onMounted(() => {
       :before-close="handleClose"
     >
       <section class="control_bar">
-        <el-tooltip placement="left" effect="light"
-                    :content="invitationPanel ? '返回' : '邀请成员'">
+        <el-tooltip
+          placement="left"
+          effect="light"
+          :content="invitationPanel ? '返回' : '邀请成员'"
+        >
           <el-button @click="onInvitionUser" :icon="invitationPanel ? Back : User" text>
           </el-button>
         </el-tooltip>
@@ -331,7 +348,8 @@ onMounted(() => {
         @refresh-current-group="onRefreshCurrentGroup"
         :groupId="chatMsgList.currentGroup.id"
         :hasGroupUser="chatMsgList.currentGroup.userList"
-        v-if="invitationPanel" />
+        v-if="invitationPanel"
+      />
       <section v-else class="user_list">
         <div
           class="user_list_item"

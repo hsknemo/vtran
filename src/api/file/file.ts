@@ -20,6 +20,15 @@ export const getFileList = () => request({
   url: 'file/list',
 })
 
+export const getMineFileList = () => request({
+  method: 'get',
+  headers: {
+    Authorization: getToken(),
+  },
+  url: 'file/mine/list',
+})
+
+
 export const deleteFile = (data:object) => request({
   method: 'post',
   headers: {

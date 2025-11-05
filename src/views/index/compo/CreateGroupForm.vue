@@ -128,7 +128,9 @@ const createGroupFetch = async () => {
 
     .user_info_item {
       cursor: pointer;
-      width: 50px;
+      width: fit-content;
+      min-width: 50px;
+      padding: 0 10px;
       height: 50px;
       line-height: 50px;
       text-align: center;

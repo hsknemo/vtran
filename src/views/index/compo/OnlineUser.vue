@@ -22,7 +22,6 @@ const loopFetch = () => {
   window._user_online_timeout = setTimeout(() => {
     onRefresh()
     loopFetch()
-    clearTimeout(window._user_online_timeout)
   }, 5000)
 }
 
@@ -37,7 +36,11 @@ onMounted((_) => {
 
 <template>
   <section class="v_tran_select">
-    <el-select placeholder="请选择指定发送用户" v-model="onLineUserList.curSelectUser">
+    <el-select
+      filterable
+      clearable
+      placeholder="请选择指定发送用户"
+      v-model="onLineUserList.curSelectUser">
       <el-option
         :key="index"
         v-for="(item, index) in onLineUserList.onlineList"

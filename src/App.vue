@@ -90,11 +90,10 @@ nav a:first-of-type {
 </style>
 <style lang="scss">
 #app {
+  margin: 10px auto;
   height: 100%;
-  overflow: hidden;
 }
 body {
-  overflow: hidden;
 }
 @mixin flexStyle($align:'center', $justContent:'space-around') {
   display: flex;

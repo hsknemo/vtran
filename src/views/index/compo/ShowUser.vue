@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
-import { Bell, ChatDotRound } from '@element-plus/icons-vue'
+import { Bell, ChatDotRound, Connection } from '@element-plus/icons-vue'
 import { emitter } from '@/event/eventBus.ts'
 import Chat from '@/views/index/compo/Chat.vue'
 import { ElNotification } from 'element-plus'
@@ -12,6 +12,12 @@ const user = reactive({
 const dialogSet = reactive({
   show: false,
 })
+
+const connectStatus = reactive({
+  status: 'danger',
+  statusText: '未连接',
+})
+
 const msg = ref('')
 const bellLen = ref(0)
 const bellV = ref(true)
@@ -94,8 +100,12 @@ onMounted(_ => {
   onStartWelcomeMsg()
 
   document.addEventListener('click', function () {
-    audio.value.muted = true
-    audio.value.play()
+    try {
+      audio.value.muted = true
+      audio.value.play()
+    } catch (e) {
+    }
+
   })
 
   emitter.on('refresh-bell-length', (len:number) => {
@@ -104,7 +114,9 @@ onMounted(_ => {
 
   emitter.on('profile-message', (data) => {
     // 接收到发送给自己的文件 刷新文件列表
-    emitter.emit('refresh-file')
+    setTimeout(_ => {
+      emitter.emit('refresh-file')
+    }, 1000)
     ElNotification({
       title: `接收到新文件`,
       type: 'success',
@@ -114,6 +126,12 @@ onMounted(_ => {
   emitter.on('chat-message-bell', data => {
     chatLen.value += 1
     playAudio()
+  })
+
+  emitter.on('pone', (data) => {
+    if (connectStatus.status === 'success') return
+    connectStatus.status = 'success'
+    connectStatus.statusText = '已连接'
   })
 })
 </script>
@@ -125,6 +143,10 @@ onMounted(_ => {
     </h3>
     <audio ref="audio" src="/record/message.mp3"></audio>
     <section class="btn_group">
+      <el-tag :type="connectStatus.status">
+        <el-icon><Connection /></el-icon>
+        <span>{{ connectStatus.statusText }}</span>
+      </el-tag>
       <el-button @click="onChatClick" class="ani_bell" text :icon="ChatDotRound">
         <span class="success">{{ chatLen }}</span>
       </el-button>
@@ -176,6 +198,15 @@ onMounted(_ => {
   .success {
     color: #fff;
     font-weight: bold;
+  }
+
+  .btn_group {
+    :deep .el-tag__content {
+      @include flexStyle(center);
+      span {
+        margin-left: 4px;
+      }
+    }
   }
 }
 </style>
