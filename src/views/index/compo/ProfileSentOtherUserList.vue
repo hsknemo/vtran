@@ -12,7 +12,6 @@ const get_file_list = async () => {
     tableLoading.value = true
     const res = await getMineFileList()
     tableData = res.data
-    emitter.emit('refresh-bell-length', tableData.length)
   } catch (e) {
     ElMessage.error('文件列表获取失败：', e.message)
   } finally {
