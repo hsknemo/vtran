@@ -194,7 +194,7 @@ onMounted(() => {
     v-model="popControl.show"
     title="聊天"
     :close-on-click-modal="false"
-    width="800"
+    width="90%"
   >
     <main class="tran_chat_main">
       <!--      用户列表区域-->

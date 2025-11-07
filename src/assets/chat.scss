@@ -16,6 +16,9 @@ $block_bg_color: #1d1d1d;
   .tran_chat_header {
     @include flexStyle(center);
     @include radius_box();
+    span {
+      white-space: nowrap;
+    }
   }
 }
 
@@ -23,7 +26,7 @@ $block_bg_color: #1d1d1d;
   .tran_chat_user_list {
     @include radius_box();
     margin-top: 10px;
-    height: calc(100% - 10%);
+    height: calc(100% - 9%);
     overflow: auto;
 
     .user_list_item {
@@ -212,6 +215,7 @@ $block_bg_color: #1d1d1d;
       @include tran_chat_user_list();
     }
     .right {
+      width: calc(100% - 20%);
       flex: 1;
       margin-left: 10px;
       @include radius_box();

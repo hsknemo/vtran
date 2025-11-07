@@ -250,7 +250,7 @@ onMounted(() => {
     v-model="groupPopControl.show"
     title="组聊天"
     :close-on-click-modal="false"
-    width="800"
+    width="90%"
   >
     <CreateGroupForm
       @group-created="findOwnGroupFetch"
@@ -260,7 +260,7 @@ onMounted(() => {
     <main class="tran_chat_main" v-else>
       <div class="left">
         <header class="tran_chat_header">
-          <span>我的组</span>
+          <span>群聊</span>
           <div class="btn_group">
             <el-tooltip class="box-item" effect="light" content="创建组" placement="bottom">
               <el-button @click="onCreateGroup" text :icon="Plus"></el-button>
@@ -403,7 +403,6 @@ onMounted(() => {
       </section>
     </el-drawer>
 
-    {{ groupPopControl.show }}
     <mono-dialog
       :is-group="true"
       v-if="groupPopControl.show"
