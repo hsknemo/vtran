@@ -9,7 +9,10 @@ import { chatMsgList } from '@/views/index/store/chat.ts'
 import InvitionUser from '@/views/index/compo/InvitionUser.vue'
 import socketReactive from '@/stores/socket.ts'
 import { emitter } from '@/event/eventBus.ts'
-import moment from 'moment'
+import ChatUtilsBar from '@/views/index/compo/ChatUtilsBar.vue'
+import { codeGroupReactive } from '@/views/index/service/ChatUtilsService/chatUtils.ts'
+import MonoDialog from '@/views/index/pageComponent/MonoDialog.vue'
+import MarkdownMsg from '@/views/index/chatCompo/MarkdownMsg.vue'
 const isSaveGroup = ref(false)
 const groupShow = ref(false)
 const highlightIndex = ref(-1)
@@ -105,6 +108,8 @@ const onSend = () => {
   scrollToView()
   userMsg.value = ''
   saveGroupInfo()
+
+
 }
 
 const onMsgTip = () => {
@@ -162,6 +167,8 @@ const getCurChatMsg = ({ data }) => {
   scrollToView()
 
   saveGroupInfo()
+
+
 }
 
 const saveGroupInfo = () => {
@@ -195,6 +202,8 @@ const mountedGetGroupData = () => {
     let groupData = localStorage.getItem('groupData')
     if (groupData) {
       chatMsgList.groupList = JSON.parse(groupData)
+
+
     }
   }
 }
@@ -211,6 +220,17 @@ const addGroupFromUser = async ({ data }) => {
   })
   await findOwnGroupFetch()
 }
+
+// 点击编辑器
+const onCodeEditorEnter = (val) => {
+  userMsg.value = val
+}
+
+
+const onEmojiTextSelect = emoji => {
+  userMsg.value += emoji
+}
+
 onMounted(() => {
   findOwnGroupFetch()
 
@@ -310,15 +330,27 @@ onMounted(() => {
                 </div>
                 <div>
                   <div class="msg">
-                    {{ item.msg }}
+<!--                    {{ item.msg }}-->
+                    <component
+                      :value="item.msg"
+                      :is="MarkdownMsg"></component>
                   </div>
                 </div>
               </div>
             </section>
           </main>
           <footer class="tran_chat_footer">
-            <el-input @keydown.enter="onSend" type="textarea" v-model="userMsg"></el-input>
-            <el-button @click="onSend" :icon="Promotion">发送</el-button>
+            <section class="footer_item none_flex_end">
+              <ChatUtilsBar
+                :is-group="true"
+                @emoji-text-select="onEmojiTextSelect"
+              />
+            </section>
+            <section class="footer_item">
+              <el-input  type="textarea" v-model="userMsg"></el-input>
+              <el-button @click="onSend" :icon="Promotion">发送</el-button>
+            </section>
+
           </footer>
         </template>
 
@@ -370,7 +402,16 @@ onMounted(() => {
         </div>
       </section>
     </el-drawer>
+
+    {{ groupPopControl.show }}
+    <mono-dialog
+      :is-group="true"
+      v-if="groupPopControl.show"
+      @form-sure="onCodeEditorEnter"
+      v-model:pop-control="codeGroupReactive"
+    ></mono-dialog>
   </el-dialog>
+
 </template>
 
 <style scoped lang="scss">

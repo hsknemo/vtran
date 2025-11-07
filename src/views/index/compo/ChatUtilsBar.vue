@@ -8,6 +8,13 @@ import { onUtilsFunc } from '@/views/index/service/ChatUtilsService/chatUtils.ts
 import Emoji from '@/views/index/pageComponent/Emoji.vue'
 const emit = defineEmits(['emoji-text-select'])
 
+const props = defineProps({
+  isGroup: {
+    type: Boolean,
+    default: false,
+  }
+})
+
 const chatUtilsBarReactive = reactive({
   iconList: [
     {
@@ -36,11 +43,11 @@ const chatUtilsBarReactive = reactive({
         <div class="control_item">
           <component
             @emoji-text-select="val => emit('emoji-text-select', val)"
-            @click="onUtilsFunc(item.text)"
+            @click="onUtilsFunc(item.text, props.isGroup)"
             v-if="item.type === 'el-icon'"
             :is="item.icon"
           ></component>
-          <span @click="onUtilsFunc(item.text)" class="custom_icon_text" v-else>{{
+          <span @click="onUtilsFunc(item.text, props.isGroup)" class="custom_icon_text" v-else>{{
             item.icon
           }}</span>
         </div>

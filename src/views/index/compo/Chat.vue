@@ -9,10 +9,9 @@ import { useLocalStorage } from '@vueuse/core'
 import { emitter } from '@/event/eventBus.ts'
 import GroupChat from '@/views/index/compo/GroupChat.vue'
 import ChatUtilsBar from '@/views/index/compo/ChatUtilsBar.vue'
-import { addCopy, codeReactive } from '@/views/index/service/ChatUtilsService/chatUtils.ts'
+import { codeReactive } from '@/views/index/service/ChatUtilsService/chatUtils.ts'
 import MonoDialog from '@/views/index/pageComponent/MonoDialog.vue'
 import MarkdownMsg from '@/views/index/chatCompo/MarkdownMsg.vue'
-import Emoji from '@/views/index/pageComponent/Emoji.vue'
 const highlightIndex = ref(-1)
 const userMsg = ref('')
 const isSaveUserChatMsg = ref(false)
@@ -82,7 +81,7 @@ const onSend = async () => {
 
   userMsg.value = ''
 
-  addCopy()
+
 
   saveUserInfo()
 }
@@ -107,7 +106,7 @@ const getCurChatMsg = ({ data }) => {
   } else {
     scrollToView()
   }
-  addCopy()
+
   saveUserInfo()
 }
 
@@ -151,6 +150,8 @@ const mountedGetUserChatMsgData = () => {
     let userChatMsgData = localStorage.getItem('userChatData')
     if (userChatMsgData) {
       chatMsgList.list = JSON.parse(userChatMsgData)
+
+
     }
   }
 }
@@ -293,6 +294,7 @@ onMounted(() => {
     </main>
   </el-dialog>
   <mono-dialog
+    v-if="!groupPopControl.show"
     @form-sure="onCodeEditorEnter"
     v-model:pop-control="codeReactive"
   ></mono-dialog>
