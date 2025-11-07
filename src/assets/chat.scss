@@ -91,7 +91,12 @@ $block_bg_color: #1d1d1d;
 @mixin tran_chat_footer {
   .tran_chat_footer {
     padding-top: 10px;
-    @include flexStyle(center, end);
+    .footer_item {
+      @include flexStyle(center, end);
+      &.none_flex_end {
+        justify-content: unset;
+      }
+    }
   }
 }
 
@@ -195,7 +200,7 @@ $block_bg_color: #1d1d1d;
 
 .tran_dialog {
   .tran_chat_main {
-    height: 500px;
+    height: 700px;
     @include flexStyle(center);
     .left,
     .right {

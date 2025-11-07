@@ -8,6 +8,11 @@ import socketReactive from '@/stores/socket.ts'
 import { useLocalStorage } from '@vueuse/core'
 import { emitter } from '@/event/eventBus.ts'
 import GroupChat from '@/views/index/compo/GroupChat.vue'
+import ChatUtilsBar from '@/views/index/compo/ChatUtilsBar.vue'
+import { addCopy, codeReactive } from '@/views/index/service/ChatUtilsService/chatUtils.ts'
+import MonoDialog from '@/views/index/pageComponent/MonoDialog.vue'
+import MarkdownMsg from '@/views/index/chatCompo/MarkdownMsg.vue'
+import Emoji from '@/views/index/pageComponent/Emoji.vue'
 const highlightIndex = ref(-1)
 const userMsg = ref('')
 const isSaveUserChatMsg = ref(false)
@@ -23,6 +28,8 @@ const props = defineProps({
     }),
   },
 })
+
+
 
 const chat_area = ref('chat_area')
 const groupPopControl = reactive({
@@ -75,6 +82,8 @@ const onSend = async () => {
 
   userMsg.value = ''
 
+  addCopy()
+
   saveUserInfo()
 }
 
@@ -98,7 +107,7 @@ const getCurChatMsg = ({ data }) => {
   } else {
     scrollToView()
   }
-
+  addCopy()
   saveUserInfo()
 }
 
@@ -152,10 +161,23 @@ const clearChatAllOnExit = () => {
   chatMsgList.groupList = {}
   chatMsgList.currentGroup = ''
 }
+
+// 点击编辑器
+const onCodeEditorEnter = (val) => {
+  userMsg.value = val
+}
+
+
+const onEmojiTextSelect = emoji => {
+  userMsg.value += emoji
+}
+
 onMounted(() => {
   emitter.on('client-chat-message', getCurChatMsg)
 
   emitter.on('clear-chat-all', clearChatAllOnExit)
+
+
 
   mountedGetUserChatMsgData()
 })
@@ -244,14 +266,25 @@ onMounted(() => {
                 v-for="(item, index) in chatMsgList.list[chatMsgList.currentUser.id]"
               >
                 <div class="msg">
-                  {{ item.msg }}
+<!--                  {{ item.msg }}-->
+                  <component
+                    :value="item.msg"
+                    :is="MarkdownMsg"></component>
                 </div>
               </div>
             </section>
           </main>
           <footer class="tran_chat_footer">
-            <el-input @keydown.enter="onSend" type="textarea" v-model="userMsg"></el-input>
-            <el-button @click="onSend" :icon="Promotion">发送</el-button>
+            <section class="footer_item none_flex_end">
+              <ChatUtilsBar
+               @emoji-text-select="onEmojiTextSelect"
+              />
+            </section>
+            <section class="footer_item">
+              <el-input  type="textarea" v-model="userMsg"></el-input>
+              <el-button @click="onSend" :icon="Promotion">发送</el-button>
+            </section>
+
           </footer>
         </template>
         <div v-else class="tran_chat_logo_panel" @click="onMsgTip">
@@ -259,6 +292,10 @@ onMounted(() => {
       </div>
     </main>
   </el-dialog>
+  <mono-dialog
+    @form-sure="onCodeEditorEnter"
+    v-model:pop-control="codeReactive"
+  ></mono-dialog>
 </template>
 
 <style scoped lang="scss">

@@ -14,10 +14,6 @@ axios.interceptors.request.use(
 );
 axios.interceptors.response.use(
   response => {
-    if (response.status === 401) {
-      clearTimeout(window._user_online_timeout)
-      emitter.emit('logout')
-    }
     if (!response?.data?.status) {
       throw new Error(response.data.msg)
     }
@@ -25,7 +21,11 @@ axios.interceptors.response.use(
   },
   error => {
     const { response } = error;
-    ElMessage.error(response);
+    if (response.status === 401) {
+      clearTimeout(window._user_online_timeout)
+      emitter.emit('logout')
+    }
+    ElMessage.error(response.data.msg);
   }
 );
 

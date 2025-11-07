@@ -33,7 +33,7 @@ const onLoginPage = () => {
   <div class="tran_add_user">
     <div class="tran_item">
       <div class="tran_item_title">用户名</div>
-      <el-input placeholder="请输入用户名" v-model="userData.username"></el-input>
+      <el-input @keydown.enter="onAddUser" placeholder="请输入用户名" v-model="userData.username"></el-input>
     </div>
     <div class="tran_item">
       <el-button @click="onAddUser">创建用户</el-button>
