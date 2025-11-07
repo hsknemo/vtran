@@ -3,11 +3,54 @@
 -->
 <script setup lang="ts">
 import { Scissor } from '@element-plus/icons-vue'
-import { reactive } from 'vue'
+import { onMounted, reactive } from 'vue'
 import { onUtilsFunc } from '@/views/index/service/ChatUtilsService/chatUtils.ts'
 import Emoji from '@/views/index/pageComponent/Emoji.vue'
 const emit = defineEmits(['emoji-text-select'])
+import { driver } from "driver.js";
+import "driver.js/dist/driver.css";
+const startDriver = () => {
+  const isStartDriver = localStorage.getItem('startDriver');
+  if (isStartDriver == 'false') {
+    return
+  }
+  const driverObj = new driver({
+    prevBtnText: "上一步",
+    nextBtnText: "下一步",
+    doneBtnText: "我知道了",
+    closeBtnText: "关闭",
+    onCloseClick: (ele: any) => {
+      localStorage.setItem('startDriver', 'false');
+    },
+  });
 
+  const steps = [
+    {
+      element: "#tran_emoji",
+      popover: {
+        title: "表情功能---同样支持群聊哟~",
+        description: "点击此处可选择表情发送给对方",
+      }
+    },
+    {
+      element: "#tran_code",
+      popover: {
+        title: "代码功能---同样支持群聊哟~",
+        description: "可以编写代码进行文本发送",
+      }
+    },
+    {
+      element: "#tran_input",
+      popover: {
+        title: "输入框升级---同样支持群聊哟~",
+        description: "支持发送markdown 语法，取消了回车键事件，暂时使用鼠标点击发送消息",
+      }
+    }
+  ]
+
+  driverObj.setSteps(steps);
+  driverObj.drive();
+}
 const props = defineProps({
   isGroup: {
     type: Boolean,
@@ -18,21 +61,28 @@ const props = defineProps({
 const chatUtilsBarReactive = reactive({
   iconList: [
     {
+      id: 'tran_screenshot',
       icon: Scissor,
       text: '截图',
       type: 'el-icon',
     },
     {
+      id: 'tran_emoji',
       icon: Emoji,
       text: '表情',
       type: 'el-icon',
     },
     {
+      id: 'tran_code',
       icon: 'Code',
       text: '代码',
       type: 'custom-text',
     },
   ],
+})
+
+onMounted(() => {
+  startDriver()
 })
 </script>
 
@@ -42,12 +92,15 @@ const chatUtilsBarReactive = reactive({
       <el-tooltip :content="item.text" effect="light" placement="top">
         <div class="control_item">
           <component
+            :id="item.id"
             @emoji-text-select="val => emit('emoji-text-select', val)"
             @click="onUtilsFunc(item.text, props.isGroup)"
             v-if="item.type === 'el-icon'"
             :is="item.icon"
           ></component>
-          <span @click="onUtilsFunc(item.text, props.isGroup)" class="custom_icon_text" v-else>{{
+          <span
+            :id="item.id"
+            @click="onUtilsFunc(item.text, props.isGroup)" class="custom_icon_text" v-else>{{
             item.icon
           }}</span>
         </div>

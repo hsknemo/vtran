@@ -12,6 +12,7 @@ import ChatUtilsBar from '@/views/index/compo/ChatUtilsBar.vue'
 import { codeReactive } from '@/views/index/service/ChatUtilsService/chatUtils.ts'
 import MonoDialog from '@/views/index/pageComponent/MonoDialog.vue'
 import MarkdownMsg from '@/views/index/chatCompo/MarkdownMsg.vue'
+
 const highlightIndex = ref(-1)
 const userMsg = ref('')
 const isSaveUserChatMsg = ref(false)
@@ -173,11 +174,13 @@ const onEmojiTextSelect = emoji => {
   userMsg.value += emoji
 }
 
+
+
+
 onMounted(() => {
   emitter.on('client-chat-message', getCurChatMsg)
 
   emitter.on('clear-chat-all', clearChatAllOnExit)
-
 
 
   mountedGetUserChatMsgData()
@@ -282,7 +285,7 @@ onMounted(() => {
               />
             </section>
             <section class="footer_item">
-              <el-input  type="textarea" v-model="userMsg"></el-input>
+              <el-input id="tran_input" type="textarea" v-model="userMsg"></el-input>
               <el-button @click="onSend" :icon="Promotion">发送</el-button>
             </section>
 
