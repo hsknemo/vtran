@@ -3,11 +3,12 @@
 -->
 <script setup lang="ts">
 import { Scissor } from '@element-plus/icons-vue'
-import { onMounted, reactive } from 'vue'
+import { defineAsyncComponent, onMounted, reactive } from 'vue'
 import { onUtilsFunc } from '@/views/index/service/ChatUtilsService/chatUtils.ts'
 import Emoji from '@/views/index/pageComponent/Emoji.vue'
 const emit = defineEmits(['emoji-text-select'])
 import { driver } from "driver.js";
+import { type Config as DriverConfig } from "driver.js";
 import "driver.js/dist/driver.css";
 const startDriver = () => {
   const isStartDriver = localStorage.getItem('startDriver');
@@ -21,8 +22,9 @@ const startDriver = () => {
     closeBtnText: "关闭",
     onCloseClick: (ele: any) => {
       localStorage.setItem('startDriver', 'false');
+      driverObj.destroy()
     },
-  });
+  } as DriverConfig);
 
   const steps = [
     {
@@ -62,7 +64,7 @@ const chatUtilsBarReactive = reactive({
   iconList: [
     {
       id: 'tran_screenshot',
-      icon: Scissor,
+      icon: defineAsyncComponent(() => import('@/components/icons/iconCutScreen.vue')),
       text: '截图',
       type: 'el-icon',
     },
@@ -74,9 +76,11 @@ const chatUtilsBarReactive = reactive({
     },
     {
       id: 'tran_code',
-      icon: 'Code',
+      icon: defineAsyncComponent(() => import('@/components/icons/iconCode.vue')),
       text: '代码',
-      type: 'custom-text',
+      type: 'el-icon',
+
+      // type: 'custom-text',
     },
   ],
 })
@@ -129,9 +133,16 @@ onMounted(() => {
   .control_item {
     width: fit-content;
     height: 20px;
-    display: flex;
-    align-items: center;
+    @include flexStyle();
     margin-right: 10px;
+    #tran_code {
+      position: relative;
+      top: -3px;
+    }
+    #tran_emoji {
+      position: relative;
+      top: -2px;
+    }
   }
 }
 .tran_chat_utils_bar {
@@ -145,8 +156,6 @@ onMounted(() => {
   @include control_item();
 
   svg {
-    width: 1em;
-    height: 1em;
     cursor: pointer;
   }
 

@@ -26,7 +26,7 @@ $block_bg_color: #1d1d1d;
   .tran_chat_user_list {
     @include radius_box();
     margin-top: 10px;
-    height: calc(100% - 9%);
+    height: calc(100% - 58px);
     overflow: auto;
 
     .user_list_item {
@@ -82,7 +82,9 @@ $block_bg_color: #1d1d1d;
         }
       }
 
+
       .group_name {
+        justify-content: unset;
         &:after {
           display: none;
         }
@@ -93,11 +95,24 @@ $block_bg_color: #1d1d1d;
 
 @mixin tran_chat_footer {
   .tran_chat_footer {
+    height: calc(100% - 80%);
     padding-top: 10px;
     .footer_item {
       @include flexStyle(center, end);
       &.none_flex_end {
         justify-content: unset;
+      }
+      &.input_area {
+        height: calc(100% - 50%);
+      }
+      :deep {
+        .el-textarea {
+          margin-right: 10px;
+        }
+        .el-textarea__inner {
+          border: 1px solid transparent !important;
+          height: 100%;
+        }
       }
     }
   }
@@ -113,14 +128,21 @@ $block_bg_color: #1d1d1d;
       .msg {
         width: fit-content;
         word-break: break-all;
+        max-width: 700px;
         @include radius_box(#353535, 10px 10px, 5px);
+
+        .tran_markdown_show_area {
+          max-height: 300px;
+          max-width: 700px;
+          overflow: auto;
+        }
       }
       .dict {
         font-size: 10px;
         color: #eee;
       }
       &.user_right_pop {
-        justify-content: end;
+        justify-content: flex-end;
       }
       &.user_left_pop {
         .msg {
@@ -155,7 +177,7 @@ $block_bg_color: #1d1d1d;
 @mixin tran_chat_area {
   .tran_chat_area {
     margin-top: 10px;
-    height: calc(100% - 20%);
+    height: calc(100% - 25%);
     @include radius_box(#141414);
     overflow: auto;
   }

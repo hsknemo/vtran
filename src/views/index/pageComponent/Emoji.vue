@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import V3Emoji from 'vue3-emoji'
 import 'vue3-emoji/dist/style.css'
+import StreamlineEmojisGrimacingFace from '@/components/icons/iconEmoji.vue'
 const emit = defineEmits(['emoji-text-select'])
 const optionsName = {
   'Smileys & Emotion': '笑脸&表情',
@@ -23,9 +24,10 @@ const appendText = (text) => {
 <template>
   <div>
     <V3Emoji
-      customIcon="哈"
       @click-emoji="appendText"
-      :recent="true" theme="dark"  :options-name="optionsName" />
+      :recent="true" theme="dark"  :options-name="optionsName" >
+      <StreamlineEmojisGrimacingFace />
+    </V3Emoji>
   </div>
 
 </template>

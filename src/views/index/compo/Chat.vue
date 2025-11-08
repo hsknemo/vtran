@@ -192,12 +192,15 @@ onMounted(() => {
     v-model:group-pop-control="groupPopControl"
   />
   <el-dialog
+    draggable
+    overflow
     @close="onClosePop"
     class="tran_dialog"
     v-model="popControl.show"
     title="聊天"
     :close-on-click-modal="false"
-    width="90%"
+    style="--el-dialog-margin-top: 4vh"
+    width="1000px"
   >
     <main class="tran_chat_main">
       <!--      用户列表区域-->
@@ -284,9 +287,11 @@ onMounted(() => {
                @emoji-text-select="onEmojiTextSelect"
               />
             </section>
-            <section class="footer_item">
-              <el-input id="tran_input" type="textarea" v-model="userMsg"></el-input>
-              <el-button @click="onSend" :icon="Promotion">发送</el-button>
+            <section class="footer_item input_area">
+              <el-input
+                resize="none"
+                id="tran_input" type="textarea"  v-model="userMsg"></el-input>
+              <el-button @click="onSend" :icon="Promotion"></el-button>
             </section>
 
           </footer>

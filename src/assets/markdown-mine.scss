@@ -74,18 +74,20 @@
 
     code {
       min-height: 50px;
+      padding-top: 22px !important;
     }
   }
 
 
   .cp_btn {
-    position: absolute;
-    top: -10px;
+    position: sticky;
+    top: 0px;
     left: 0;
     border: none;
     cursor: pointer;
     background-color: transparent;
     font-size: 14px;
+    z-index: 1;
     svg {
       transition: all .3s;
       fill: gold;

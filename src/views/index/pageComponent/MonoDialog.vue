@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import MonacoEditor from '@/views/index/pageComponent/MonacoEditor.vue'
 const emit = defineEmits(['form-sure'])
+
 const props = defineProps({
   popControl: {
     type: Object,
@@ -10,8 +11,6 @@ const props = defineProps({
   },
 })
 
-const str = ref(`// please input code \n `)
-let outPutStr = ''
 const selectLanguage = ref('javascript')
 const languageList = [
   'javascript',
@@ -32,31 +31,39 @@ const languageList = [
   'markdown',
 ]
 
+const onEmitCancel = () => {
+  props.popControl.show = false
+}
+
+const monoEditor = ref()
 const onEmitSure = () => {
   props.popControl.show = false
-  outPutStr = str.value
 
-  // 拼接markdown格式
-  const language = selectLanguage.value
-  const startMarkdonw = "```" + language + "\n"
-  outPutStr = startMarkdonw + outPutStr
-  outPutStr += "\n" + "```"
-
-  console.log(outPutStr )
-  emit('form-sure', outPutStr)
-  outPutStr = ''
+  emit('form-sure', monoEditor.value.getValue())
 }
+
+const onSelectLanguage = (val) => {
+  monoEditor.value.setLanguage(val)
+}
+
 </script>
 
 <template>
   <el-dialog
+    draggable
+    overflow
     class="tran_editor"
-    v-model="popControl.show" title="编辑器"
-             :close-on-click-modal="false" width="800">
+    v-model="popControl.show"
+    title="编辑器"
+    :close-on-click-modal="false"
+    width="800"
+  >
     <div class="tran_edit_top_select">
       <div class="edit_block_item">
         <div class="edit_block_item_title">语言</div>
-        <el-select v-model="selectLanguage">
+        <el-select
+          @change="onSelectLanguage"
+          v-model="selectLanguage">
           <template v-for="item in languageList" :key="item">
             <el-option :label="item" :value="item"> </el-option>
           </template>
@@ -64,17 +71,17 @@ const onEmitSure = () => {
       </div>
     </div>
 
-    <MonacoEditor v-model:value="str" :language="popControl.language" />
+    <MonacoEditor ref="monoEditor" />
 
     <div class="tran_edit_bottom_btn">
-      <el-button @click="popControl.show = false">取消</el-button>
+      <el-button @click="onEmitCancel">取消</el-button>
       <el-button type="primary" @click="onEmitSure">确定</el-button>
     </div>
   </el-dialog>
 </template>
 
 <style scoped lang="scss">
-@mixin flexStyle($align:'center', $justContent:'space-around') {
+@mixin flexStyle($align: 'center', $justContent: 'space-around') {
   display: flex;
   align-items: $align;
   justify-content: $justContent;
@@ -91,7 +98,6 @@ const onEmitSure = () => {
     @include flexStyle(center);
     margin-bottom: 10px;
 
-
     .edit_block_item_title {
       white-space: nowrap;
     }
@@ -99,11 +105,17 @@ const onEmitSure = () => {
 }
 .tran_edit_top_select {
   @include edit_block_item;
-
 }
 
 .tran_editor {
-
   @include tran_edit_bottom_btn();
+}
+</style>
+<style lang="scss">
+.tran_editor {
+  height: 700px;
+  .el-dialog__body {
+    height: calc(100% - 20%);
+  }
 }
 </style>

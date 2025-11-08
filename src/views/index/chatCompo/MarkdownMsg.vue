@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import markdownIt from 'markdown-it'
 import { ElMessage } from 'element-plus'
+import { clipBord } from '@/utils/clipBord.ts'
 const mdIt = new markdownIt()
 const props = defineProps({
   value: {
@@ -27,9 +28,9 @@ const onMarkeDownClick = function() {
     let codeNum = item.dataset.code
     let parentEle = item.closest('pre')
     let code = parentEle.querySelector(`code[js-code-block="${codeNum}"]`)
-    navigator.clipboard.writeText(code.innerText)
-      .then(() => ElMessage.success('复制成功☺️'))
-      .catch(err => ElMessage.error('复制失败', err));
+
+
+    clipBord(code.textContent)
   }
 }
 

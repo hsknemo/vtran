@@ -13,6 +13,8 @@ import ChatUtilsBar from '@/views/index/compo/ChatUtilsBar.vue'
 import { codeGroupReactive } from '@/views/index/service/ChatUtilsService/chatUtils.ts'
 import MonoDialog from '@/views/index/pageComponent/MonoDialog.vue'
 import MarkdownMsg from '@/views/index/chatCompo/MarkdownMsg.vue'
+
+const emit = defineEmits(['update:value'])
 const isSaveGroup = ref(false)
 const groupShow = ref(false)
 const highlightIndex = ref(-1)
@@ -23,9 +25,10 @@ const groupChat = reactive({
 })
 const user_list_drawer = ref(false)
 const direction = ref('rtl')
-const handleClose = (done) => {
+const handleClose = (done: () => void) => {
   done()
 }
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = defineProps({
   groupPopControl: {
     type: Object,
@@ -42,7 +45,8 @@ const onCloseLinkPanel = () => {
 }
 
 const onClosePop = () => {
-  props.groupPopControl.show = false
+  // props.groupPopControl.show = false
+  emit('update:value', false)
 }
 
 const onCreateGroup = () => {
@@ -58,7 +62,7 @@ const onCloseCreateGroup = () => {
 const findOwnGroupFetch = async () => {
   try {
     const res = await findOwnGroup({
-      userId: JSON.parse(useLocalStorage('user').value).id,
+      userId: JSON.parse(useLocalStorage('user', '{}').value).id,
     })
     groupChat.list = res.data
     groupShow.value = false
@@ -67,16 +71,16 @@ const findOwnGroupFetch = async () => {
   }
 }
 
-const onChatToGroupUser = (row, index) => {
+const onChatToGroupUser = (row: never, index: number) => {
   highlightIndex.value = index
   chatMsgList.currentGroup = row
 }
 const chat_area = ref('chat_area')
 
 const scrollToView = async () => {
-  await nextTick((_) => {
+  await nextTick(() => {
     // 滚动到底部
-    setTimeout((_) => {
+    setTimeout(() => {
       chat_area.value.scrollIntoView({ behavior: 'smooth', block: 'end' })
     }, 50)
   })
@@ -84,10 +88,10 @@ const scrollToView = async () => {
 
 const onSend = () => {
   if (userMsg.value === '') return ElMessage.warning('输入内容为空')
-  let ifUserList = chatMsgList.currentGroup.userList.length == 1
+  const ifUserList = chatMsgList.currentGroup.userList.length == 1
   chatMsgList.currentGroup.session_id = chatMsgList.currentGroup.id
   chatMsgList.currentGroup.sendMsg = userMsg
-  chatMsgList.currentGroup.from = JSON.parse(useLocalStorage('user').value)
+  chatMsgList.currentGroup.from = JSON.parse(useLocalStorage('user', '{}').value)
   // 有群用户的情况下 推送消息给其他用户
   if (!ifUserList) {
     socketReactive?.ws?.ws?.send(
@@ -108,8 +112,6 @@ const onSend = () => {
   scrollToView()
   userMsg.value = ''
   saveGroupInfo()
-
-
 }
 
 const onMsgTip = () => {
@@ -167,8 +169,6 @@ const getCurChatMsg = ({ data }) => {
   scrollToView()
 
   saveGroupInfo()
-
-
 }
 
 const saveGroupInfo = () => {
@@ -202,8 +202,6 @@ const mountedGetGroupData = () => {
     let groupData = localStorage.getItem('groupData')
     if (groupData) {
       chatMsgList.groupList = JSON.parse(groupData)
-
-
     }
   }
 }
@@ -226,8 +224,7 @@ const onCodeEditorEnter = (val) => {
   userMsg.value = val
 }
 
-
-const onEmojiTextSelect = emoji => {
+const onEmojiTextSelect = (emoji) => {
   userMsg.value += emoji
 }
 
@@ -245,12 +242,15 @@ onMounted(() => {
 
 <template>
   <el-dialog
+    draggable
+    overflow
     @close="onClosePop"
     class="tran_dialog"
     v-model="groupPopControl.show"
     title="组聊天"
     :close-on-click-modal="false"
-    width="90%"
+    style="--el-dialog-margin-top: 4vh"
+    width="1000px"
   >
     <CreateGroupForm
       @group-created="findOwnGroupFetch"
@@ -295,7 +295,7 @@ onMounted(() => {
             </section>
 
             <div class="avtor_msg_total" v-if="chatMsgList.groupList[item.id]">
-              <el-badge :value="chatMsgList.groupList[item.id].length"> </el-badge>
+              <el-badge :value="chatMsgList.groupList[item.id].length"></el-badge>
             </div>
           </div>
         </main>
@@ -308,7 +308,9 @@ onMounted(() => {
               <section class="chat_tit">群聊：{{ chatMsgList.currentGroup.name }}</section>
               <section @click="onGetGroupUserList" class="drawer_control">
                 <el-tooltip content="用户列表" effect="light">
-                  <el-icon><Switch /></el-icon>
+                  <el-icon>
+                    <Switch />
+                  </el-icon>
                 </el-tooltip>
               </section>
             </div>
@@ -330,10 +332,8 @@ onMounted(() => {
                 </div>
                 <div>
                   <div class="msg">
-<!--                    {{ item.msg }}-->
-                    <component
-                      :value="item.msg"
-                      :is="MarkdownMsg"></component>
+                    <!--                    {{ item.msg }}-->
+                    <component :value="item.msg" :is="MarkdownMsg"></component>
                   </div>
                 </div>
               </div>
@@ -341,16 +341,14 @@ onMounted(() => {
           </main>
           <footer class="tran_chat_footer">
             <section class="footer_item none_flex_end">
-              <ChatUtilsBar
-                :is-group="true"
-                @emoji-text-select="onEmojiTextSelect"
-              />
+              <ChatUtilsBar :is-group="true" @emoji-text-select="onEmojiTextSelect" />
             </section>
-            <section class="footer_item">
-              <el-input  type="textarea" v-model="userMsg"></el-input>
-              <el-button @click="onSend" :icon="Promotion">发送</el-button>
+            <section class="footer_item input_area">
+              <el-input
+                resize="none"
+                id="tran_input" type="textarea"  v-model="userMsg"></el-input>
+              <el-button @click="onSend" :icon="Promotion"></el-button>
             </section>
-
           </footer>
         </template>
 
@@ -396,7 +394,9 @@ onMounted(() => {
               },
             ]"
           >
-            <el-icon v-if="item.id === chatMsgList.currentGroup.createUserId"><User /></el-icon>
+            <el-icon v-if="item.id === chatMsgList.currentGroup.createUserId">
+              <User />
+            </el-icon>
             <span class="name">{{ item.username }}</span>
           </section>
         </div>
@@ -410,7 +410,6 @@ onMounted(() => {
       v-model:pop-control="codeGroupReactive"
     ></mono-dialog>
   </el-dialog>
-
 </template>
 
 <style scoped lang="scss">
@@ -439,17 +438,21 @@ onMounted(() => {
       background-color: #1d1d1d;
       margin-bottom: 10px;
       border-radius: 5px;
+
       &:last-child {
         margin-bottom: unset;
       }
+
       .user_name {
         @include flexStyle(center);
 
         &.is_group_creator {
           --color: gold;
+
           .el-icon {
             color: var(--color);
           }
+
           .name {
             font-weight: bold;
             color: var(--color);
@@ -460,8 +463,10 @@ onMounted(() => {
     }
   }
 }
+
 .chat_drawer {
   pointer-events: none !important;
+
   .el-drawer {
     pointer-events: auto !important;
   }

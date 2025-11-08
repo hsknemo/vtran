@@ -39,8 +39,11 @@ importers:
         specifier: ^2.30.1
         version: 2.30.1
       monaco-editor:
-        specifier: ^0.54.0
-        version: 0.54.0
+        specifier: ~0.33.0
+        version: 0.33.0
+      monaco-editor-vue3:
+        specifier: ^1.0.4
+        version: 1.0.4(monaco-editor@0.33.0)(vue@3.5.22(typescript@5.9.3))
       pinia:
         specifier: ^3.0.3
         version: 3.0.3(typescript@5.9.3)(vue@3.5.22(typescript@5.9.3))
@@ -1437,9 +1440,6 @@ packages:
     engines: {node: '>=0.10'}
     hasBin: true
 
-  dompurify@3.1.7:
-    resolution: {integrity: sha512-VaTstWtsneJY8xzy7DekmYWEOZcmzIe3Qb3zPd4STve1OBTa+e+WmS1ITQec1fZYXI3HCsOZZiSMpG6oxoWMWQ==}
-
   driver.js@1.3.6:
     resolution: {integrity: sha512-g2nNuu+tWmPpuoyk3ffpT9vKhjPz4NrJzq6mkRDZIwXCrFhrKdDJ9TX5tJOBpvCTBrBYjgRQ17XlcQB15q4gMg==}
 
@@ -1995,11 +1995,6 @@ packages:
     resolution: {integrity: sha512-a54IwgWPaeBCAAsv13YgmALOF1elABB08FxO9i+r4VFk5Vl4pKokRPeX8u5TCgSsPi6ec1otfLjdOpVcgbpshg==}
     hasBin: true
 
-  marked@14.0.0:
-    resolution: {integrity: sha512-uIj4+faQ+MgHgwUW1l2PsPglZLOLOT1uErt06dAPtx2kjteLAkbsd/0FiYg/MGS+i7ZKLb7w2WClxHkzOOuryQ==}
-    engines: {node: '>= 18'}
-    hasBin: true
-
   math-intrinsics@1.1.0:
     resolution: {integrity: sha512-/IXtbwEk5HTPyEwyKX6hGkYXxM9nbj64B+ilVJnC/R6B0pH5G4V3b0pVbL7DBj4tkhBAppbQUlf6F6Xl9LHu1g==}
     engines: {node: '>= 0.4'}
@@ -2057,8 +2052,14 @@ packages:
   moment@2.30.1:
     resolution: {integrity: sha512-uEmtNhbDOrWPFS+hdjFCBfy9f2YoyzRpwcl+DqpC6taX21FzsTLQVbMV/W7PzNSX6x/bhC1zA3c2UQ5NzH6how==}
 
-  monaco-editor@0.54.0:
-    resolution: {integrity: sha512-hx45SEUoLatgWxHKCmlLJH81xBo0uXP4sRkESUpmDQevfi+e7K1VuiSprK6UpQ8u4zOcKNiH0pMvHvlMWA/4cw==}
+  monaco-editor-vue3@1.0.4:
+    resolution: {integrity: sha512-gaIMBdhUGorOAX0kBvWul9QCQ+6J+MjZgqkieDECv3rjXsRbI07XNNrnD3IBC1jnGRF9+aTZ9CNhJ8Uv06z1uw==}
+    peerDependencies:
+      monaco-editor: '>= 0.25.0 < 1'
+      vue: ^3
+
+  monaco-editor@0.33.0:
+    resolution: {integrity: sha512-VcRWPSLIUEgQJQIE0pVT8FcGBIgFoxz7jtqctE+IiCxWugD0DwgyQBcZBhdSrdMC84eumoqMZsGl2GTreOzwqw==}
 
   mrmime@2.0.1:
     resolution: {integrity: sha512-Y3wQdFg2Va6etvQ5I82yUhGdsKrcYox6p7FfL1LbK2J4V01F9TGlepTIhnK24t7koZibmg82KGglhA1XK5IsLQ==}
@@ -4138,8 +4139,6 @@ snapshots:
   detect-libc@1.0.3:
     optional: true
 
-  dompurify@3.1.7: {}
-
   driver.js@1.3.6: {}
 
   dunder-proto@1.0.1:
@@ -4760,8 +4759,6 @@ snapshots:
       punycode.js: 2.3.1
       uc.micro: 2.1.0
 
-  marked@14.0.0: {}
-
   math-intrinsics@1.1.0: {}
 
   mdn-data@2.12.2: {}
@@ -4810,10 +4807,12 @@ snapshots:
 
   moment@2.30.1: {}
 
-  monaco-editor@0.54.0:
+  monaco-editor-vue3@1.0.4(monaco-editor@0.33.0)(vue@3.5.22(typescript@5.9.3)):
     dependencies:
-      dompurify: 3.1.7
-      marked: 14.0.0
+      monaco-editor: 0.33.0
+      vue: 3.5.22(typescript@5.9.3)
+
+  monaco-editor@0.33.0: {}
 
   mrmime@2.0.1: {}
 
