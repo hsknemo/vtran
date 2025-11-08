@@ -5,19 +5,6 @@ import { onLineUserList } from '@/views/index/store/store.ts'
 </script>
 
 <template>
-  <section id="logo">
-    <el-tooltip
-      v-if="onLineUserList.onlineList.length"
-      effect="light"
-      content="当前加入用户数，感谢使用Tran"
-      placement="right"
-    >
-         <span class="regis_user">
-            {{ onLineUserList.onlineList.length }}
-         </span>
-    </el-tooltip>
-
-  </section>
   <RouterView />
 </template>
 

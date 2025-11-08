@@ -1,0 +1,21 @@
+import { request } from '@/api'
+import { useLocalStorage } from '@vueuse/core'
+const getToken = () => useLocalStorage('Auth', '{}').value
+
+export const saveNote = (data:object) => request({
+  method: 'post',
+  headers: {
+    Authorization: getToken(),
+  },
+  url: 'note/save',
+  data
+})
+
+
+export const getNoteList = () => request({
+  method: 'get',
+  headers: {
+    Authorization: getToken(),
+  },
+  url: 'note/list',
+})

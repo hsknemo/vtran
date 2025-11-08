@@ -1,6 +1,7 @@
 import axios, { type AxiosRequestConfig } from 'axios'
 import { ElMessage } from 'element-plus'
-import { emitter } from '@/event/eventBus.ts'
+import { useRouter } from 'vue-router'
+const router = useRouter()
 // axios 配置拦截器
 axios.defaults.timeout = 30000;
 axios.defaults.baseURL = import.meta.env.VITE_API_URL + '/api';
@@ -23,7 +24,7 @@ axios.interceptors.response.use(
     const { response } = error;
     if (response.status === 401) {
       clearTimeout(window._user_online_timeout)
-      emitter.emit('logout')
+      router.push('/login')
     }
     ElMessage.error(response.data.msg);
   }

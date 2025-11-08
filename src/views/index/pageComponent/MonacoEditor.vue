@@ -4,15 +4,25 @@ const str = ref(`// please input code \n `)
 const language = ref('javascript')
 let outPutStr = ''
 
+const props = defineProps({
+  // 是否需要默认语言
+  isNeedDefaultLang: {
+    type: Boolean,
+    default: true
+  }
+})
+
 const getValue = () => {
   outPutStr = ''
   outPutStr = str.value
 
-  // 拼接markdown格式
-  const lang = language.value
-  const startMarkdonw = '```' + lang + '\n'
-  outPutStr = startMarkdonw + outPutStr
-  outPutStr += '\n' + '```'
+  if (props.isNeedDefaultLang) {
+    // 拼接markdown格式
+    const lang = language.value
+    const startMarkdonw = '```' + lang + '\n'
+    outPutStr = startMarkdonw + outPutStr
+    outPutStr += '\n' + '```'
+  }
 
   return outPutStr
 }
@@ -20,6 +30,7 @@ const getValue = () => {
 defineExpose({
   getValue,
   setLanguage(lang: string) {
+    debugger
     language.value = lang
   }
 })
