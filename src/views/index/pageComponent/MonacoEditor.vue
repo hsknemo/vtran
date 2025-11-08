@@ -20,6 +20,7 @@ const getValue = () => {
 defineExpose({
   getValue,
   setLanguage(lang: string) {
+    debugger
     language.value = lang
   }
 })

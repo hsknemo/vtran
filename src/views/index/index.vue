@@ -5,14 +5,14 @@ import ProfileFileList from '@/views/index/compo/ProfileFileList.vue'
 import ProfileSentOtherUserList from '@/views/index/compo/ProfileSentOtherUserList.vue'
 import Socket from '@/utils/socket.js'
 import { onMounted, reactive, ref } from 'vue'
-import CreateUser from '@/views/index/compo/CreateUser.vue'
-import Login from '@/views/index/compo/Login.vue'
 import ShowUser from '@/views/index/compo/ShowUser.vue'
 import { emitter } from '../../event/eventBus.ts'
 import { useLocalStorage } from '@vueuse/core'
 import { Refresh } from '@element-plus/icons-vue'
 import socketReacktive from '@/stores/socket.ts'
 import { onLineUserList } from '@/views/index/store/store.ts'
+import { useRouter } from 'vue-router'
+const router = useRouter()
 
 const reactive_data = reactive({
   page: false,
@@ -88,14 +88,13 @@ const checkAuth = () => {
 }
 
 const onExit = () => {
-  localStorage.removeItem('Auth')
-  localStorage.removeItem('user')
   localStorage.removeItem('isSaveGroup')
   localStorage.removeItem('groupData')
   localStorage.removeItem('isSaveUserChatMsg')
   localStorage.removeItem('userChatData')
   emitter.emit('clear-chat-all')
   onLineUserList.onlineList = []
+  router.push('/login')
   checkAuth()
 }
 
@@ -138,20 +137,6 @@ onMounted(() => {
 
 <template>
   <main class="tran-container">
-    <template v-if="reactive_data.showPage">
-      <Login
-        @close-login-page="onClosePage"
-        @show-create-page="onPageControl(false)"
-        v-if="reactive_data.page"
-      />
-
-      <CreateUser
-        v-if="!reactive_data.page"
-        @close-login-page="onClosePage"
-        @has-login="onPageControl(true)"
-      />
-    </template>
-
     <template v-if="!reactive_data.showPage">
       <ShowUser @exit="onExit" />
     </template>
