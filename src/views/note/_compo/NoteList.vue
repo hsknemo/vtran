@@ -186,7 +186,7 @@ onMounted(() => {
       ref="monoEditorRef"
       :isNeedDefaultLang="false"
     />
-    <div class="control_btn_group">
+    <div  v-if="drawerEdit"  class="control_btn_group">
       <el-icon @click="onSubmitEdit"><Check /></el-icon>
     </div>
     <div class="tran_tip">giao!</div>

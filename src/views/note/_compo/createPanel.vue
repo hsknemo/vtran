@@ -71,7 +71,6 @@ const saveNodeFetch = async () => {
     await saveNote(ruleForm)
     ElMessage.success('保存成功')
   } catch (e) {
-    debugger
     ElMessage.error('保存失败')
   }
 }

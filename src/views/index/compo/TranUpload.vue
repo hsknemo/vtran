@@ -17,7 +17,7 @@ const onHttpRequest = (option:UploadRequestOptions) => {
     // data.fileList.push(option.file)
   }
 }
-
+const uploading = ref(false)
 const sendFile = async () => {
   const formData:FormData = new FormData()
   if (!fileList.value.length) {
@@ -34,10 +34,13 @@ const sendFile = async () => {
   formData.append('toUserId', onLineUserList.curSelectUser)
   formData.append('fromUserId', JSON.parse(useLocalStorage('user').value).id)
   try {
+    uploading.value = true
     await setFileToUserList(formData)
     ElMessage.success('发送成功')
   } catch (e) {
     ElMessage.error(e)
+  } finally {
+    uploading.value = false
   }
 
 }
@@ -46,6 +49,7 @@ const sendFile = async () => {
 
 <template>
   <el-upload
+    v-loading="uploading"
     class="upload-demo"
     drag
     v-model:file-list="fileList"
