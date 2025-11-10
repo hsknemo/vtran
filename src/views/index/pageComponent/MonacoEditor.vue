@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import MonacoEditor from 'monaco-editor-vue3';
+import { computed } from 'vue'
 const str = ref(`// please input code \n `)
 const language = ref('javascript')
 let outPutStr = ''
@@ -9,6 +10,19 @@ const props = defineProps({
   isNeedDefaultLang: {
     type: Boolean,
     default: true
+  },
+  value: String,
+})
+
+const v = computed( {
+  get() {
+    if (props.value) {
+      return props.value
+    }
+    return str.value
+  },
+  set(v) {
+    str.value = v
   }
 })
 
@@ -30,7 +44,6 @@ const getValue = () => {
 defineExpose({
   getValue,
   setLanguage(lang: string) {
-    debugger
     language.value = lang
   }
 })
@@ -39,7 +52,7 @@ defineExpose({
 
 <template>
   <MonacoEditor
-    v-model:value="str"
+    v-model:value="v"
     :language="language"
     theme="vs-dark"
   />

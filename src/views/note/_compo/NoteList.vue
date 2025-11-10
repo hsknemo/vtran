@@ -1,12 +1,14 @@
 <script setup lang="ts">
 
-import { getNoteList } from '@/api/note/note.ts'
+import { getNoteList, updateNoteList } from '@/api/note/note.ts'
 import { ElMessage } from 'element-plus'
-import { Close } from '@element-plus/icons-vue'
+import { Check, Close, Edit } from '@element-plus/icons-vue'
 import MarkdownMsg from '@/views/index/chatCompo/MarkdownMsg.vue'
 import { ref } from 'vue'
+import MonacoEditor from '@/views/index/pageComponent/MonacoEditor.vue'
+import { delay } from '@/utils/sleep.ts'
 
-let noteLoading = ref(false)
+const noteLoading = ref(false)
 const mdLoading = ref(false)
 const note_drawer = ref(false)
 const direction = ref('rtl')
@@ -15,12 +17,12 @@ const handleClose = (done: () => void) => {
   done()
 }
 
-let noteList = ref([])
+const noteList = ref([])
 
 const getNoteListFetch = async () => {
   try {
     noteLoading.value = true
-    let data = await getNoteList()
+    const data = await getNoteList()
     noteList.value = data.data
   } catch (e) {
     ElMessage.error('获取笔记列表失败')
@@ -38,14 +40,27 @@ interface NoteItem {
   createTime: string,
   contentUrl: string,
 }
+
+const curSelectRow = ref({} as NoteItem)
+const drawerEdit = ref(false)
+const monoEditorRef = ref()
+
 const getNote = async (item:NoteItem) => {
+  drawerEdit.value = false
   mdContent.value = ''
   note_drawer.value = true
+  curSelectRow.value = item
   await getStreamFileContent(item.contentUrl)
 }
 
+/**
+ *
+ * @description 获取文件内容
+ * @param { string } fileId 文件名称
+ */
 const getStreamFileContent = async (fileId: string) => {
   try {
+    mdContent.value = ''
     mdLoading.value = true
     const fileName = fileId
     const response = await fetch(import.meta.env.VITE_API_URL + '/api/note/one', {
@@ -94,6 +109,33 @@ const getStreamFileContent = async (fileId: string) => {
   }
 }
 
+const onEditMardown = () => {
+  drawerEdit.value = !drawerEdit.value
+}
+
+const onSubmitEdit = async () => {
+  const v = monoEditorRef.value.getValue()
+
+  const id = curSelectRow.value.id
+  const fileName = curSelectRow.value.contentUrl
+  try {
+    await updateNoteList({
+      id,
+      fileName,
+      content: v
+    })
+    ElMessage.success('更新成功')
+    drawerEdit.value = false
+
+    await delay(1000)
+    await getStreamFileContent(curSelectRow.value.contentUrl)
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  } catch (e) {
+    ElMessage.error('更新失败')
+  }
+}
+
 onMounted(() => {
   getNoteListFetch()
 })
@@ -122,7 +164,7 @@ onMounted(() => {
 </div>
 
   <el-drawer
-    modal-class="note_drawer"
+    class="note_drawer"
     header-class="node_drawer_header"
     size="70%"
     :modal="false"
@@ -132,7 +174,21 @@ onMounted(() => {
     :direction="direction"
     :before-close="handleClose"
   >
-    <MarkdownMsg v-loading="noteLoading" :value="mdContent" />
+    <div class="btn_group">
+      <el-icon @click="onEditMardown"><Edit /></el-icon>
+    </div>
+    <MarkdownMsg
+      v-if="!drawerEdit"
+      v-loading="noteLoading" :value="mdContent" />
+    <monaco-editor
+      v-else
+      v-model:value="mdContent"
+      ref="monoEditorRef"
+      :isNeedDefaultLang="false"
+    />
+    <div class="control_btn_group">
+      <el-icon @click="onSubmitEdit"><Check /></el-icon>
+    </div>
     <div class="tran_tip">giao!</div>
   </el-drawer>
 
@@ -230,6 +286,14 @@ onMounted(() => {
   .el-drawer__title {
     font-size: 14px !important;
     color: #696d69 !important;
+  }
+}
+
+.note_drawer {
+  .btn_group {
+    .el-icon {
+      cursor: pointer;
+    }
   }
 }
 </style>

@@ -19,3 +19,14 @@ export const getNoteList = () => request({
   },
   url: 'note/list',
 })
+
+
+
+export const updateNoteList = (data: object) => request({
+  method: 'post',
+  headers: {
+    Authorization: getToken(),
+  },
+  url: 'note/update',
+  data,
+})

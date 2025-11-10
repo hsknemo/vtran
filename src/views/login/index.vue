@@ -30,7 +30,7 @@ const onLogin = async () => {
     ElMessage.success(res.msg)
     face_smile_to_life()
     emitter.emit('refresh-user')
-    router.push('/tran')
+    router.push('/')
   } catch (e) {
     ElMessage.error(e.message)
   }

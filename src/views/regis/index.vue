@@ -20,7 +20,7 @@ const onAddUser = async () => {
     emit('close-login-page')
     loginOrRegisAction(res.data.token, res.data.data)
     ElMessage.success(res.msg)
-    router.push('/tran')
+    router.push('/')
   } catch (e) {
     ElMessage.error(e.message)
   }

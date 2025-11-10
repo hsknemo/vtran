@@ -5,9 +5,10 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      path: '/tran',
+      path: '/',
       name: 'tran',
       component: () => import('../views/layout.vue'),
+      redirect: '/tran/transfer',
       children: [
         {
           path: '/tran/transfer',
