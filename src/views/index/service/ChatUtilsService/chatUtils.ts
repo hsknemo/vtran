@@ -7,6 +7,7 @@
     code: '',
     show: false,
     showEmoji: false,
+    showUpload: false,
   })
 
   export const codeGroupReactive = reactive({
@@ -15,12 +16,22 @@
     showEmoji: false,
   })
 
+
+
   const sendCode = (isGroup) => {
     if (isGroup) {
       codeGroupReactive.show = true
       return
     }
     codeReactive.show = true
+  }
+
+  const uploadFile = (isGroup) => {
+    if (isGroup) {
+      // codeGroupReactive.show = true
+      return
+    }
+    codeReactive.showUpload = true
   }
 
   export const onUtilsFunc = (text:string, isGroup:boolean) => {
@@ -32,5 +43,7 @@
           return sendCode(isGroup)
         case '表情':
           return
+        case '上传':
+           return uploadFile(isGroup)
       }
   }

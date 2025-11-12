@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import router from '@/router'
+const hilightIndex = ref(0)
 console.log(router.options.routes)
 const route_menu =  router.options.routes[0]?.children
 </script>
@@ -8,7 +9,11 @@ const route_menu =  router.options.routes[0]?.children
   <div class="tran_layout">
     <div class="tran_list">
       <div class="tran_menu_item"
+           @click="hilightIndex = index"
            :key="index"
+           :class="[
+             hilightIndex === index ? 'active' : '',
+           ]"
            v-for="(item, index) in route_menu"
       >
         <router-link :to="item.path">{{ item.meta.title }}</router-link>
@@ -33,6 +38,18 @@ const route_menu =  router.options.routes[0]?.children
     min-width: 100px;
     max-height: 500px;
     overflow: auto;
+  }
+
+  .tran_menu_item {
+    a {
+      color: #ffffff;
+    }
+
+    &.active {
+      a {
+        color: hsla(160, 100%, 37%, 1)
+      }
+    }
   }
 }
 

@@ -30,3 +30,13 @@ export const updateNoteList = (data: object) => request({
   url: 'note/update',
   data,
 })
+
+
+export const deleteNoteFile = (data: object) => request({
+  method: 'post',
+  headers: {
+    Authorization: getToken(),
+  },
+  url: 'note/delete',
+  data,
+})

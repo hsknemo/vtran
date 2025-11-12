@@ -2,7 +2,6 @@
   聊天工具栏组件
 -->
 <script setup lang="ts">
-import { Scissor } from '@element-plus/icons-vue'
 import { defineAsyncComponent, onMounted, reactive } from 'vue'
 import { onUtilsFunc } from '@/views/index/service/ChatUtilsService/chatUtils.ts'
 import Emoji from '@/views/index/pageComponent/Emoji.vue'
@@ -47,6 +46,20 @@ const startDriver = () => {
         title: "输入框升级---同样支持群聊哟~",
         description: "支持发送markdown 语法，取消了回车键事件，暂时使用鼠标点击发送消息",
       }
+    },
+    {
+      element: "#tran_upload",
+      popover: {
+        title: "20251112输入框升级---支持文件发送",
+        description: "支持文件发送，大文件可能会超时",
+      }
+    },
+    {
+      element: "#tran_file_his",
+      popover: {
+        title: "20251112聊天界面升级---支持文件查看",
+        description: "双方文件查看历史",
+      }
     }
   ]
 
@@ -79,8 +92,12 @@ const chatUtilsBarReactive = reactive({
       icon: defineAsyncComponent(() => import('@/components/icons/iconCode.vue')),
       text: '代码',
       type: 'el-icon',
-
-      // type: 'custom-text',
+    },
+    {
+      id: 'tran_upload',
+      icon: defineAsyncComponent(() => import('@/components/icons/iconChatUpload.vue')),
+      text: '上传',
+      type: 'el-icon',
     },
   ],
 })

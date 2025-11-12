@@ -187,15 +187,26 @@ $block_bg_color: #1d1d1d;
   .tran_chat_msg_header {
     padding-left: 4px;
     @include flexStyle(center, space-between);
-    &.group {
-      .user_name {
-        @include flexStyle(center, center)
+    .user_name {
+      @include flexStyle(center, center);
+    }
+
+    .group_btn {
+      @include flexStyle(center);
+      margin-left: 5px;
+      svg {
+        cursor: pointer;
       }
+    }
+
+    &.group {
+
       .drawer_control {
         margin-left: 10px;
         @include flexStyle(center, center);
         cursor: pointer;
       }
+
     }
   }
 }

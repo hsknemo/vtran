@@ -1,0 +1,16 @@
+.tran_login, .tran_add_user {
+  max-width: 300px;
+  margin: 0 auto;
+  .tran_item {
+    margin-bottom: 10px;
+    .el-input {
+      margin-top: 5px;
+    }
+  }
+
+  .b_txt {
+    font-size: 40px;
+    font-weight:  bold;
+    // 文字镂空
+  }
+}

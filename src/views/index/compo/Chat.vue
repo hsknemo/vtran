@@ -12,6 +12,9 @@ import ChatUtilsBar from '@/views/index/compo/ChatUtilsBar.vue'
 import { codeReactive } from '@/views/index/service/ChatUtilsService/chatUtils.ts'
 import MonoDialog from '@/views/index/pageComponent/MonoDialog.vue'
 import MarkdownMsg from '@/views/index/chatCompo/MarkdownMsg.vue'
+import UploadDia from '@/views/index/pageComponent/UploadDia.vue'
+import IconUploadHistory from '@/components/icons/iconUploadHistory.vue'
+import UploadHistory from '@/views/index/pageComponent/UploadHistory.vue'
 
 const highlightIndex = ref(-1)
 const userMsg = ref('')
@@ -174,7 +177,17 @@ const onEmojiTextSelect = emoji => {
   userMsg.value += emoji
 }
 
+const uploadHis = reactive({
+  show: false
+})
+const onClickShowHistory = () => {
+  uploadHis.show = true
+}
 
+const onUploadSuccess = () => {
+  userMsg.value = '提示：双方互传文件，请打开历史文件进行查看！'
+  onSend()
+}
 
 
 onMounted(() => {
@@ -259,7 +272,16 @@ onMounted(() => {
       <div class="right">
         <template v-if="chatMsgList.currentUser">
           <header class="tran_chat_msg_header">
-            <div class="user_name">{{ chatMsgList.currentUser.username }}</div>
+            <div class="user_name">
+              {{ chatMsgList.currentUser.username }}
+              <div class="group_btn">
+                <el-tooltip content="文件历史记录"
+                            effect="light"
+                >
+                  <icon-upload-history @click="onClickShowHistory" id="tran_file_his" />
+                </el-tooltip>
+              </div>
+            </div>
             <div class="btn_group">
               <el-button @click="onCloseLinkPanel" text :icon="CloseBold"></el-button>
             </div>
@@ -306,6 +328,20 @@ onMounted(() => {
     @form-sure="onCodeEditorEnter"
     v-model:pop-control="codeReactive"
   ></mono-dialog>
+
+  <UploadDia
+    v-model="codeReactive.showUpload"
+    @upload-msg="onUploadSuccess"
+  >
+  </UploadDia>
+
+  <upload-history
+    v-if="uploadHis.show"
+    :curUserInfo="chatMsgList.currentUser"
+    v-model:pop-control="uploadHis"
+  ></upload-history>
+
+
 </template>
 
 <style scoped lang="scss">

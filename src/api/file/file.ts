@@ -39,3 +39,13 @@ export const deleteFile = (data:object) => request({
 })
 
 
+export const doubleUserFile = (data:object) => request({
+  method: 'post',
+  headers: {
+    Authorization: getToken(),
+  },
+  url: 'file/doubleUser',
+  data
+})
+
+

@@ -1,18 +1,18 @@
 <script setup lang="ts">
-
-import { getNoteList, updateNoteList } from '@/api/note/note.ts'
+import { deleteNoteFile, getNoteList, updateNoteList } from '@/api/note/note.ts'
 import { ElMessage } from 'element-plus'
 import { Check, Close, Edit } from '@element-plus/icons-vue'
 import MarkdownMsg from '@/views/index/chatCompo/MarkdownMsg.vue'
 import { ref } from 'vue'
 import MonacoEditor from '@/views/index/pageComponent/MonacoEditor.vue'
 import { delay } from '@/utils/sleep.ts'
-
+import moment from 'moment'
 const noteLoading = ref(false)
 const mdLoading = ref(false)
 const note_drawer = ref(false)
 const direction = ref('rtl')
 const mdContent = ref('')
+const lastRes = ref({})
 const handleClose = (done: () => void) => {
   done()
 }
@@ -24,33 +24,65 @@ const getNoteListFetch = async () => {
     noteLoading.value = true
     const data = await getNoteList()
     noteList.value = data.data
+    const yearList = {}
+    const yearSet = new Set()
+    data.data.forEach(item => {
+      yearSet.add(moment(item.createTime).format('YYYY'))
+    })
+    const arr = Array.from(yearSet).sort((a, b) => parseInt(b) - parseInt(a))
+    arr.forEach(item => {
+      yearList[item] = []
+    })
+
+    data.data.forEach(item => {
+      const y = moment(item.createTime).format('YYYY')
+      if (yearList[y]) {
+        yearList[y].push(item)
+      }
+    })
+
+    console.log(yearList)
+    lastRes.value = yearList
   } catch (e) {
     ElMessage.error('获取笔记列表失败')
   } finally {
     noteLoading.value = false
   }
 }
-
 interface NoteItem {
-  id: string,
-  name: string,
-  desc: string,
-  markColor: string,
-  updateTime: string,
-  createTime: string,
-  contentUrl: string,
+  id: string
+  name: string
+  desc: string
+  markColor: string
+  updateTime: string
+  createTime: string
+  contentUrl: string
 }
 
 const curSelectRow = ref({} as NoteItem)
 const drawerEdit = ref(false)
 const monoEditorRef = ref()
 
-const getNote = async (item:NoteItem) => {
+const getNote = async (item: NoteItem) => {
   drawerEdit.value = false
   mdContent.value = ''
   note_drawer.value = true
   curSelectRow.value = item
   await getStreamFileContent(item.contentUrl)
+}
+
+const onDelete = async (item: NoteItem) => {
+  try {
+    await deleteNoteFile({
+      id: item.id,
+      fileName: item.contentUrl,
+    })
+    ElMessage.success('删除成功')
+  } catch (e) {
+    ElMessage.error('删除失败')
+  } finally {
+    getNoteListFetch()
+  }
 }
 
 /**
@@ -67,11 +99,11 @@ const getStreamFileContent = async (fileId: string) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': localStorage.getItem('Auth')
+        Authorization: localStorage.getItem('Auth'),
       },
       body: JSON.stringify({
         fileName,
-      })
+      }),
     } as RequestInit)
 
     if (!response.ok) {
@@ -102,7 +134,6 @@ const getStreamFileContent = async (fileId: string) => {
       const chunk = decoder.decode(value, { stream: true })
       mdContent.value += chunk
     }
-
   } catch (e) {
     noteLoading.value = false
     ElMessage.error('获取文件内容失败')
@@ -122,7 +153,7 @@ const onSubmitEdit = async () => {
     await updateNoteList({
       id,
       fileName,
-      content: v
+      content: v,
     })
     ElMessage.success('更新成功')
     drawerEdit.value = false
@@ -142,26 +173,39 @@ onMounted(() => {
 </script>
 
 <template>
-<div class="note_list" v-loading="noteLoading">
-  <div class="note_list_item"
-       @click="getNote(item)"
-       :key="index"
-       v-for="(item, index) in noteList">
-    <div class="top">
-      <div class="note_title">{{ item.name }}</div>
-      <el-icon><Close /></el-icon>
-    </div>
-    <div class="mid">
-      {{ item.desc }}
-    </div>
-    <footer class="note-footer note_time update_time">
-      <div class="rec" :style="{
-        '--rec-color': item.markColor,
-      }"></div>
-      <span>最近更新于：{{ item.updateTime }}</span>
-    </footer>
+  <div class="note_container" v-loading="noteLoading">
+    <template v-for="(it, index) in lastRes">
+      <div class="tipShow">{{index}}</div>
+      <div class="note_list" >
+        <div
+          class="note_list_item"
+          @click.stop="getNote(item)"
+          :key="idx"
+          v-for="(item, idx) in it"
+        >
+          <div class="top">
+            <div class="note_title">{{ item.name }}</div>
+            <el-icon @click.stop="onDelete(item)"><Close /></el-icon>
+          </div>
+          <div class="mid">
+            {{ item.desc }}
+          </div>
+          <footer class="note-footer note_time update_time">
+            <div
+              class="rec"
+              :style="{
+            '--rec-color': item.markColor,
+          }"
+            ></div>
+            <span>最近更新于：{{ item.updateTime }}</span>
+          </footer>
+        </div>
+      </div>
+    </template>
+
   </div>
-</div>
+
+
 
   <el-drawer
     class="note_drawer"
@@ -177,16 +221,14 @@ onMounted(() => {
     <div class="btn_group">
       <el-icon @click="onEditMardown"><Edit /></el-icon>
     </div>
-    <MarkdownMsg
-      v-if="!drawerEdit"
-      v-loading="noteLoading" :value="mdContent" />
+    <MarkdownMsg v-if="!drawerEdit" v-loading="noteLoading" :value="mdContent" />
     <monaco-editor
       v-else
       v-model:value="mdContent"
       ref="monoEditorRef"
       :isNeedDefaultLang="false"
     />
-    <div  v-if="drawerEdit"  class="control_btn_group">
+    <div v-if="drawerEdit" class="control_btn_group">
       <el-icon @click="onSubmitEdit"><Check /></el-icon>
     </div>
     <div class="tran_tip">giao!</div>
@@ -196,8 +238,7 @@ onMounted(() => {
 </template>
 
 <style scoped lang="scss">
-
-@mixin flexStyle($align:'center', $justContent:'space-around') {
+@mixin flexStyle($align: 'center', $justContent: 'space-around') {
   display: flex;
   align-items: $align;
   justify-content: $justContent;
@@ -250,10 +291,37 @@ onMounted(() => {
     cursor: pointer;
     margin-bottom: 10px;
 
-    @include note_body()
+    @include note_body();
   }
 }
 
+@mixin tipShow() {
+  position: relative;
+  font-size: 40px;
+  font-weight: bold;
+  border-radius: 5px;
+  background-color: #1d1d1d;
+  width: fit-content;
+  padding: 5px 10px;
+  margin-bottom: 10px;
+  &:before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 3px;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #1d1d1d;
+  }
+}
+.tipShow {
+  @include tipShow();
+}
+
+.note_container {
+  margin-top: 10px;
+}
 
 .note_list {
   @include flexStyle();
@@ -270,18 +338,13 @@ onMounted(() => {
   text-align: center;
 }
 
-
 .tran_markdown_show_area {
   height: calc(100% - 100px);
   width: 100%;
   overflow: auto;
 }
-
-
 </style>
-<style
-  lang="scss"
->
+<style lang="scss">
 .node_drawer_header {
   .el-drawer__title {
     font-size: 14px !important;

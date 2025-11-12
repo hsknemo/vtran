@@ -5,6 +5,7 @@ import { setFileToUserList } from '@/api/file/file.ts'
 import { ElMessage } from 'element-plus'
 import { onLineUserList } from '@/views/index/store/store.ts'
 import { useLocalStorage } from '@vueuse/core'
+
 interface Data {
   fileList: File[]
 }

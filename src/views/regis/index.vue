@@ -33,6 +33,7 @@ const onLoginPage = () => {
 
 <template>
   <div class="tran_add_user">
+    <div class="b_txt">Regis</div>
     <div class="tran_item">
       <div class="tran_item_title">用户名</div>
       <el-input @keydown.enter="onAddUser" placeholder="请输入用户名" v-model="userData.username"></el-input>
@@ -44,8 +45,7 @@ const onLoginPage = () => {
   </div>
 </template>
 
-<style lang="scss">
-.tran_item {
-  margin-top: 10px;
-}
+<style scoped lang="scss">
+@use "@/assets/login";
 </style>
+

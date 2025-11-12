@@ -4,10 +4,10 @@ import { Bell, ChatDotRound, Connection } from '@element-plus/icons-vue'
 import { emitter } from '@/event/eventBus.ts'
 import Chat from '@/views/index/compo/Chat.vue'
 import { ElNotification } from 'element-plus'
-import { useLocalStorage } from '@vueuse/core'
 const emit = defineEmits(['exit'])
 const user = reactive({
   username: '',
+  ip: '',
 })
 const dialogSet = reactive({
   show: false,
@@ -42,6 +42,7 @@ const getUser = () => {
 const onInit = (args:never) => {
   const u = getUser()
   user.username = u.username
+  user.ip = u.ip
 }
 
 const onExit = _ => {
@@ -55,7 +56,7 @@ const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
 const isTyping = ref(true)
 const typingSpeed = 1000 / 10
 const onStartWelcomeMsg = async () => {
-  const content = import.meta.env.VITE_WELCOME_MESSAGE + ':'+ user.username
+  const content = import.meta.env.VITE_WELCOME_MESSAGE + ' '+ user.username
   for (let i = 0; i < content.split('').length; i++) {
     await delay(typingSpeed)
     msg.value += content[i]
@@ -63,7 +64,7 @@ const onStartWelcomeMsg = async () => {
   if (msg.value.length === content.length) {
     isTyping.value = false
     await delay(1000)
-    cancelStartWelComeMsg()
+    // cancelStartWelComeMsg()
   }
 }
 
@@ -140,6 +141,7 @@ onMounted(_ => {
   <div class="v_tran_user_panel">
     <h3 class="typing">
       <span class="cursor">{{ msg }}</span>
+      <span class="ip">{{ user.ip }}</span>
     </h3>
     <audio ref="audio" src="/record/message.mp3"></audio>
     <section class="btn_group">
@@ -191,6 +193,11 @@ onMounted(_ => {
         font-size: 14px;
         padding-left: 4px;
         animation: blink 0.5s infinite;
+      }
+
+      .ip {
+        font-size: 12px;
+        margin-left: 10px;
       }
     }
   }

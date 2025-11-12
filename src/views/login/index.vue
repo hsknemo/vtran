@@ -43,8 +43,10 @@ const onCreatePage = () => {
 
 <template>
   <div class="tran_login">
+    <div class="b_txt">Login</div>
     <div class="tran_item">
-      用户名：<el-input @keydown.enter="onLogin" placeholder="请输入用户名" v-model="userData.username"></el-input>
+      <div class="tran_item_title">用户名</div>
+      <el-input @keydown.enter="onLogin" placeholder="请输入用户名" v-model="userData.username"></el-input>
     </div>
     <div class="tran_item">
       <el-button @click="onLogin">登录</el-button>
@@ -53,6 +55,6 @@ const onCreatePage = () => {
   </div>
 </template>
 
-<style scoped>
-
+<style scoped lang="scss">
+@use "@/assets/login";
 </style>
