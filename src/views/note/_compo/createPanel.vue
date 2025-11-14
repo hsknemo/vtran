@@ -3,6 +3,7 @@ import { reactive, ref } from 'vue'
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import MonacoEditor from '@/views/index/pageComponent/MonacoEditor.vue'
 import { saveNote } from '@/api/note/note.ts'
+import MarkdownMsg from '@/views/index/chatCompo/MarkdownMsg.vue'
 const ruleFormRef = ref<FormInstance>()
 const monoEditorRef = ref()
 const ruleForm = reactive({
@@ -75,7 +76,11 @@ const saveNodeFetch = async () => {
   }
 }
 
-
+const editingText = ref('左侧输入，这边展示😄')
+const onEditMarkdown = (value: string) => {
+  console.log(value)
+  editingText.value = value
+}
 
 </script>
 
@@ -124,9 +129,16 @@ const saveNodeFetch = async () => {
       <el-tag type="primary">支持markdown 语法</el-tag>
       <div class="tran_mono_editor">
         <monaco-editor
+
+          @mardown-is-editing="onEditMarkdown"
           ref="monoEditorRef"
           :isNeedDefaultLang="false"
         ></monaco-editor>
+
+        <MarkdownMsg min-w-100
+                     shadow-xl
+                     shadow-dark
+                     v-model:value="editingText"> </MarkdownMsg>
       </div>
     </el-form-item>
     <el-form-item>
@@ -144,12 +156,13 @@ const saveNodeFetch = async () => {
   justify-content: $justContent;
 }
 .create_panel {
-  max-width: 800px;
+  max-width: 1000px;
 
   .tran_mono_editor {
     width: 100%;
     height: 500px;
     margin-top: 10px;
+    @include flexStyle();
   }
   .color_div {
     width: 100%;

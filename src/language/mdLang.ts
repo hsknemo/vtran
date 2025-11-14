@@ -1,0 +1,17 @@
+export default [
+  'javascript',
+  'markdown',
+  'php',
+  'html',
+  'css',
+  'json',
+  'xml',
+  'yaml',
+  'bash',
+  'shell',
+  'sql',
+  'python',
+  'java',
+  'c',
+  'go',
+].sort()

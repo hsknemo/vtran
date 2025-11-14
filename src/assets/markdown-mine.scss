@@ -1,3 +1,5 @@
+@use "github-markdown-css/github-markdown-dark.css";
+
 @mixin hover-highlight-text($startColor:#e7ff00, $endColor:#f46527) {
   &:hover {
     background-image: linear-gradient(to right,  $startColor, $endColor);
@@ -24,6 +26,12 @@
   animation: text-ani 1s linear infinite;
 }
 @mixin mine-markdown {
+  p {
+    margin: 10px 0;
+    font-size: 14px;
+    padding: 10px;
+    background: #1d1d1d;
+  }
   .keyword, .keyword a {
     transition: all .3s;
   }

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import MonacoEditor from '@/views/index/pageComponent/MonacoEditor.vue'
+import mdLang from '@/language/mdLang.ts'
 const emit = defineEmits(['form-sure'])
 
 const props = defineProps({
@@ -12,24 +13,7 @@ const props = defineProps({
 })
 
 const selectLanguage = ref('javascript')
-const languageList = [
-  'javascript',
-  'typescript',
-  'python',
-  'java',
-  'csharp',
-  'cpp',
-  'go',
-  'ruby',
-  'php',
-  'swift',
-  'kotlin',
-  'rust',
-  'html',
-  'css',
-  'json',
-  'markdown',
-]
+const languageList = mdLang
 
 const onEmitCancel = () => {
   props.popControl.show = false

@@ -1,23 +1,28 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import markdownIt from 'markdown-it'
-import { ElMessage } from 'element-plus'
+import { onMounted } from 'vue'
 import { clipBord } from '@/utils/clipBord.ts'
-const mdIt = new markdownIt()
+import mdShiki from '@/utils/mdShiki.ts'
+
+const mdValue = ref('')
+
 const props = defineProps({
   value: {
     type: String,
-    default: ''
-  }
+    default: '',
+  },
 })
 
-const mdValue = computed({
-  get() {
-    return mdIt.render(props.value)
-  }
-})
+watch(
+  () => props.value,
+  () => {
+    getMdValue()
+  },
+)
 
-const onMarkeDownClick = function() {
+const getMdValue = async () => {
+  mdValue.value = mdShiki.render(props.value)
+}
+const onMarkeDownClick = function () {
   let event = arguments[0]
   let ev = event
   // 增加点击复制
@@ -29,22 +34,24 @@ const onMarkeDownClick = function() {
     let parentEle = item.closest('pre')
     let code = parentEle.querySelector(`code[js-code-block="${codeNum}"]`)
 
-
     clipBord(code.textContent)
   }
 }
 
+onMounted(() => {
+  getMdValue()
+})
 </script>
 
 <template>
-  <div class="tran_markdown_show_area"
-       @click="$event => onMarkeDownClick($event)"
-       v-html="mdValue"
-       v-highlight="mdValue"
-  >
-  </div>
+  <div
+    class="tran_markdown_show_area markdown-body"
+    @click="($event) => onMarkeDownClick($event)"
+    v-html="mdValue"
+    v-copy="mdValue"
+  ></div>
 </template>
 
-<style  lang="scss">
-@use '@/assets/markdown-mine.scss'
+<style lang="scss">
+@use '@/assets/markdown-mine.scss';
 </style>
