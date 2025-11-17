@@ -49,3 +49,21 @@ export const doubleUserFile = (data:object) => request({
 })
 
 
+export const upChunkFile = (data:FormData) => request({
+  method: 'post',
+  headers: {
+    Authorization: getToken(),
+    contentType: 'multipart/form-data',
+  },
+  url: 'file/chunk',
+  data
+})
+
+export const mergeFile = (data:FormData) => request({
+  method: 'post',
+  headers: {
+    Authorization: getToken(),
+  },
+  url: 'file/chunk/merge',
+  data
+})

@@ -1,22 +1,26 @@
 <script setup lang="ts">
 import router from '@/router'
-const hilightIndex = ref(0)
-console.log(router.options.routes)
+import { useRoute } from 'vue-router'
+const route = useRoute()
+const hilightIndex = ref(route.meta.title)
+
 const route_menu =  router.options.routes[0]?.children
+
+
 </script>
 
 <template>
   <div class="tran_layout">
     <div class="tran_list">
-      <div class="tran_menu_item"
-           @click="hilightIndex = index"
+      <div class="tran_menu_item mb-3 w-fit whitespace-nowrap"
+           @click="hilightIndex = item.meta.title"
            :key="index"
            :class="[
-             hilightIndex === index ? 'active' : '',
+             hilightIndex === item.meta.title ? 'active' : '',
            ]"
            v-for="(item, index) in route_menu"
       >
-        <router-link :to="item.path">{{ item.meta.title }}</router-link>
+        <router-link px-5 py-2 :to="item.path">{{ item.meta.title }}</router-link>
       </div>
     </div>
     <div class="tran_container">
@@ -35,8 +39,8 @@ const route_menu =  router.options.routes[0]?.children
 
 @mixin tran_list {
   .tran_list {
+    padding-top: 60px;
     min-width: 100px;
-    max-height: 500px;
     overflow: auto;
   }
 
@@ -56,7 +60,6 @@ const route_menu =  router.options.routes[0]?.children
 @mixin tran_container {
   .tran_container {
     flex: 1;
-    padding: 20px;
     min-height: 800px;
     width: calc(100% - 20px);
   }

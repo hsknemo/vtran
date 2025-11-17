@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { onLineUserList } from '@/views/index/store/store.ts'
 
 
 </script>
@@ -76,16 +75,13 @@ nav a:first-of-type {
 }
 </style>
 <style lang="scss">
-#app {
-  margin: 10px auto;
-  height: 100%;
-}
-body {
-}
 @mixin flexStyle($align:'center', $justContent:'space-around') {
   display: flex;
   align-items: $align;
   justify-content: $justContent;
+}
+#app {
+  height: 100vh;
 }
 
 #logo {

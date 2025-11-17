@@ -6,7 +6,7 @@ import { ElMessage } from 'element-plus'
 import { emitter } from '@/event/eventBus.ts'
 import { onLineUserList } from '@/views/index/store/store.ts'
 import type { InterfaceOnlineUser } from '@/views/index/store/type/store.ts'
-
+const emit = defineEmits(['click-user'])
 
 const onRefresh = async (cb: () => void) => {
   try {
@@ -36,7 +36,16 @@ onMounted((_) => {
   loopFetch()
 })
 
+// 销毁
+onUnmounted(() => {
+  clearTimeout(window._user_online_timeout)
+})
 
+
+const onClickUser = (item) => {
+  onLineUserList.curSelectUser = item.id
+  emit('click-user', onLineUserList.curSelectUser, item)
+}
 </script>
 
 <template>
@@ -44,7 +53,7 @@ onMounted((_) => {
     <div class="tran_send_user_panel">
       <div class="panel_list_item"
            :key="index"
-           @click="onLineUserList.curSelectUser = item.id"
+           @click="onClickUser(item)"
            :class="[
              {
               'active': onLineUserList.curSelectUser === item.id
@@ -59,20 +68,7 @@ onMounted((_) => {
         ]">{{ item.username }}</span>
       </div>
     </div>
-<!--    <el-select-->
-<!--      filterable-->
-<!--      clearable-->
-<!--      placeholder="请选择指定发送用户"-->
-<!--      v-model="onLineUserList.curSelectUser">-->
-<!--      <el-option-->
-<!--        :key="index"-->
-<!--        v-for="(item, index) in onLineUserList.onlineList"-->
-<!--        :label="item.username"-->
-<!--        :value="item.id"-->
-<!--      ></el-option>-->
-<!--    </el-select>-->
-
-    <el-button @click="onRefresh" :icon="Refresh"> </el-button>
+    <el-button size="small" @click="onRefresh" :icon="Refresh"> </el-button>
   </section>
 </template>
 

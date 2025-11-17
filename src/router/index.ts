@@ -1,5 +1,6 @@
 import { createRouter, createWebHashHistory, createWebHistory } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import * as process from 'node:process'
 
 const router = createRouter({
   history: createWebHashHistory(),
@@ -14,7 +15,7 @@ const router = createRouter({
           path: '/tran/transfer',
           name: 'transfer',
           meta: {
-            title: '传输'
+            title: '传个东西'
           },
           component: () => import('../views/index/index.vue'),
         },
@@ -22,9 +23,26 @@ const router = createRouter({
           path: '/tran/note',
           name: 'note',
           meta: {
-            title: '便签'
+            title: '写个便签'
           },
           component: () => import('../views/note/index.vue'),
+        },
+        {
+          path: '/tran/dingDong',
+          name: 'dingDong',
+          meta: {
+            title: '叮一叮'
+          },
+          component: () => import('../views/dingdong/dingDong.vue'),
+        },
+        {
+          path: '/tran/bugs',
+          name: 'bugs',
+          meta: {
+            title: '提个issue',
+            mode: 'development'
+          },
+          component: () => import('../views/bugs/bugs.vue'),
         },
       ],
     },
@@ -43,14 +61,30 @@ const router = createRouter({
         title: '注册'
       },
       component: () => import('../views/regis/index.vue'),
+    },
+    {
+      path: '/404',
+      name: '404',
+      meta: {
+        title: '404'
+      },
+      component: () => import('../views/404/404.vue'),
     }
   ],
 })
 
 // 路径拦截
 router.beforeEach((to, from) => {
+  let devMode = import.meta.env.MODE
+
   if (to.meta && to.meta.title) {
-    document.title = to.meta.title as string
+    document.title =  to.meta.title + ' | Tran' as string
+  }
+
+  // 控制页面显示
+  if (to.meta.mode && devMode !== to.meta.mode) {
+    router.push('/404')
+    return
   }
   // 注册页面不拦截
   if (to.name === 'regis' || to.name === 'login') {

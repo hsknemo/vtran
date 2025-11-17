@@ -1,7 +1,5 @@
 import axios, { type AxiosRequestConfig } from 'axios'
-import { ElMessage } from 'element-plus'
-import { useRouter } from 'vue-router'
-const router = useRouter()
+import router from '@/router'
 // axios 配置拦截器
 axios.defaults.timeout = 30000;
 axios.defaults.baseURL = import.meta.env.VITE_API_URL + '/api';
@@ -26,7 +24,7 @@ axios.interceptors.response.use(
       clearTimeout(window._user_online_timeout)
       router.push('/login')
     }
-    ElMessage.error(response.data.msg);
+    throw new Error(response.data.msg);
   }
 );
 
