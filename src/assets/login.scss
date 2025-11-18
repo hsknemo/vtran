@@ -1,6 +1,10 @@
 .tran_login, .tran_add_user {
-  max-width: 300px;
+  min-width: 300px;
   margin: 0 auto;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
   .tran_item {
     margin-bottom: 10px;
     .el-input {

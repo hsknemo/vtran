@@ -3,8 +3,10 @@ import { reactive, ref } from 'vue'
 import type { UploadRequestOptions } from 'element-plus/es/components/upload/src/upload'
 import { ElMessage } from 'element-plus'
 import { useLocalStorage } from '@vueuse/core'
-import { setFileToUserList } from '@/api/file/file.ts'
+import { mergeFile, setFileToUserList, upChunkFile } from '@/api/file/file.ts'
 import { chatMsgList } from '@/views/index/store/chat.ts'
+import { onLineUserList } from '@/views/index/store/store.ts'
+import { delay } from '@/utils/sleep.ts'
 const emit = defineEmits(['upload-msg'])
 const props = defineProps({
     popControl: {
@@ -23,41 +25,85 @@ const onHttpRequest = (option:UploadRequestOptions) => {
 }
 const uploading = ref(false)
 
-interface Data {
-  fileList: File[]
+const fileList = ref<File[]>([])
+
+const fileChunkCut = async (file:File, resolve) => {
+  // 文件大小
+  const fileLen = file.size
+  const chunkSize = 1024 * 1024 * 10
+  const chunkArr:Array<ChunkDefine> = []
+  const chunkCount = Math.ceil(fileLen / chunkSize)
+  for (let i = 0; i < chunkCount; i++) {
+    const start = i * chunkSize
+    const end = Math.min(fileLen, start + chunkSize)
+    const chunk = file.raw.slice(start, end)
+    chunkArr.push({
+      index: i,
+      chunk,
+      chunkSize,
+      fileName: file.name,
+      size: chunk.size,
+      fileTotalLen: fileLen,
+    })
+  }
+  const md5Key = crypto.randomUUID()
+  const user = JSON.parse(useLocalStorage('user', '{}').value)
+  for (let i = 0; i < chunkArr.length; i++) {
+    const item = chunkArr[i]
+    const formData:FormData = new FormData()
+    formData.append('index', item.index)
+    formData.append('chunk', item.chunk)
+    formData.append('fileName', item.fileName)
+    formData.append('chunkSize', item.size)
+    formData.append('fileTotalLen', item.fileTotalLen)
+    formData.append('toUserId', chatMsgList.currentUser.id)
+    formData.append('fromUserId', user.id)
+    formData.append('md5Key', md5Key)
+    formData.append('chunkSliceNum', chunkArr.length)
+    try {
+      const res = await upChunkFile(formData)
+      if (res.data.isUploaded) {
+        ElMessage.success(`${file.name} 上传成功`)
+        await delay(500)
+        await mergeFile({
+          md5Key,
+          toUserId: chatMsgList.currentUser.id,
+          fromUserId: user.id,
+        })
+        resolve(true)
+      }
+    } catch (e) {
+      ElMessage.error('上传失败')
+      resolve(false)
+      break
+    }
+  }
+
 }
-const fileList = ref([])
-const data:Data = reactive({
-  fileList: [],
-})
-
-
+const lockUpdateFile = ref(false)
 const sendFile = async () => {
-  const formData:FormData = new FormData()
+  lockUpdateFile.value = true
   if (!fileList.value.length) {
     return ElMessage.error('请选择文件！')
   }
   if (!chatMsgList.currentUser.id) {
     return ElMessage.error('请选择发送给的用户！')
   }
-
+  const promiseMap:Array<Promise<any>> = []
   fileList.value.forEach(file => {
-    formData.append('name', file.name)
-    formData.append('file', file.raw)
+    const promise= new Promise(resolve => {
+      fileChunkCut(file, resolve)
+    })
+    promiseMap.push(promise)
   })
-  formData.append('toUserId', chatMsgList.currentUser.id)
-  formData.append('fromUserId', JSON.parse(useLocalStorage('user', '{}').value).id)
-  try {
-    uploading.value = true
-    await setFileToUserList(formData)
-    ElMessage.success('发送成功')
+  Promise.all(promiseMap).then((boolenList) => {
+    lockUpdateFile.value = false
+    if (!boolenList.every(item => item)) {
+      return ElMessage.error('发送失败')
+    }
     emit('upload-msg', true)
-  } catch (e) {
-    ElMessage.error(e)
-  } finally {
-    uploading.value = false
-  }
-
+    ElMessage.success('发送成功')
+  })
 }
 
 </script>

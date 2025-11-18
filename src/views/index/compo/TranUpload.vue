@@ -1,27 +1,16 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import { ref } from 'vue'
 import type { UploadRequestOptions } from 'element-plus/es/components/upload/src/upload'
-import { setFileToUserList, upChunkFile, mergeFile } from '@/api/file/file.ts'
+import { upChunkFile, mergeFile } from '@/api/file/file.ts'
 import { ElMessage } from 'element-plus'
 import { onLineUserList } from '@/views/index/store/store.ts'
 import { useLocalStorage } from '@vueuse/core'
 import { delay } from '@/utils/sleep.ts'
 
-interface Data {
-  fileList: File[]
-}
-interface ChunkDefine {
-  index: number;
-  chunk: Blob;
-  fileName: string;
-  size: number;
-  chunkSize: number;
-  fileTotalLen: number;
-}
-const fileList = ref([])
-const data:Data = reactive({
-  fileList: [],
-})
+
+
+const fileList = ref<File[]>([])
+
 const onHttpRequest = (option:UploadRequestOptions) => {
   if (option.file) {
     // data.fileList.push(option.file)
@@ -29,9 +18,9 @@ const onHttpRequest = (option:UploadRequestOptions) => {
 }
 const uploading = ref(false)
 
-const fileChunkCut = async (file:File, resolve) => {
+const fileChunkCut = async (file: File, resolve: (value: boolean) => void) => {
   // 文件大小
-  let fileLen = file.size
+  const fileLen = file.size
   const chunkSize = 1024 * 1024 * 10
   const chunkArr:Array<ChunkDefine> = []
   const chunkCount = Math.ceil(fileLen / chunkSize)
@@ -48,10 +37,10 @@ const fileChunkCut = async (file:File, resolve) => {
       fileTotalLen: fileLen,
     })
   }
-  let md5Key = crypto.randomUUID()
+  const md5Key = crypto.randomUUID()
   const user = JSON.parse(useLocalStorage('user', '{}').value)
   for (let i = 0; i < chunkArr.length; i++) {
-    let item = chunkArr[i]
+    const item = chunkArr[i]
     const formData:FormData = new FormData()
     formData.append('index', item.index)
     formData.append('chunk', item.chunk)
@@ -67,7 +56,7 @@ const fileChunkCut = async (file:File, resolve) => {
       if (res.data.isUploaded) {
         ElMessage.success(`${file.name} 上传成功`)
         await delay(500)
-        mergeFile({
+        await mergeFile({
           md5Key,
           toUserId: onLineUserList.curSelectUser,
           fromUserId: user.id,
@@ -85,19 +74,15 @@ const fileChunkCut = async (file:File, resolve) => {
 const lockUpdateFile = ref(false)
 const sendFile = async () => {
   lockUpdateFile.value = true
-  const formData:FormData = new FormData()
   if (!fileList.value.length) {
     return ElMessage.error('请选择文件！')
   }
   if (!onLineUserList.curSelectUser) {
     return ElMessage.error('请选择发送给的用户！')
   }
-  let arr = []
-  let promiseMap = []
+  const promiseMap = []
   fileList.value.forEach(file => {
-    // formData.append('name', file.name)
-    // formData.append('file', file.raw)
-    let promise= new Promise(resolve => {
+    const promise= new Promise(resolve => {
       fileChunkCut(file, resolve)
     })
     promiseMap.push(promise)
@@ -109,21 +94,6 @@ const sendFile = async () => {
     }
     ElMessage.success('发送成功')
   })
-  // formData.append('toUserId', onLineUserList.curSelectUser)
-  // formData.append('fromUserId', JSON.parse(useLocalStorage('user').value).id)
-
-
-
-  // try {
-  //   uploading.value = true
-  //   await setFileToUserList(formData)
-  //   ElMessage.success('发送成功')
-  // } catch (e) {
-  //   ElMessage.error(e)
-  // } finally {
-  //   uploading.value = false
-  // }
-
 }
 
 </script>
@@ -144,7 +114,7 @@ const sendFile = async () => {
     </div>
     <template #tip>
       <div class="el-upload__tip">
-        大文件未测试
+        支持大文件上传【240M】
       </div>
     </template>
   </el-upload>
