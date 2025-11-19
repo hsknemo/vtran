@@ -17,6 +17,20 @@ import TranDiaglog from '@/components/TranDiaglog.vue'
 import { ElMessage } from 'element-plus'
 import { getVersionList, saveVersionList } from '@/api/version/version.ts'
 const router = useRouter()
+const versionOption = ref([
+  {
+    name: '功能修复',
+    value: 'bug',
+  },
+  {
+    name: '功能增加',
+    value: 'feature',
+  },
+  {
+    name: '功能告警',
+    value: 'warn',
+  },
+])
 const version = ref('当前版本' + v)
 const versionList = ref([])
 const userAuth = computed(() => {
@@ -30,17 +44,46 @@ const versionPop = ref({
 const versionForm = ref({
   versionTitle: v,
   versionDesc: '',
+  versionType: '',
   versionContent: [],
 })
+
+const getTagType = (type) => {
+  switch (type) {
+    default:
+      return 'primary'
+    case 'bug':
+      return 'danger'
+    case 'feature':
+      return 'success'
+    case 'warn':
+      return 'warning'
+  }
+}
+const getColor = type => {
+  switch (type) {
+    default:
+      return '--el-color-primary'
+    case 'bug':
+      return '--el-color-danger'
+    case 'feature':
+      return '--el-color-success'
+    case 'warn':
+      return '--el-color-warning'
+  }
+}
+
 
 const onAddVersion = () => {
   version_list_cut.value = true
 }
 const onAddVersionItem = () => {
-  const set = new Set(versionForm.value.versionContent)
-  set.add(versionForm.value.versionDesc || '空')
+  versionForm.value.versionContent.push({
+    type: versionForm.value.versionType,
+    content: versionForm.value.versionDesc,
+  })
+  versionForm.value.versionType = ''
   versionForm.value.versionDesc = ''
-  versionForm.value.versionContent = Array.from(set)
 }
 
 /**
@@ -268,9 +311,14 @@ onMounted(() => {
       <div class="version_list" v-if="!version_list_cut">
         <template :key="index" v-for="(item, index) in versionList">
           <div class="version_wrap">
-            <div class="version_tit" :class="[!index ? 'text-color-gold!' : '']">{{ item.versionTitle }}</div>
+            <div class="version_tit" :class="[!index ? 'text-color-gold!' : '']">
+              {{ item.versionTitle }}
+            </div>
             <div class="version_list_item" :key="idx" v-for="(it, idx) in item.versionList">
-              {{ it }}
+              <el-tag :type="getTagType(it.type)">{{ it.type }}</el-tag>
+              <span :style="{
+                color: 'var(' + getColor(it.type) + ')'
+              }">{{ it.content }}</span>
             </div>
           </div>
         </template>
@@ -282,6 +330,14 @@ onMounted(() => {
             <el-input v-model="versionForm.versionTitle"></el-input>
           </el-form-item>
           <el-form-item label="版本描述">
+            <el-select w-50 mb-5 v-model="versionForm.versionType">
+              <el-option
+                :key="index"
+                v-for="(item, index) in versionOption"
+                :value="item.value"
+                :label="item.name"
+              ></el-option>
+            </el-select>
             <el-input v-model="versionForm.versionDesc">
               <template #append>
                 <el-icon @click="onAddVersionItem"><CirclePlus /></el-icon>
@@ -295,7 +351,8 @@ onMounted(() => {
                 v-for="(item, index) in versionForm.versionContent"
               >
                 <div class="item">
-                  <span> {{ item }} </span>
+                  <el-tag :type="getTagType(item.type)">{{ item.type }}</el-tag>
+                  <span> {{ item.content }} </span>
                   <el-icon cursor-pointer @click="onDeleteItem(item)"><Delete /></el-icon>
                 </div>
               </div>

@@ -341,6 +341,7 @@ onMounted(() => {
   height: calc(100% - 100px);
   width: 100%;
   overflow: auto;
+  background-color: unset !important;
 }
 </style>
 <style lang="scss">

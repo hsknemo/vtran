@@ -1,16 +1,9 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { clipBord } from '@/utils/clipBord.ts'
-import MarkdownIt from 'markdown-it'
-import hljs from 'highlight.js'
-import 'highlight.js/styles/atom-one-dark-reasonable.css' //样式
+import mdShiki from '@/utils/mdShiki.ts'
 
 const mdValue = ref('')
-const markdownIt =  MarkdownIt({
-  highlight: function (str:string) {
-    return hljs.highlightAuto(str).value
-  }
-})
 
 const props = defineProps({
   value: {
@@ -27,7 +20,7 @@ watch(
 )
 
 const getMdValue = async () => {
-  mdValue.value = markdownIt.render(props.value)
+  mdValue.value = mdShiki.render(props.value)
 }
 const onMarkeDownClick = function () {
   let event = arguments[0]
@@ -55,7 +48,7 @@ onMounted(() => {
     class="tran_markdown_show_area markdown-body"
     @click="($event) => onMarkeDownClick($event)"
     v-html="mdValue"
-    v-highlight="mdValue"
+    v-copy="mdValue"
   ></div>
 </template>
 

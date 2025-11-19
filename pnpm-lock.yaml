@@ -38,9 +38,6 @@ importers:
       highlight.js:
         specifier: ^11.11.1
         version: 11.11.1
-      markdown-it:
-        specifier: ^14.1.0
-        version: 14.1.0
       markdown-it-mathjax3:
         specifier: ^5.2.0
         version: 5.2.0
@@ -132,9 +129,15 @@ importers:
       jsdom:
         specifier: ^27.0.1
         version: 27.0.1(postcss@8.5.6)
+      markdown-it:
+        specifier: ^14.1.0
+        version: 14.1.0
       markdown-it-async:
         specifier: ^2.2.0
         version: 2.2.0
+      markdown-it-highlight:
+        specifier: ^0.2.0
+        version: 0.2.0
       npm-run-all2:
         specifier: ^8.0.4
         version: 8.0.4
@@ -2330,6 +2333,10 @@ packages:
     resolution: {integrity: sha512-Xwwo44whKBVCYoliBQwaPvtd/2tYFkRQtXDWj1nackaV2JPXx3L0+Jvd8/qCJ2p+ML0/XVkJ2q+Mr+UVdpJK5w==}
     engines: {node: '>=12.0.0'}
 
+  highlight.js@9.18.5:
+    resolution: {integrity: sha512-a5bFyofd/BHCX52/8i8uJkjr9DYwXIPnM/plwI6W7ezItLGqzt7X2G2nXuYSfsIJdkwwj/g9DG1LkcGJI/dDoA==}
+    deprecated: Support has ended for 9.x series. Upgrade to @latest
+
   hookable@5.5.3:
     resolution: {integrity: sha512-Yc+BQe8SvoXH1643Qez1zqLRmbA5rCL+sSmk6TVos0LWVfNIB7PGncdlId77WzLGSIB5KaWgTaNTs2lNVEI6VQ==}
 
@@ -2579,6 +2586,9 @@ packages:
 
   markdown-it-async@2.2.0:
     resolution: {integrity: sha512-sITME+kf799vMeO/ww/CjH6q+c05f6TLpn6VOmmWCGNqPJzSh+uFgZoMB9s0plNtW6afy63qglNAC3MhrhP/gg==}
+
+  markdown-it-highlight@0.2.0:
+    resolution: {integrity: sha512-VpJBiZSa3beosuxpynyKY1y1Nd/axF95UdSyiPjGtI1IKa+WK46M1GvN5R3Tcf4ZQjCmrGdGls6UBP8P0MMuwg==}
 
   markdown-it-mathjax3@5.2.0:
     resolution: {integrity: sha512-R+XAy5/7vSGuhG9Z0/cJm6zKxOzStcScfSKVwoarh4nBra+v1KClvbALr/xFTEe9iQhwfQM4SJnO68LXL+btMA==}
@@ -5802,6 +5812,8 @@ snapshots:
 
   highlight.js@11.11.1: {}
 
+  highlight.js@9.18.5: {}
+
   hookable@5.5.3: {}
 
   html-encoding-sniffer@4.0.0:
@@ -6046,6 +6058,10 @@ snapshots:
     dependencies:
       '@types/markdown-it': 14.1.2
       markdown-it: 14.1.0
+
+  markdown-it-highlight@0.2.0:
+    dependencies:
+      highlight.js: 9.18.5
 
   markdown-it-mathjax3@5.2.0:
     dependencies:
