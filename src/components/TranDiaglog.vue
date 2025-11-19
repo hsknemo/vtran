@@ -15,7 +15,6 @@ console.log(slots)
   <el-dialog
     draggable
     overflow
-    class="tran_editor"
     v-model="popControl.show"
     title='标题'
     :close-on-click-modal="false"

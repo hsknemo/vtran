@@ -1,4 +1,4 @@
-interface ChunkDefine {
+export declare interface ChunkDefine {
   index: number;
   chunk: Blob;
   fileName: string;
@@ -8,6 +8,6 @@ interface ChunkDefine {
 }
 
 
-interface UploadFileData {
+export declare interface UploadFileData {
   fileList: File[]
 }

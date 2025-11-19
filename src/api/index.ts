@@ -13,13 +13,14 @@ axios.interceptors.request.use(
 );
 axios.interceptors.response.use(
   response => {
-    if (!response?.data?.status) {
+    if (!response?.status) {
       throw new Error(response.data.msg)
     }
     return response.data || [];
   },
   error => {
     const { response } = error;
+    if (!response) return
     if (response.status === 401) {
       clearTimeout(window._user_online_timeout)
       router.push('/login')

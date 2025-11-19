@@ -4,7 +4,10 @@ import { Bell, ChatDotRound, Connection } from '@element-plus/icons-vue'
 import { emitter } from '@/event/eventBus.ts'
 import Chat from '@/views/index/compo/Chat.vue'
 import { ElNotification } from 'element-plus'
+import { checkAllowAudioPlay, onSure, onSureNot, playMedia, showMediaConfig } from '@/utils/media.ts'
+import TranDiaglog from '@/components/TranDiaglog.vue'
 const emit = defineEmits(['exit'])
+import type{ FakeAudio} from '@/type/audio.ts'
 const user = reactive({
   username: '',
   ip: '',
@@ -21,9 +24,7 @@ const connectStatus = reactive({
 const msg = ref('')
 const bellLen = ref(0)
 const bellV = ref(true)
-const audio = ref('audio')
 const chatLen = ref(0)
-
 const onBellClick = _ => {
   bellV.value = !bellV.value
   emitter.emit('slide-table-list', bellV.value)
@@ -39,13 +40,13 @@ const getUser = () => {
   return {}
 }
 
-const onInit = (args:never) => {
+const onInit = () => {
   const u = getUser()
   user.username = u.username
   user.ip = u.ip
 }
 
-const onExit = _ => {
+const onExit = () => {
   emit('exit')
   localStorage.removeItem('user')
   localStorage.removeItem('Auth')
@@ -64,50 +65,26 @@ const onStartWelcomeMsg = async () => {
   if (msg.value.length === content.length) {
     isTyping.value = false
     await delay(1000)
-    // cancelStartWelComeMsg()
   }
 }
 
-const cancelStartWelComeMsg = async _ => {
-  for (let i = msg.value.split('').length; i >0; i--) {
-    await delay(typingSpeed)
-    msg.value = msg.value.slice(0, i - 1)
-  }
-  if (!msg.value) {
-    onStartWelcomeMsg()
-  }
-}
-
-const playAudio = _ => {
+const playM = ref<HTMLAudioElement | FakeAudio>(playMedia())
+const playAudio = () => {
   try {
-    if (!audio.value) {
-      audio.value = ref('audio')
-    }
-    audio.value.muted = false
-    audio.value.play()
-
-    setTimeout(_ => {
-      audio.value.muted = true
-    }, 500)
+    playM.value.muted = false
+    playM.value.play()
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (e) {
-    audio.value.muted = false
-    audio.value.play()
+    console.log('不支持播放')
   }
 }
 
 onMounted(_ => {
+  checkAllowAudioPlay()
+
   onInit()
 
   onStartWelcomeMsg()
-
-  document.addEventListener('click', function () {
-    try {
-      audio.value.muted = true
-      audio.value.play()
-    } catch (e) {
-    }
-
-  })
 
   emitter.on('refresh-bell-length', (len:number) => {
     bellLen.value = len
@@ -143,7 +120,6 @@ onMounted(_ => {
       <span class="cursor">{{ msg }}</span>
       <span class="ip">{{ user.ip }}</span>
     </h3>
-    <audio ref="audio" src="/record/message.mp3"></audio>
     <section class="btn_group">
       <el-tag :type="connectStatus.status">
         <el-icon><Connection /></el-icon>
@@ -160,6 +136,21 @@ onMounted(_ => {
     </section>
   </div>
   <Chat v-model:popControl="dialogSet" />
+
+  <TranDiaglog
+    title="是否播放声音？"
+    :style="{
+      height: '200px',
+    }"
+    v-model:pop-control="showMediaConfig">
+    <template #default>
+     是否允许页面播放媒体？
+    </template>
+    <template #footer>
+      <el-button @click="onSureNot">取消</el-button>
+      <el-button type="primary" @click="onSure">确定</el-button>
+    </template>
+  </TranDiaglog>
 </template>
 
 <style scoped lang="scss">

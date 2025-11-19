@@ -22,7 +22,7 @@ const onAddUser = async () => {
     ElMessage.success(res.msg)
     router.push('/')
   } catch (e) {
-    ElMessage.error(e.message)
+    ElMessage.error('注册失败' + e)
   }
 }
 

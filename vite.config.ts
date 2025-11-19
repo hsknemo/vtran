@@ -5,6 +5,8 @@ import vueJsx from '@vitejs/plugin-vue-jsx'
 import vueDevTools from 'vite-plugin-vue-devtools'
 import AutoImport from 'unplugin-auto-import/vite'
 import UnoCSS from 'unocss/vite'
+import topLevelAwait from 'vite-plugin-top-level-await';
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
@@ -15,6 +17,10 @@ export default defineConfig({
     }),
     vueJsx(),
     vueDevTools(),
+    topLevelAwait({
+      promiseExportName: '__tla',
+      promiseImportName: (i) => `__tla_${i}`,
+    }),
   ],
   server:{
     host:'0.0.0.0'

@@ -6,7 +6,8 @@ import { ElMessage } from 'element-plus'
 import { onLineUserList } from '@/views/index/store/store.ts'
 import { useLocalStorage } from '@vueuse/core'
 import { delay } from '@/utils/sleep.ts'
-
+import type { ChunkDefine } from '@/type/upload'
+import { v4 as uuidv4 } from 'uuid';
 
 
 const fileList = ref<File[]>([])
@@ -37,7 +38,7 @@ const fileChunkCut = async (file: File, resolve: (value: boolean) => void) => {
       fileTotalLen: fileLen,
     })
   }
-  const md5Key = crypto.randomUUID()
+  const md5Key = uuidv4()
   const user = JSON.parse(useLocalStorage('user', '{}').value)
   for (let i = 0; i < chunkArr.length; i++) {
     const item = chunkArr[i]
@@ -56,6 +57,7 @@ const fileChunkCut = async (file: File, resolve: (value: boolean) => void) => {
       if (res.data.isUploaded) {
         ElMessage.success(`${file.name} 上传成功`)
         await delay(500)
+        console.log('md5Key', md5Key)
         await mergeFile({
           md5Key,
           toUserId: onLineUserList.curSelectUser,
@@ -64,6 +66,7 @@ const fileChunkCut = async (file: File, resolve: (value: boolean) => void) => {
         resolve(true)
       }
     } catch (e) {
+      console.log('上传失败', e)
       ElMessage.error('上传失败')
       resolve(false)
       break

@@ -3,10 +3,11 @@ import { reactive, ref } from 'vue'
 import type { UploadRequestOptions } from 'element-plus/es/components/upload/src/upload'
 import { ElMessage } from 'element-plus'
 import { useLocalStorage } from '@vueuse/core'
-import { mergeFile, setFileToUserList, upChunkFile } from '@/api/file/file.ts'
+import { mergeFile, upChunkFile } from '@/api/file/file.ts'
 import { chatMsgList } from '@/views/index/store/chat.ts'
-import { onLineUserList } from '@/views/index/store/store.ts'
 import { delay } from '@/utils/sleep.ts'
+import type { ChunkDefine } from '@/type/upload'
+import { v4 as uuidv4 } from 'uuid'
 const emit = defineEmits(['upload-msg'])
 const props = defineProps({
     popControl: {
@@ -46,7 +47,7 @@ const fileChunkCut = async (file:File, resolve) => {
       fileTotalLen: fileLen,
     })
   }
-  const md5Key = crypto.randomUUID()
+  const md5Key = uuidv4()
   const user = JSON.parse(useLocalStorage('user', '{}').value)
   for (let i = 0; i < chunkArr.length; i++) {
     const item = chunkArr[i]
