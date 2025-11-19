@@ -27,6 +27,7 @@
     @include flexStyle(center);
     margin-bottom: 5px;
     .el-tag {
+      width: 50px;
       margin-right: 10px;
     }
   }

@@ -307,6 +307,7 @@ onMounted(() => {
     <template #default>
       <div v-if="userAuth.includes('addVersion')" class="version_control_group">
         <el-button @click="onAddVersion" size="small">添加版本</el-button>
+        <el-button size="small" @click="fetchGetVersionList" :icon="Refresh"></el-button>
       </div>
       <div class="version_list" v-if="!version_list_cut">
         <template :key="index" v-for="(item, index) in versionList">
