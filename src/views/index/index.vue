@@ -123,7 +123,7 @@ const reactive_data = reactive({
 
 const isTableShow = ref(true)
 
-function initWS() {
+const initWS() {
   if (!socketReacktive.ws) {
     socketReacktive.ws = new Socket({
       url: 'ws://' + window.location.hostname + ':' + import.meta.env.VITE_WS_LINK_ADDR,
