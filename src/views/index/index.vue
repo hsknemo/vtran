@@ -4,15 +4,74 @@ import OnlineUser from '@/views/index/compo/OnlineUser.vue'
 import ProfileFileList from '@/views/index/compo/ProfileFileList.vue'
 import ProfileSentOtherUserList from '@/views/index/compo/ProfileSentOtherUserList.vue'
 import Socket from '@/utils/socket.js'
-import { onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import ShowUser from '@/views/index/compo/ShowUser.vue'
 import { emitter } from '../../event/eventBus.ts'
 import { useLocalStorage } from '@vueuse/core'
-import { Refresh } from '@element-plus/icons-vue'
+import { CirclePlus, Delete, Refresh } from '@element-plus/icons-vue'
 import socketReacktive from '@/stores/socket.ts'
 import { onLineUserList } from '@/views/index/store/store.ts'
 import { useRouter } from 'vue-router'
+import { version as v } from '../../../package.json'
+import TranDiaglog from '@/components/TranDiaglog.vue'
+import { ElMessage } from 'element-plus'
+import { getVersionList, saveVersionList } from '@/api/version/version.ts'
 const router = useRouter()
+const version = ref('当前版本' + v)
+const versionList = ref([])
+const userAuth = computed(() => {
+  const auth = JSON.parse(useLocalStorage('user').value).auth || []
+  return auth
+})
+
+const versionPop = ref({
+  show: false,
+})
+const versionForm = ref({
+  versionTitle: v,
+  versionDesc: '',
+  versionContent: [],
+})
+
+const onAddVersion = () => {
+  version_list_cut.value = true
+}
+const onAddVersionItem = () => {
+  const set = new Set(versionForm.value.versionContent)
+  set.add(versionForm.value.versionDesc || '空')
+  versionForm.value.versionDesc = ''
+  versionForm.value.versionContent = Array.from(set)
+}
+
+/**
+ * 添加版本
+ */
+const onAddVersionSubmit = async () => {
+  try {
+    if (!versionForm.value.versionTitle) return ElMessage.error('版本标题数据为空')
+    if (!versionForm.value.versionContent.length) return ElMessage.error('版本描述数据为空')
+
+    await saveVersionList({
+      versionTitle: versionForm.value.versionTitle,
+      versionList: versionForm.value.versionContent,
+    })
+    ElMessage.success('添加成功')
+    version_list_cut.value = false
+    versionPop.value.show = false
+    await fetchGetVersionList()
+  } catch (e) {
+    console.log('error', e)
+    ElMessage.error('添加失败')
+  }
+}
+
+const onDeleteItem = (item) => {
+  versionForm.value.versionContent = versionForm.value.versionContent.filter((it) => it !== item)
+}
+const version_list_cut = ref(false)
+const onVersionClick = () => {
+  versionPop.value.show = true
+}
 
 const reactive_data = reactive({
   page: false,
@@ -80,6 +139,7 @@ const checkAuth = () => {
   }
   initWS()
   onClosePage()
+  fetchGetVersionList()
 
   const user = JSON.parse(useLocalStorage('user').value)
   emitter.on(`refresh-user-list-${user.username}`, () => {
@@ -126,6 +186,18 @@ const get_all_table_list = () => {
   onTableRefreshProfile()
 }
 
+/**
+ * 获取版本列表
+ */
+const fetchGetVersionList = async () => {
+  try {
+    const list = await getVersionList()
+    versionList.value = list.data
+  } catch (e) {
+    ElMessage.error('获取版本列表失败')
+  }
+}
+
 onMounted(() => {
   checkAuth()
 
@@ -137,19 +209,23 @@ onMounted(() => {
 
 <template>
   <main class="tran-transfer-container">
-    <section id="logo">
+    <div class="left_wrap">
+      <el-tooltip effect="light" :content="version">
+        <section @click="onVersionClick" cursor-pointer id="logo"></section>
+      </el-tooltip>
+
       <el-tooltip
         v-if="onLineUserList.onlineList.length"
         effect="light"
         content="当前加入用户数，感谢使用Tran"
         placement="right"
       >
-         <span class="regis_user">
-            {{ onLineUserList.onlineList.length }}
-         </span>
+        <span class="regis_user">
+          {{ onLineUserList.onlineList.length }}
+        </span>
       </el-tooltip>
+    </div>
 
-    </section>
     <template v-if="!reactive_data.showPage">
       <ShowUser @exit="onExit" />
     </template>
@@ -177,15 +253,69 @@ onMounted(() => {
             <el-button text @click="onTableRefreshProfile" :icon="Refresh"></el-button>
           </section>
         </div>
-        <ProfileSentOtherUserList ref="profileSentRef"/>
+        <ProfileSentOtherUserList ref="profileSentRef" />
       </section>
     </template>
 
     <!--    <el-backtop :right="100" :bottom="200" target=".tran-transfer-container" :visibility-height="1"/>-->
   </main>
+
+  <tran-diaglog title="版本查看" v-model:pop-control="versionPop">
+    <template #default>
+      <div v-if="userAuth.includes('addVersion')" class="version_control_group">
+        <el-button @click="onAddVersion" size="small">添加版本</el-button>
+      </div>
+      <div class="version_list" v-if="!version_list_cut">
+        <template :key="index" v-for="(item, index) in versionList">
+          <div class="version_wrap">
+            <div class="version_tit" :class="[!index ? 'text-color-gold!' : '']">{{ item.versionTitle }}</div>
+            <div class="version_list_item" :key="idx" v-for="(it, idx) in item.versionList">
+              {{ it }}
+            </div>
+          </div>
+        </template>
+      </div>
+
+      <div class="version_form" v-else>
+        <el-form :model="versionForm" label-width="auto">
+          <el-form-item label="版本号" prop="versionTitle">
+            <el-input v-model="versionForm.versionTitle"></el-input>
+          </el-form-item>
+          <el-form-item label="版本描述">
+            <el-input v-model="versionForm.versionDesc">
+              <template #append>
+                <el-icon @click="onAddVersionItem"><CirclePlus /></el-icon>
+              </template>
+            </el-input>
+
+            <div class="view_version_wrap">
+              <div
+                class="version_item_wrap"
+                :key="index"
+                v-for="(item, index) in versionForm.versionContent"
+              >
+                <div class="item">
+                  <span> {{ item }} </span>
+                  <el-icon cursor-pointer @click="onDeleteItem(item)"><Delete /></el-icon>
+                </div>
+              </div>
+            </div>
+          </el-form-item>
+          <el-form-item>
+            <div class="block" text-right w-full>
+              <el-button size="small" text @click="onAddVersionSubmit" type="primary"
+                >提交</el-button
+              >
+            </div>
+          </el-form-item>
+        </el-form>
+      </div>
+    </template>
+  </tran-diaglog>
 </template>
 
 <style scoped lang="scss">
+@use '@/assets/version.scss';
 @mixin flexStyle($align: 'center', $justContent: 'space-around') {
   display: flex;
   align-items: $align;
@@ -198,6 +328,10 @@ onMounted(() => {
   .tip {
     margin: 10px 0;
     @include flexStyle(center);
+  }
+
+  .left_wrap {
+    display: flex;
   }
 }
 </style>

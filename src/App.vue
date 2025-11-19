@@ -1,6 +1,4 @@
 <script setup lang="ts">
-
-
 </script>
 
 <template>
@@ -101,7 +99,6 @@ nav a:first-of-type {
 .regis_user {
   color: gold;
   font-weight: bold;
-  padding-left: 50px;
   font-size: 30px;
   @include hover-highlight-text()
 }

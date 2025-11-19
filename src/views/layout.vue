@@ -1,11 +1,20 @@
 <script setup lang="ts">
 import router from '@/router'
 import { useRoute } from 'vue-router'
+import { computed } from 'vue'
 const route = useRoute()
 const hilightIndex = ref(route.meta.title)
 
 const route_menu =  router.options.routes[0]?.children
 
+const filterMenu = computed({
+  get() {
+    let devMode = import.meta.env.MODE
+    return route_menu?.filter(item => {
+      return !item.meta.mode || [devMode].includes(item.meta.mode)
+    })
+  }
+})
 
 </script>
 
@@ -18,7 +27,7 @@ const route_menu =  router.options.routes[0]?.children
            :class="[
              hilightIndex === item.meta.title ? 'active' : '',
            ]"
-           v-for="(item, index) in route_menu"
+           v-for="(item, index) in filterMenu"
       >
         <router-link px-5 py-2 :to="item.path">{{ item.meta.title }}</router-link>
       </div>

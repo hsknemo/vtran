@@ -1,0 +1,62 @@
+@mixin flexStyle($align:'center', $justContent:'space-around') {
+  display: flex;
+  align-items: $align;
+  justify-content: $justContent;
+}
+
+@mixin version_item() {
+  &:before {
+    content: '';
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #edd6d6;
+    margin-right: 10px;
+  }
+}
+
+@mixin version_block() {
+  .version_tit {
+    color: #fff;
+    font-size: 14px;
+    margin-bottom: 5px;
+  }
+
+  .version_list_item {
+    font-size: 12px;
+    @include flexStyle(center);
+    @include version_item();
+  }
+}
+
+.version_list {
+  margin-bottom: 5px;
+  max-height: 300px;
+  overflow: auto;
+  .version_wrap {
+    @include version_block();
+  }
+
+}
+
+.version_control_group {
+  @include flexStyle(center);
+  margin-bottom: 5px;
+}
+
+.view_version_wrap {
+  max-height: 300px;
+  overflow: auto;
+
+  .version_item_wrap {
+    @include flexStyle(center);
+    @include version_item();
+
+    .item {
+      @include flexStyle(center);
+      span {
+        margin-right: 5px;
+      }
+    }
+  }
+}
