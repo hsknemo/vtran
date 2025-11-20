@@ -67,3 +67,37 @@ export const mergeFile = (data:object) => request({
   url: 'file/chunk/merge',
   data
 })
+
+export const dowloadFile = (data:object) => {
+  return new Promise((resolve, reject) => {
+    fetch(import.meta.env.VITE_API_URL  + '/api/file/download', {
+      method: 'POST',
+      headers: {
+        Authorization: getToken(),
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    })
+      .then(response => {
+        if (response.status !== 200) {
+          debugger
+          throw new Error(response.statusText);
+        }
+        return response.blob()
+      })
+      .then(blob => {
+        const url = window.URL.createObjectURL(new Blob([blob]));
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = data.fileName.split('_')[1];
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        resolve(true)
+      })
+      .catch(error => {
+        reject(error)
+      });
+  })
+
+}
