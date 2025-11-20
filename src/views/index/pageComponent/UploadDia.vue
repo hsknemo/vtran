@@ -83,13 +83,16 @@ const fileChunkCut = async (file:File, resolve) => {
 }
 const lockUpdateFile = ref(false)
 const sendFile = async () => {
-  lockUpdateFile.value = true
+  if (lockUpdateFile.value) {
+    return ElMessage.error('客官 ~ 文件正在传递，勿重复点击yo~~')
+  }
   if (!fileList.value.length) {
     return ElMessage.error('请选择文件！')
   }
   if (!chatMsgList.currentUser.id) {
     return ElMessage.error('请选择发送给的用户！')
   }
+  lockUpdateFile.value = true
   const promiseMap:Array<Promise<any>> = []
   fileList.value.forEach(file => {
     const promise= new Promise(resolve => {

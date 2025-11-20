@@ -84,13 +84,13 @@ const sendFile = async () => {
   if (lockUpdateFile.value) {
     return ElMessage.error('客官 ~ 文件正在传递，勿重复点击yo~~')
   }
-  lockUpdateFile.value = true
   if (!fileList.value.length) {
     return ElMessage.error('请选择文件！')
   }
   if (!onLineUserList.curSelectUser) {
     return ElMessage.error('请选择发送给的用户！')
   }
+  lockUpdateFile.value = true
   const promiseMap: Promise<boolean>[] = []
   fileList.value.forEach(file => {
     const promise = new Promise<boolean>((resolve) => {
