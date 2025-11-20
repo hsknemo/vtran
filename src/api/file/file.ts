@@ -59,7 +59,7 @@ export const upChunkFile = (data:FormData) => request({
   data
 })
 
-export const mergeFile = (data:FormData) => request({
+export const mergeFile = (data:object) => request({
   method: 'post',
   headers: {
     Authorization: getToken(),

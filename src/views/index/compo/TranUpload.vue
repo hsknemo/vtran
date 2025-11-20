@@ -1,16 +1,15 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import type { UploadRequestOptions } from 'element-plus/es/components/upload/src/upload'
+import type { UploadFile, UploadRequestOptions } from 'element-plus/es/components/upload/src/upload'
 import { upChunkFile, mergeFile } from '@/api/file/file.ts'
 import { ElMessage } from 'element-plus'
 import { onLineUserList } from '@/views/index/store/store.ts'
 import { useLocalStorage } from '@vueuse/core'
 import { delay } from '@/utils/sleep.ts'
-import type { ChunkDefine } from '@/type/upload'
+import type { ChunkDefine, isUploaded } from '@/type/upload'
 import { v4 as uuidv4 } from 'uuid';
 
-
-const fileList = ref<File[]>([])
+const fileList = ref<UploadFile[]>([])
 
 const onHttpRequest = (option:UploadRequestOptions) => {
   if (option.file) {
@@ -19,7 +18,12 @@ const onHttpRequest = (option:UploadRequestOptions) => {
 }
 const uploading = ref(false)
 
-const fileChunkCut = async (file: File, resolve: (value: boolean) => void) => {
+const fileChunkCut = async (file: UploadFile, resolve: (value: boolean) => void) => {
+  // 确保 file.raw 存在且为 File 类型
+  if (!file || !file.raw || !file.size) {
+    ElMessage.error('无效的文件')
+    return resolve(false)
+  }
   // 文件大小
   const fileLen = file.size
   const chunkSize = 1024 * 1024 * 10
@@ -42,18 +46,19 @@ const fileChunkCut = async (file: File, resolve: (value: boolean) => void) => {
   const user = JSON.parse(useLocalStorage('user', '{}').value)
   for (let i = 0; i < chunkArr.length; i++) {
     const item = chunkArr[i]
+    if (!item) continue;
     const formData:FormData = new FormData()
-    formData.append('index', item.index)
+    formData.append('index', String(item.index));
     formData.append('chunk', item.chunk)
     formData.append('fileName', item.fileName)
-    formData.append('chunkSize', item.size)
-    formData.append('fileTotalLen', item.fileTotalLen)
+    formData.append('chunkSize', String(item.size));
+    formData.append('fileTotalLen', String(item.fileTotalLen))
     formData.append('toUserId', onLineUserList.curSelectUser)
     formData.append('fromUserId', user.id)
     formData.append('md5Key', md5Key)
-    formData.append('chunkSliceNum', chunkArr.length)
+    formData.append('chunkSliceNum', String(chunkArr.length))
     try {
-      const res = await upChunkFile(formData)
+      const res = await upChunkFile(formData) as { data: isUploaded }
       if (res.data.isUploaded) {
         ElMessage.success(`${file.name} 上传成功`)
         await delay(500)
@@ -76,6 +81,9 @@ const fileChunkCut = async (file: File, resolve: (value: boolean) => void) => {
 }
 const lockUpdateFile = ref(false)
 const sendFile = async () => {
+  if (lockUpdateFile.value) {
+    return ElMessage.error('客官 ~ 文件正在传递，勿重复点击yo~~')
+  }
   lockUpdateFile.value = true
   if (!fileList.value.length) {
     return ElMessage.error('请选择文件！')
@@ -83,16 +91,16 @@ const sendFile = async () => {
   if (!onLineUserList.curSelectUser) {
     return ElMessage.error('请选择发送给的用户！')
   }
-  const promiseMap = []
+  const promiseMap: Promise<boolean>[] = []
   fileList.value.forEach(file => {
-    const promise= new Promise(resolve => {
+    const promise = new Promise<boolean>((resolve) => {
       fileChunkCut(file, resolve)
     })
     promiseMap.push(promise)
   })
-  Promise.all(promiseMap).then((boolenList) => {
+  Promise.all(promiseMap).then((booleanList) => {
     lockUpdateFile.value = false
-    if (!boolenList.every(item => item)) {
+    if (!booleanList.every(item => item)) {
       return ElMessage.error('发送失败')
     }
     ElMessage.success('发送成功')

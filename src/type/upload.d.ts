@@ -11,3 +11,8 @@ export declare interface ChunkDefine {
 export declare interface UploadFileData {
   fileList: File[]
 }
+
+
+export declare interface isUploaded {
+  isUploaded: boolean;
+}
