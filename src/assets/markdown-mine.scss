@@ -80,6 +80,12 @@
     position: relative;
     padding-top: 10px;
 
+    &:hover {
+      .cp_btn {
+        opacity: 1;
+      }
+    }
+
     code {
       min-height: 50px;
       padding-top: 22px !important;
@@ -88,17 +94,24 @@
 
 
   .cp_btn {
-    position: sticky;
-    top: 0px;
-    left: 0;
+    opacity: 0;
+    --size: 30px;
+    width: var(--size);
+    height: var(--size);
+    position: absolute;
+    top: 5px;
+    right: 10px;
     border: none;
     cursor: pointer;
-    background-color: transparent;
+    background-color: #2d2d2d;
+    padding: 5px;
+    border-radius: 5px;
     font-size: 14px;
     z-index: 1;
+    transition: all .3s;
     svg {
       transition: all .3s;
-      fill: gold;
+      fill: #fff;
     }
 
     &:hover {
