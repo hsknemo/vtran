@@ -128,7 +128,7 @@ const onSaveProFile = async () => {
   </div>
   <TranDiaglog title="头像上传" v-model:pop-control="imgPop">
     <el-upload accept="image/*" v-model:file-list="fileList" :http-request="onRequest" :limit="1">
-      <el-button type="primary">上传图片</el-button>
+      <el-button size="small">上传图片</el-button>
     </el-upload>
 
     <div class="upload_viewer">
@@ -142,7 +142,7 @@ const onSaveProFile = async () => {
     </div>
 
     <footer class="upload_footer">
-      <el-button size="mini" @click="onCrop"> 确定 </el-button>
+      <el-button size="small" @click="onCrop"> 确定 </el-button>
     </footer>
   </TranDiaglog>
 </template>
