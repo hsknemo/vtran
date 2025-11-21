@@ -4,7 +4,6 @@ import TranDiaglog from '@/components/TranDiaglog.vue'
 import { ElMessage, type UploadUserFile } from 'element-plus'
 import type { UploadRequestOptions } from 'element-plus/es/components/upload/src/upload'
 import { updateUserProfile } from '@/api/user/user.ts'
-import { useLocalStorage } from '@vueuse/core'
 const emit = defineEmits(['refresh-user-info'])
 const props = defineProps({
   userInfo: {

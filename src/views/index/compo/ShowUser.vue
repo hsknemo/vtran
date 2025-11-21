@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
-import { Bell, ChatDotRound, Connection } from '@element-plus/icons-vue'
+import { Bell, ChatDotRound, Connection, Expand, Setting, SwitchButton } from '@element-plus/icons-vue'
 import { emitter } from '@/event/eventBus.ts'
 import Chat from '@/views/index/compo/Chat.vue'
 import { ElNotification } from 'element-plus'
@@ -14,7 +14,11 @@ import {
 import TranDiaglog from '@/components/TranDiaglog.vue'
 const emit = defineEmits(['exit'])
 import type { FakeAudio } from '@/type/audio.ts'
-import { fetchGetProfile, onProfileClick, profilePopReactive } from '@/views/index/service/Profile/profile.ts'
+import {
+  fetchGetProfile,
+  onProfileClick,
+  profilePopReactive,
+} from '@/views/index/service/Profile/profile.ts'
 import ProfileInfo from '@/views/index/pageComponent/ProfileInfo.vue'
 import { connectStatus } from '@/views/index/store/store.ts'
 
@@ -29,8 +33,7 @@ const dialogSet = reactive({
   show: false,
 })
 
-
-
+const profile_setting = ref()
 const msg = ref('')
 const bellLen = ref(0)
 const bellV = ref(true)
@@ -44,15 +47,15 @@ const onChatClick = (arg) => {
   dialogSet.show = true
 }
 
-
 const onInit = async () => {
-
   let { data } = await fetchGetProfile()
   data = data[0]
   user.username = data.username
   user.ip = data.ip
   user.desc = data.desc || ''
-  user.userImg = data.userImg ? import.meta.env.VITE_API_URL + `/userProfile/${data.id}/${data.userImg}` : ''
+  user.userImg = data.userImg
+    ? import.meta.env.VITE_API_URL + `/userProfile/${data.id}/${data.userImg}`
+    : ''
   msg.value = user.desc
   user.insertTime = data.insertTime
 }
@@ -93,7 +96,6 @@ onMounted((_) => {
   checkAllowAudioPlay()
 
   onInit()
-
 
   emitter.on('refresh-bell-length', (len: number) => {
     bellLen.value = len
@@ -140,15 +142,38 @@ onMounted((_) => {
       <el-button @click="onBellClick" class="ani_bell" text :icon="Bell">
         <span class="success">{{ bellLen }}</span>
       </el-button>
-      <div cursor-pointer class="img_author" @click="onProfileClick">
+
+      <div ref="profile_setting" cursor-pointer class="img_author">
         <el-image v-if="user.userImg" :src="user.userImg"></el-image>
-        <span v-else >
+        <span v-else>
           {{ user.username.split('')[0] }}
         </span>
       </div>
-      <el-button text @click="onExit">退出</el-button>
+
+      <el-popover
+        ref="popoverRef"
+        :virtual-ref="profile_setting"
+        trigger="click"
+        title=""
+        virtual-triggering
+      >
+        <div class="popover_setting">
+          <section class="setting_item" @click="onProfileClick">
+            <el-icon>
+              <Setting />
+            </el-icon>
+            个人设置
+          </section>
+
+          <section class="setting_item" @click="onExit">
+            <el-icon><SwitchButton /></el-icon>
+            退出
+          </section>
+        </div>
+      </el-popover>
     </section>
   </div>
+
   <Chat v-model:popControl="dialogSet" />
 
   <TranDiaglog
@@ -170,10 +195,7 @@ onMounted((_) => {
     v-if="profilePopReactive.show"
     v-model:pop-control="profilePopReactive"
   >
-    <ProfileInfo
-      @refresh-user-info="onInit"
-      :userInfo="user"
-    />
+    <ProfileInfo @refresh-user-info="onInit" :userInfo="user" />
   </TranDiaglog>
 </template>
 
@@ -243,7 +265,7 @@ onMounted((_) => {
       border-radius: 50%;
       overflow: hidden;
       &:hover {
-        animation: rotate .4s forwards linear;
+        animation: rotate 0.4s forwards linear;
       }
 
       span {
@@ -264,6 +286,26 @@ onMounted((_) => {
 
   100% {
     box-shadow: 0 0 50px 40px #fff;
+  }
+}
+
+.popover_setting {
+  .setting_item {
+    @include flexStyle(center);
+    cursor: pointer;
+    font-size: 12px;
+    transition: color .1s linear;
+    margin-bottom: 5px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+    .el-icon {
+      margin-right: 5px;
+    }
+    &:hover {
+      color: rgb(128, 128, 128)
+    }
   }
 }
 </style>

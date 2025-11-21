@@ -48,14 +48,14 @@ const filterMenu = computed({
 
 @mixin tran_list {
   .tran_list {
-    padding-top: 60px;
     min-width: 100px;
-    overflow: auto;
+    border-right: 1px solid #2a2a2a;
+    margin-right: 50px;
   }
 
   .tran_menu_item {
     a {
-      color: #ffffff;
+      color: #c8c8c8;
     }
 
     &.active {
@@ -70,7 +70,7 @@ const filterMenu = computed({
   .tran_container {
     flex: 1;
     min-height: 800px;
-    width: calc(100% - 20px);
+    width: calc(100% - 150px);
   }
 }
 
