@@ -6,3 +6,8 @@ export const onLineUserList: Data = reactive({
   onlineList: [],
 })
 
+// ws 状态
+export const connectStatus = reactive({
+  status: 'danger',
+  statusText: '未连接',
+})

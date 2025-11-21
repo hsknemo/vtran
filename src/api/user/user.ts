@@ -20,8 +20,27 @@ export const loginUser = (data:object) => request({
 export const onlineUser = (data:object) => request({
   method: 'get',
   headers: {
-    Authorization: useLocalStorage('Auth').value
+    Authorization: useLocalStorage('Auth', '').value
   },
   url: '/user/online',
-  data: data
+  params: data
+})
+
+export const updateUserProfile = (formData:FormData) => request({
+  method: 'post',
+  headers: {
+    Authorization: useLocalStorage('Auth', '').value,
+    contentType: 'multipart/form-data',
+  },
+  url: '/user/profile/update',
+  data: formData
+})
+
+export const getProfile = (data:object) => request({
+  method: 'post',
+  headers: {
+    Authorization: useLocalStorage('Auth', '').value
+  },
+  url: '/user/profile',
+  data,
 })

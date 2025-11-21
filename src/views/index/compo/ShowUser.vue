@@ -4,46 +4,57 @@ import { Bell, ChatDotRound, Connection } from '@element-plus/icons-vue'
 import { emitter } from '@/event/eventBus.ts'
 import Chat from '@/views/index/compo/Chat.vue'
 import { ElNotification } from 'element-plus'
-import { checkAllowAudioPlay, onSure, onSureNot, playMedia, showMediaConfig } from '@/utils/media.ts'
+import {
+  checkAllowAudioPlay,
+  onSure,
+  onSureNot,
+  playMedia,
+  showMediaConfig,
+} from '@/utils/media.ts'
 import TranDiaglog from '@/components/TranDiaglog.vue'
 const emit = defineEmits(['exit'])
-import type{ FakeAudio} from '@/type/audio.ts'
+import type { FakeAudio } from '@/type/audio.ts'
+import { fetchGetProfile, onProfileClick, profilePopReactive } from '@/views/index/service/Profile/profile.ts'
+import ProfileInfo from '@/views/index/pageComponent/ProfileInfo.vue'
+import { connectStatus } from '@/views/index/store/store.ts'
+
 const user = reactive({
   username: '',
   ip: '',
+  desc: '',
+  userImg: '',
+  insertTime: '',
 })
 const dialogSet = reactive({
   show: false,
 })
 
-const connectStatus = reactive({
-  status: 'danger',
-  statusText: '未连接',
-})
+
 
 const msg = ref('')
 const bellLen = ref(0)
 const bellV = ref(true)
 const chatLen = ref(0)
-const onBellClick = _ => {
+const onBellClick = (_) => {
   bellV.value = !bellV.value
   emitter.emit('slide-table-list', bellV.value)
 }
 
-const onChatClick = arg => {
+const onChatClick = (arg) => {
   dialogSet.show = true
 }
 
-const getUser = () => {
-  const u = localStorage.getItem('user')
-  if (u) return JSON.parse(u)
-  return {}
-}
 
-const onInit = () => {
-  const u = getUser()
-  user.username = u.username
-  user.ip = u.ip
+const onInit = async () => {
+
+  let { data } = await fetchGetProfile()
+  data = data[0]
+  user.username = data.username
+  user.ip = data.ip
+  user.desc = data.desc || ''
+  user.userImg = data.userImg ? import.meta.env.VITE_API_URL + `/userProfile/${data.id}/${data.userImg}` : ''
+  msg.value = user.desc
+  user.insertTime = data.insertTime
 }
 
 const onExit = () => {
@@ -52,21 +63,20 @@ const onExit = () => {
   localStorage.removeItem('Auth')
 }
 
-
-const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
-const isTyping = ref(true)
-const typingSpeed = 1000 / 10
-const onStartWelcomeMsg = async () => {
-  const content = import.meta.env.VITE_WELCOME_MESSAGE + ' '+ user.username
-  for (let i = 0; i < content.split('').length; i++) {
-    await delay(typingSpeed)
-    msg.value += content[i]
-  }
-  if (msg.value.length === content.length) {
-    isTyping.value = false
-    await delay(1000)
-  }
-}
+// const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
+// const isTyping = ref(true)
+// const typingSpeed = 1000 / 10
+// const onStartWelcomeMsg = async () => {
+//   const content = import.meta.env.VITE_WELCOME_MESSAGE + ' ' + user.desc
+//   for (let i = 0; i < content.split('').length; i++) {
+//     await delay(typingSpeed)
+//     msg.value += content[i]
+//   }
+//   if (msg.value.length === content.length) {
+//     isTyping.value = false
+//     await delay(1000)
+//   }
+// }
 
 const playM = ref<HTMLAudioElement | FakeAudio>(playMedia())
 const playAudio = () => {
@@ -79,20 +89,19 @@ const playAudio = () => {
   }
 }
 
-onMounted(_ => {
+onMounted((_) => {
   checkAllowAudioPlay()
 
   onInit()
 
-  onStartWelcomeMsg()
 
-  emitter.on('refresh-bell-length', (len:number) => {
+  emitter.on('refresh-bell-length', (len: number) => {
     bellLen.value = len
   })
 
   emitter.on('profile-message', (data) => {
     // 接收到发送给自己的文件 刷新文件列表
-    setTimeout(_ => {
+    setTimeout((_) => {
       emitter.emit('refresh-file')
     }, 1000)
     ElNotification({
@@ -101,7 +110,7 @@ onMounted(_ => {
     })
   })
 
-  emitter.on('chat-message-bell', data => {
+  emitter.on('chat-message-bell', (data) => {
     chatLen.value += 1
     playAudio()
   })
@@ -117,8 +126,8 @@ onMounted(_ => {
 <template>
   <div class="v_tran_user_panel">
     <h3 class="typing">
-      <span class="cursor">{{ msg }}</span>
       <span class="ip">{{ user.ip }}</span>
+      <span class="desc">{{ msg }}</span>
     </h3>
     <section class="btn_group">
       <el-tag :type="connectStatus.status">
@@ -128,10 +137,15 @@ onMounted(_ => {
       <el-button @click="onChatClick" class="ani_bell" text :icon="ChatDotRound">
         <span class="success">{{ chatLen }}</span>
       </el-button>
-
       <el-button @click="onBellClick" class="ani_bell" text :icon="Bell">
         <span class="success">{{ bellLen }}</span>
       </el-button>
+      <div cursor-pointer class="img_author" @click="onProfileClick">
+        <el-image v-if="user.userImg" :src="user.userImg"></el-image>
+        <span v-else >
+          {{ user.username.split('')[0] }}
+        </span>
+      </div>
       <el-button text @click="onExit">退出</el-button>
     </section>
   </div>
@@ -142,14 +156,24 @@ onMounted(_ => {
     :style="{
       height: '200px',
     }"
-    v-model:pop-control="showMediaConfig">
-    <template #default>
-     是否允许页面播放媒体？
-    </template>
+    v-model:pop-control="showMediaConfig"
+  >
+    <template #default> 是否允许页面播放媒体？ </template>
     <template #footer>
       <el-button @click="onSureNot">取消</el-button>
       <el-button type="primary" @click="onSure">确定</el-button>
     </template>
+  </TranDiaglog>
+
+  <TranDiaglog
+    title="个人信息"
+    v-if="profilePopReactive.show"
+    v-model:pop-control="profilePopReactive"
+  >
+    <ProfileInfo
+      @refresh-user-info="onInit"
+      :userInfo="user"
+    />
   </TranDiaglog>
 </template>
 
@@ -186,9 +210,14 @@ onMounted(_ => {
         animation: blink 0.5s infinite;
       }
 
+      .desc {
+        font-size: 12px;
+        color: rgb(128, 128, 128);
+      }
+
       .ip {
         font-size: 12px;
-        margin-left: 10px;
+        margin-right: 10px;
       }
     }
   }
@@ -199,12 +228,42 @@ onMounted(_ => {
   }
 
   .btn_group {
+    @include flexStyle(center);
     :deep .el-tag__content {
       @include flexStyle(center);
       span {
         margin-left: 4px;
       }
     }
+
+    .img_author {
+      --size: 40px;
+      width: var(--size);
+      height: var(--size);
+      border-radius: 50%;
+      overflow: hidden;
+      &:hover {
+        animation: rotate .4s forwards linear;
+      }
+
+      span {
+        @include flexStyle(center, center);
+        width: 100%;
+        height: 100%;
+        color: rgb(128, 128, 128);
+        text-align: center;
+      }
+    }
+  }
+}
+
+@keyframes rotate {
+  0% {
+    box-shadow: 0 0 0px 0 #fff;
+  }
+
+  100% {
+    box-shadow: 0 0 50px 40px #fff;
   }
 }
 </style>

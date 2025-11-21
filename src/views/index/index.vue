@@ -132,7 +132,6 @@ const initWS = () => {
       isReconnection: true, // 是否断开重连
       received(data) {
         const parseData = JSON.parse(data)
-        console.log('【parseData.type】', parseData.type)
         switch (parseData.type) {
           default:
             break
