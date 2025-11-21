@@ -15,10 +15,9 @@ const profile = ref({
   userImg: props.userInfo.userImg,
 })
 const profileLoading = ref(false)
-const user = JSON.parse(useLocalStorage('user', '{}').value)
 const blobData = reactive({
   blobImg: null,
-  desc: user.desc,
+  desc: props.userInfo.desc,
 })
 const uploadImg = ref('')
 const imgPop = ref({
