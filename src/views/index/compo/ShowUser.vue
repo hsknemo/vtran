@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
-import { Bell, ChatDotRound, Connection, Expand, Setting, SwitchButton } from '@element-plus/icons-vue'
+import { Bell, ChatDotRound, Connection, Expand, Mug, Setting, SwitchButton } from '@element-plus/icons-vue'
 import { emitter } from '@/event/eventBus.ts'
 import Chat from '@/views/index/compo/Chat.vue'
 import { ElNotification } from 'element-plus'
@@ -21,7 +21,8 @@ import {
 } from '@/views/index/service/Profile/profile.ts'
 import ProfileInfo from '@/views/index/pageComponent/ProfileInfo.vue'
 import { connectStatus } from '@/views/index/store/store.ts'
-
+import { onSponserMe, sponserReactive } from '@/views/index/service/Sponser/sponser.ts'
+import SponsorMe from '@/views/index/pageComponent/SponsorMe.vue'
 const user = reactive({
   username: '',
   ip: '',
@@ -165,6 +166,11 @@ onMounted((_) => {
             个人设置
           </section>
 
+          <section class="setting_item" @click="onSponserMe">
+            <el-icon><Mug /></el-icon>
+            赞赏我
+          </section>
+
           <section class="setting_item" @click="onExit">
             <el-icon><SwitchButton /></el-icon>
             退出
@@ -196,6 +202,14 @@ onMounted((_) => {
     v-model:pop-control="profilePopReactive"
   >
     <ProfileInfo @refresh-user-info="onInit" :userInfo="user" />
+  </TranDiaglog>
+
+  <TranDiaglog
+    title="赞赏我"
+    v-if="sponserReactive.show"
+    v-model:pop-control="sponserReactive"
+  >
+    <SponsorMe />
   </TranDiaglog>
 </template>
 
