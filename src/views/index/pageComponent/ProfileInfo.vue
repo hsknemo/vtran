@@ -79,7 +79,6 @@ const onSaveProFile = async () => {
     ElMessage.success('保存成功')
     emit('refresh-user-info', true)
   } catch (e) {
-    debugger
     ElMessage.error('保存失败')
   } finally {
     if (window._blobUrl) {
