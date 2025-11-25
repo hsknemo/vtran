@@ -7,6 +7,7 @@ import AutoImport from 'unplugin-auto-import/vite'
 import UnoCSS from 'unocss/vite'
 import topLevelAwait from 'vite-plugin-top-level-await';
 import legacy from "@vitejs/plugin-legacy";
+import postcssPresetEnv from "postcss-preset-env"
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -27,8 +28,13 @@ export default defineConfig({
       modernTargets: 'defaults',
       modernPolyfills: ['es.object.has-own'],
       renderLegacyChunks: false,
-    })
+    }),
   ],
+  css: {
+    postcss: {
+      plugins:[postcssPresetEnv()]
+    }
+  },
   server:{
     host:'0.0.0.0'
   },

@@ -80,7 +80,6 @@ export const dowloadFile = (data:object) => {
     })
       .then(response => {
         if (response.status !== 200) {
-          debugger
           throw new Error(response.statusText);
         }
         return response.blob()
