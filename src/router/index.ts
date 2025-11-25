@@ -46,11 +46,19 @@ const router = createRouter({
         },
         {
           path: '/tran/software',
-          name: 'bugs',
+          name: 'software',
           meta: {
             title: 'vt商店',
           },
           component: () => import('../views/softwareStore/index.vue'),
+        },
+        {
+          path: '/tran/sponsor',
+          name: 'sponsor',
+          meta: {
+            title: 'sponsor'.toUpperCase(),
+          },
+          component: () => import('../views/sponser/sponser.vue'),
         },
       ],
     },

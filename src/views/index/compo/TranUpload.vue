@@ -125,7 +125,7 @@ const sendFile = async () => {
     </div>
     <template #tip>
       <div class="el-upload__tip">
-        支持大文件上传【240M】
+        支持大文件上传
       </div>
     </template>
   </el-upload>
