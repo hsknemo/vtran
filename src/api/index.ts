@@ -13,7 +13,7 @@ axios.interceptors.request.use(
 );
 axios.interceptors.response.use(
   response => {
-    if (!response?.status) {
+    if (!response?.data?.status) {
       throw new Error(response.data.msg)
     }
     return response.data || [];
@@ -25,7 +25,7 @@ axios.interceptors.response.use(
       clearTimeout(window._user_online_timeout)
       router.push('/login')
     }
-    throw new Error(response.data.msg);
+    throw new Error(response.msg);
   }
 );
 

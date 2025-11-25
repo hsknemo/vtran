@@ -44,6 +44,14 @@ const router = createRouter({
           },
           component: () => import('../views/bugs/bugs.vue'),
         },
+        {
+          path: '/tran/software',
+          name: 'bugs',
+          meta: {
+            title: 'vt商店',
+          },
+          component: () => import('../views/softwareStore/index.vue'),
+        },
       ],
     },
     {

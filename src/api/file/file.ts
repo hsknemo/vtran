@@ -89,7 +89,15 @@ export const dowloadFile = (data:object) => {
         const url = window.URL.createObjectURL(new Blob([blob]));
         const a = document.createElement('a');
         a.href = url;
-        a.download = data.fileName.split('_')[1];
+        let fileStr = ''
+        let cutArr = data.fileName.split('_').slice(1)
+        // 针对用户的名称下划线处理
+        if (cutArr.length > 1) {
+          fileStr = cutArr.join('_')
+        } else {
+          fileStr = cutArr.join('')
+        }
+        a.download = fileStr
         document.body.appendChild(a);
         a.click();
         window.URL.revokeObjectURL(url);

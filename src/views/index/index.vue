@@ -275,7 +275,8 @@ onMounted(() => {
     <template v-if="!reactive_data.showPage">
       <div class="tip">选择发送给用户</div>
       <online-user />
-      <div class="tip">选择/拖拽文件</div>
+      <div class="tip">选择/拖拽文件
+      </div>
       <TranUpload />
 
       <section v-show="isTableShow">
