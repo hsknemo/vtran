@@ -8,6 +8,7 @@ import { useLocalStorage } from '@vueuse/core'
 import { delay } from '@/utils/sleep.ts'
 import { appRecordAdd, uploadSoftware } from '@/api/softwareStore/software.ts'
 import { categoryReactive } from '@/hook/category.ts'
+const emit = defineEmits(['upload-success'])
 const fileList = ref<UploadFile[]>([])
 const lockUpdateFile = ref(false)
 const ruleFormRef = ref<FormInstance>()
@@ -132,6 +133,8 @@ const onAppUpload = async () => {
           if (!boolenList.every(item => item)) {
             return ElMessage.error('记录添加失败')
           }
+
+          emit('upload-success', true)
         })
       }
     })
@@ -154,7 +157,7 @@ const onAppUpload = async () => {
       <el-form-item label="app分类" prop="cate">
         <el-select v-model="ruleForm.cate">
           <el-option
-            v-for="(item, index) in categoryReactive.pd"
+            v-for="(item, index) in categoryReactive.categoryList"
             :key="index"
             :label="item.categoryName"
             :value="item.categoryName"

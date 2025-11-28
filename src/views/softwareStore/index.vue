@@ -31,7 +31,6 @@ const computedList = computed({
   }
 })
 
-console.log(computedList)
 
 /**
  * app 列表
@@ -101,6 +100,12 @@ const onSearch = async () => {
   } catch (e) {
     ElMessage.success('查询失败！')
   }
+}
+
+const onUploadSuccess = async () => {
+  ElMessage.success('上架成功')
+  uploadDia.value.show = false
+  await request_getSoftwareList()
 }
 
 onMounted(() => {
@@ -192,7 +197,9 @@ onMounted(() => {
   </div>
 
   <TranDiaglog title="上架App" :pop-control="uploadDia">
-    <upAppForm />
+    <upAppForm
+      @upload-success="onUploadSuccess"
+    />
   </TranDiaglog>
 
   <TranDiaglog title="添加种类" :pop-control="addCate">

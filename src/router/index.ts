@@ -1,6 +1,5 @@
-import { createRouter, createWebHashHistory, createWebHistory } from 'vue-router'
+import { createRouter, createWebHashHistory } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import * as process from 'node:process'
 
 const router = createRouter({
   history: createWebHashHistory(),
@@ -15,6 +14,7 @@ const router = createRouter({
           path: '/tran/transfer',
           name: 'transfer',
           meta: {
+            icon: 'StreamlineFreehandSendEmailPaperPlane1',
             title: '传个东西'
           },
           component: () => import('../views/index/index.vue'),
@@ -23,6 +23,7 @@ const router = createRouter({
           path: '/tran/note',
           name: 'note',
           meta: {
+            icon: 'StreamlineFreehandGraphicTabletDraw1',
             title: '写个便签'
           },
           component: () => import('../views/note/index.vue'),
@@ -31,6 +32,7 @@ const router = createRouter({
           path: '/tran/dingDong',
           name: 'dingDong',
           meta: {
+            icon: 'StreamlineFreehandAdvertisingAdBrowser',
             title: '叮一叮'
           },
           component: () => import('../views/dingdong/dingDong.vue'),
@@ -39,6 +41,7 @@ const router = createRouter({
           path: '/tran/bugs',
           name: 'bugs',
           meta: {
+            icon: 'StreamlineAnnoncementMegaphone',
             title: '提个issue',
             mode: 'development'
           },
@@ -48,6 +51,7 @@ const router = createRouter({
           path: '/tran/software',
           name: 'software',
           meta: {
+            icon: 'StreamlineFreehandHome',
             title: 'vt商店',
           },
           component: () => import('../views/softwareStore/index.vue'),
@@ -56,6 +60,7 @@ const router = createRouter({
           path: '/tran/sponsor',
           name: 'sponsor',
           meta: {
+            icon: 'HeroiconsOutlineHeart',
             title: 'sponsor'.toUpperCase(),
           },
           component: () => import('../views/sponser/sponser.vue'),

@@ -8,6 +8,7 @@ import UnoCSS from 'unocss/vite'
 import topLevelAwait from 'vite-plugin-top-level-await';
 import legacy from "@vitejs/plugin-legacy";
 import postcssPresetEnv from "postcss-preset-env"
+import Icons from 'unplugin-icons/vite'
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -28,6 +29,10 @@ export default defineConfig({
       modernTargets: 'defaults',
       modernPolyfills: ['es.object.has-own'],
       renderLegacyChunks: false,
+    }),
+    Icons({
+      compiler: 'vue3',// 指定编译器
+      autoInstall: true,// 自动安装
     }),
   ],
   css: {
