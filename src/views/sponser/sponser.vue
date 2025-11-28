@@ -46,6 +46,7 @@ const sponserUser = [{
 
     &.first {
       --size: 100px;
+      @apply animate-back-in-down;
     }
   }
 }

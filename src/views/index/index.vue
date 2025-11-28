@@ -279,7 +279,7 @@ onMounted(() => {
       </div>
       <TranUpload />
 
-      <section v-show="isTableShow">
+      <section class="layout_list" v-show="isTableShow">
         <div class="tip">
           发送给我的文件列表
           <section class="btn_control_area">
@@ -289,7 +289,7 @@ onMounted(() => {
         <ProfileFileList ref="tableRef" />
       </section>
 
-      <section v-show="isTableShow">
+      <section class="layout_list" v-show="isTableShow">
         <div class="tip">
           我发送的文件列表
           <section class="btn_control_area">
@@ -390,6 +390,13 @@ onMounted(() => {
 
   .left_wrap {
     display: flex;
+  }
+
+  .layout_list {
+    background-color: var(--tran-dark);
+    padding: 5px;
+    margin: 10px 0;
+    border-radius: var(--tran-round);
   }
 }
 </style>

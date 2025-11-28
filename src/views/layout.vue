@@ -2,27 +2,23 @@
 import router from '@/router'
 import { useRoute } from 'vue-router'
 import { computed } from 'vue'
-import StreamlineFreehandSendEmailPaperPlane1 from '~icons/streamline-freehand/send-email-paper-plane-1'
-import StreamlineFreehandGraphicTabletDraw1 from '~icons/streamline-freehand/graphic-tablet-draw-1'
-import StreamlineFreehandAdvertisingAdBrowser from '~icons/streamline-freehand/advertising-ad-browser'
-import HeroiconsOutlineHeart from '~icons/heroicons-outline/heart'
-import StreamlineAnnoncementMegaphone from '~icons/streamline/annoncement-megaphone'
-import StreamlineFreehandHome from '~icons/streamline-freehand/home'
+// import StreamlineFreehandSendEmailPaperPlane1 from '~icons/streamline-freehand/send-email-paper-plane-1'
+// import StreamlineFreehandGraphicTabletDraw1 from '~icons/streamline-freehand/graphic-tablet-draw-1'
+// import StreamlineFreehandAdvertisingAdBrowser from '~icons/streamline-freehand/advertising-ad-browser'
+// import HeroiconsOutlineHeart from '~icons/heroicons-outline/heart'
+// import StreamlineAnnoncementMegaphone from '~icons/streamline/annoncement-megaphone'
+// import StreamlineFreehandHome from '~icons/streamline-freehand/home'
+// 创建一个图标组件映射
+import iconComponents from '@/router/icon/icons.ts'
+
 const route = useRoute()
 const hilightIndex = ref(route.meta.title)
 
 const route_menu =  router.options.routes[0]?.children
 
-// 创建一个图标组件映射
-const iconComponents = {
-  StreamlineFreehandSendEmailPaperPlane1,
-  StreamlineFreehandGraphicTabletDraw1,
-  StreamlineFreehandAdvertisingAdBrowser,
-  HeroiconsOutlineHeart,
-  StreamlineAnnoncementMegaphone,
-  StreamlineFreehandHome,
-  // 可以继续添加其他图标组件
-}
+
+
+
 
 const filterMenu = computed({
   get() {
@@ -56,7 +52,9 @@ const filterMenu = computed({
       </div>
     </div>
     <div class="tran_container">
+      <Transition name="fade">
       <router-view></router-view>
+      </Transition>
     </div>
   </div>
 
@@ -71,12 +69,32 @@ const filterMenu = computed({
 
 @mixin tran_list {
   .tran_list {
-    border-right: 1px solid #2a2a2a;
-    margin-right: 50px;
+    position: fixed;
+    left: 5px;
+    top: 50%;
+    @include flexStyle(center, center);
+    flex-direction: column;
+    transform: translateY(-50%);
+    padding: 5px;
+    background-color: var(--tran-dark);
+    border-radius: var(--tran-round);
+    z-index: 99;
+    opacity: .1;
+    transition: opacity .3s ease;
+
+    &:hover {
+      opacity: 1;
+    }
   }
 
   .tran_menu_item {
+    @include flexStyle();
+    justify-content: left;
+    &:last-child {
+      margin-bottom: unset;
+    }
     a {
+      width: 150px;
       @include flexStyle(center);
       color: #c8c8c8;
       .icon {
@@ -109,4 +127,14 @@ const filterMenu = computed({
 
   @include tran_container();
 }
+
+.fade-enter-active,
+.fade-enter-from {
+  @apply animate-fade-in;
+
+}
+
+
+
+
 </style>
