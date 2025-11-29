@@ -2,12 +2,6 @@
 import router from '@/router'
 import { useRoute } from 'vue-router'
 import { computed } from 'vue'
-// import StreamlineFreehandSendEmailPaperPlane1 from '~icons/streamline-freehand/send-email-paper-plane-1'
-// import StreamlineFreehandGraphicTabletDraw1 from '~icons/streamline-freehand/graphic-tablet-draw-1'
-// import StreamlineFreehandAdvertisingAdBrowser from '~icons/streamline-freehand/advertising-ad-browser'
-// import HeroiconsOutlineHeart from '~icons/heroicons-outline/heart'
-// import StreamlineAnnoncementMegaphone from '~icons/streamline/annoncement-megaphone'
-// import StreamlineFreehandHome from '~icons/streamline-freehand/home'
 // 创建一个图标组件映射
 import iconComponents from '@/router/icon/icons.ts'
 
@@ -41,6 +35,9 @@ const filterMenu = computed({
              hilightIndex === item.meta.title ? 'active' : '',
            ]"
            v-for="(item, index) in filterMenu"
+           :style="{
+              '--active-color': item.meta.activeColor || 'hsla(160, 100%, 37%, 1)',
+           }"
       >
         <router-link px-5 py-2 :to="item.path">
           <component
@@ -102,11 +99,11 @@ const filterMenu = computed({
       }
     }
 
-    &.active {
+    &.active, &:hover {
       a {
         background-color: black;
         border-radius: 5px;
-        color: hsla(160, 100%, 37%, 1)
+        color: var(--active-color);
       }
     }
   }

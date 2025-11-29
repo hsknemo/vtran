@@ -14,6 +14,7 @@ const router = createRouter({
           path: '/tran/transfer',
           name: 'transfer',
           meta: {
+            activeColor: 'hsla(160, 100%, 37%, 1)',
             icon: 'StreamlineFreehandSendEmailPaperPlane1',
             title: '传个东西'
           },
@@ -23,6 +24,7 @@ const router = createRouter({
           path: '/tran/note',
           name: 'note',
           meta: {
+            activeColor: 'gold',
             icon: 'StreamlineFreehandGraphicTabletDraw1',
             title: '写个便签'
           },
@@ -32,6 +34,7 @@ const router = createRouter({
           path: '/tran/dingDong',
           name: 'dingDong',
           meta: {
+            activeColor: '#646cff',
             icon: 'StreamlineFreehandAdvertisingAdBrowser',
             title: '叮一叮'
           },
@@ -41,6 +44,7 @@ const router = createRouter({
           path: '/tran/bugs',
           name: 'bugs',
           meta: {
+            activeColor: '#ffa034',
             icon: 'StreamlineAnnoncementMegaphone',
             title: '提个issue',
             mode: 'development'
@@ -51,6 +55,7 @@ const router = createRouter({
           path: '/tran/software',
           name: 'software',
           meta: {
+            activeColor: '#cb64ff',
             icon: 'StreamlineFreehandHome',
             title: 'vt商店',
           },
@@ -60,8 +65,9 @@ const router = createRouter({
           path: '/tran/sponsor',
           name: 'sponsor',
           meta: {
+            activeColor: '#ff3444',
             icon: 'HeroiconsOutlineHeart',
-            title: 'sponsor'.toUpperCase(),
+            title: '赞助',
           },
           component: () => import('../views/sponser/sponser.vue'),
         },
