@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import MageMessageDots from '~icons/mage/message-dots'
 import MageMessageDotsRound from '~icons/mage/message-dots-round'
-const comment_drawer = ref<boolean>(true)
+
+const comment_drawer = ref<boolean>(false)
 
 const handleClose = () => {
   comment_drawer.value = false
@@ -25,7 +26,6 @@ const onOpenDrawer = (row) => {
       </div>
     </div>
   </div>
-
 
   <el-drawer
     class="note_drawer"

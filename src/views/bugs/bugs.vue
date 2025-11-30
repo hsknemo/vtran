@@ -5,6 +5,25 @@ import MageNotificationBellPending from '~icons/mage/notification-bell-pending'
 
 import AuthorTip from '@/views/bugs/compo/AuthorTip.vue'
 import UserComments from '@/views/bugs/compo/UserComments.vue'
+import MonacoEditor from '@/views/index/pageComponent/MonacoEditor.vue'
+import TranDiaglog from '@/components/TranDiaglog.vue'
+import MarkdownMsg from '@/views/index/chatCompo/MarkdownMsg.vue'
+const editMarkDia = ref({
+  show: true
+})
+
+const onSureMarkdownDia = () => {
+  editMarkDia.value = false
+}
+const onOpenMarkdown = () => {
+  editMarkDia.value = true
+}
+
+const editingText = ref('')
+
+const onEditMarkdown = (val:string) => {
+  editingText.value = val
+}
 const showTip = ref<boolean>(false)
 
 </script>
@@ -13,7 +32,9 @@ const showTip = ref<boolean>(false)
   <div w-full>
     <section class="top_menu_bar">
       <el-tooltip content="编写markdown" effect="light" placement="bottom">
-        <MaterialSymbolsLightMarkdownPaste cursor-pointer class="hover-color-amber" />
+        <MaterialSymbolsLightMarkdownPaste
+          @click="onOpenMarkdown"
+          cursor-pointer class="hover-color-amber" />
       </el-tooltip>
 
       <el-tooltip content="上传图片" effect="light" placement="bottom">
@@ -38,6 +59,26 @@ const showTip = ref<boolean>(false)
     <AuthorTip v-if="showTip"/>
 
     <UserComments />
+
+    <TranDiaglog
+      title="编辑markdown"
+      v-model="editMarkDia"
+    >
+      <div w-full h-122>
+        <monaco-editor
+          @mardown-is-editing="onEditMarkdown"
+          ref="monoEditorRef"
+          :isNeedDefaultLang="false"
+        ></monaco-editor>
+        <!--      <MarkdownMsg v-model:value="editingText" />-->
+      </div>
+
+      <div flex w-full justify-end mt-2>
+        <el-button
+          size="small"
+          type="primary" @click="onSureMarkdownDia">确定</el-button>
+      </div>
+    </TranDiaglog>
   </div>
 </template>
 
