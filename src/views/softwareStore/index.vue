@@ -7,7 +7,8 @@ import TranDiaglog from '@/components/TranDiaglog.vue'
 import UpAppForm from '@/views/softwareStore/compo/upAppForm.vue'
 import AddCategory from '@/views/softwareStore/compo/addCategory.vue'
 import { categoryReactive, requestGetCategoryList } from '@/hook/category.ts'
-
+import iconComponents from '@/router/icon/icons.ts'
+const route = useRoute()
 const uploadDia = ref({
   show: false,
 })
@@ -108,6 +109,8 @@ const onUploadSuccess = async () => {
   await request_getSoftwareList()
 }
 
+const getRouteMeta = computed(() => route.meta)
+
 onMounted(() => {
   request_getSoftwareList()
   requestGetCategoryList()
@@ -118,7 +121,17 @@ onMounted(() => {
   <div class="vt_store_container">
     <header class="tip">
       <span text-xl text-color-16_afafaf>
-        <span class="store_text">VT STORE 商店 [走过路过别错过~]</span>
+        <span class="store_text"
+              :style="{
+                '--route-color': getRouteMeta.activeColor
+              }"
+        >
+           <component
+             mr-1
+             class="icon"
+             :is="iconComponents[getRouteMeta.icon]" ></component>
+          VT STORE
+        </span>
         <!--        <div class="nhd"></div>-->
       </span>
       <section class="custom_area" mt-4 flex gap-2>
@@ -230,11 +243,7 @@ onMounted(() => {
   position: relative;
   @include flexStyle(center);
   font-weight: bold;
-  -webkit-text-stroke: 1px  var(--el-color-success-light-5);
-  color: transparent;
-  -webkit-text-fill-color: transparent;
-  animation: ni-hong-deng 0.2s linear infinite;
-  animation-iteration-count: 8;
+  color: var(--route-color);
   width: fit-content;
 }
 
