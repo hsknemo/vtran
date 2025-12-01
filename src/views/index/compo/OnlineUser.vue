@@ -4,14 +4,16 @@ import { Refresh } from '@element-plus/icons-vue'
 import { onlineUser } from '@/api/user/user.ts'
 import { ElMessage } from 'element-plus'
 import { emitter } from '@/event/eventBus.ts'
-import { onLineUserList } from '@/views/index/store/store.ts'
+import { onLineUserList, useStoreOnlineUserList } from '@/views/index/store/store.ts'
 import type { InterfaceOnlineUser } from '@/views/index/store/type/store.ts'
-const emit = defineEmits(['click-user'])
 
+const emit = defineEmits(['click-user'])
 const onRefresh = async (cb: () => void) => {
   try {
     const res: InterfaceOnlineUser[] = await onlineUser({})
     onLineUserList.onlineList = res.data || []
+    const onlineUserStore = useStoreOnlineUserList()
+    onlineUserStore.updateOnlineList(onLineUserList.onlineList)
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     if (typeof cb == 'function') {
       cb && cb()

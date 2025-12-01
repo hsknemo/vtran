@@ -6,4 +6,7 @@ export interface Data {
 export interface InterfaceOnlineUser {
   id: string
   username: string
+  ip: string
+  insertTime: number
 }
+

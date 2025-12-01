@@ -7,11 +7,11 @@ import AuthorTip from '@/views/bugs/compo/AuthorTip.vue'
 import UserComments from '@/views/bugs/compo/UserComments.vue'
 import MonacoEditor from '@/views/index/pageComponent/MonacoEditor.vue'
 import TranDiaglog from '@/components/TranDiaglog.vue'
-import MarkdownMsg from '@/views/index/chatCompo/MarkdownMsg.vue'
 import { computed, ref } from 'vue'
 import { ElMessage, type UploadFile } from 'element-plus'
 import ImageList from '@/views/bugs/compo/ImageList.vue'
-import { type IssueAddItem, useIssueAddService } from '@/service/issue/issueService.ts'
+import { useIssueAddService } from '@/service/issue/issueService'
+import type { IssueAddItem } from '@/service/issue/issueServiceDataType'
 const showTip = ref<boolean>(false)
 const mark_select = ref()
 const content = ref('')
@@ -84,8 +84,7 @@ const readImg = (files:File[]) => {
 }
 
 const onSureImg = () => {
-  // upImgDia.value = false
-  // imgList.value.push(fileList.value)
+  upImgDia.value = false
   if (fileList.value && fileList.value.length) {
     readImg(fileList.value)
   }

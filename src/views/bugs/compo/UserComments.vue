@@ -2,27 +2,79 @@
 import MaterialSymbolsLightDocumentSearchOutline from '~icons/material-symbols-light/document-search-outline'
 import MageMessageDotsRound from '~icons/mage/message-dots-round'
 import { onMounted, reactive, ref } from 'vue'
-import { reactiveIssue, useIssueFindService, useIssueListService } from '@/service/issue/issueService.ts'
+import {
+  reactiveIssue,
+  useIssueCommentsAddService,
+  useIssueCommentsFindService,
+  useIssueFindService,
+  useIssueListService,
+} from '@/service/issue/issueService.ts'
 import MarkdownMsg from '@/views/index/chatCompo/MarkdownMsg.vue'
-import type { IssueFindItem, IssueItem } from '@/service/issue/issueService'
+import type {
+  IssueFindItem,
+  IssueItem,
+  CommentsData,
+  commentsItem,
+  IssueReplyType,
+} from '@/service/issue/issueServiceDataType'
+import ReplyComments from '@/views/bugs/compo/ReplyComments.vue'
+import { useGetUserNameFromUserId } from '@/hook/issue.ts'
+const showComments = ref({
+  show: false,
+})
 const comment_drawer = ref<boolean>(false)
 const comment = ref('')
 const drawerData = reactive({
-  data: {} as IssueFindItem
+  data: {} as IssueFindItem,
+  commentsData: {} as CommentsData,
 })
 const handleClose = () => {
   comment_drawer.value = false
 }
 
-const onOpenDrawer = async (row:IssueItem) => {
+const onReplySuccess = async () => {
+  const commentsData = await useIssueCommentsFindService(drawerData.commentsData.issueId)
+  drawerData.commentsData = commentsData
+}
+
+const onOpenDrawer = async (row: IssueItem) => {
   comment_drawer.value = true
   const d = await useIssueFindService(row.id)
   drawerData.data = d
+  const commentsData = await useIssueCommentsFindService(row.id)
+  drawerData.commentsData = commentsData
 }
 
 const getImgUrl = (url: string) => {
-  return import.meta.env.VITE_API_URL + `/issue/` + drawerData.data.issueCreateUser + '/' +  url
+  return import.meta.env.VITE_API_URL + `/issue/` + drawerData.data.issueCreateUser + '/' + url
 }
+
+const onSendComments = async () => {
+  const status = await useIssueCommentsAddService({
+    issueId: drawerData.data.id,
+    content: comment.value,
+  })
+  if (status) {
+    comment.value = ''
+  }
+}
+const replyProps = ref<IssueReplyType>({
+  id: '',
+  content: '',
+  issueId: '',
+  replyId: '',
+  replyUser: '',
+})
+const onReply = (row: commentsItem, replyId:string = '', replyUser:string = '') => {
+  showComments.value = {
+    show: true,
+  }
+  replyProps.value.issueId = drawerData.commentsData.issueId
+  replyProps.value.id = row.id
+  replyProps.value.replyId = replyId
+  replyProps.value.replyUser = replyUser
+}
+
 
 onMounted(() => {
   useIssueListService()
@@ -35,8 +87,8 @@ onMounted(() => {
       <div
         class="issue_block"
         :style="{
-        '--item-color': 'var(--el-color-danger)',
-      }"
+          '--item-color': 'var(--el-color-danger)',
+        }"
         :key="item"
         v-for="item in reactiveIssue.list"
       >
@@ -48,9 +100,7 @@ onMounted(() => {
         </div>
         <div class="botm">
           <el-tooltip effect="light" content="查看内容">
-            <MaterialSymbolsLightDocumentSearchOutline
-              text-xl
-              @click="onOpenDrawer(item)" />
+            <MaterialSymbolsLightDocumentSearchOutline text-xl @click="onOpenDrawer(item)" />
           </el-tooltip>
           <div class="time">{{ item.insertTime }}</div>
         </div>
@@ -60,7 +110,6 @@ onMounted(() => {
     <template v-else>
       <el-empty></el-empty>
     </template>
-
   </div>
 
   <el-drawer
@@ -74,8 +123,7 @@ onMounted(() => {
     :before-close="handleClose"
   >
     <section class="top_block">
-      <div class="tit">问题类型
-      </div>
+      <div class="tit">问题类型</div>
     </section>
     <el-tag m-y-2>{{ drawerData.data.issueType }}</el-tag>
     <section class="top_block">
@@ -91,24 +139,16 @@ onMounted(() => {
         <li>正文内容</li>
       </ul>
 
-      <acticle class="markdown_msg"
-               v-if="drawerData.data.markdownStr"
-      >
-        <MarkdownMsg
-          v-model:value="drawerData.data.markdownStr"
-        ></MarkdownMsg>
+      <acticle class="markdown_msg" v-if="drawerData.data.markdownStr">
+        <MarkdownMsg v-model:value="drawerData.data.markdownStr"></MarkdownMsg>
       </acticle>
-
 
       <ul>
         <li>附件</li>
       </ul>
 
       <div class="media_body">
-        <div class="img_item"
-             v-for="item in drawerData.data.uploadImg"
-             :key="item"
-        >
+        <div class="img_item" v-for="item in drawerData.data.uploadImg" :key="item">
           <el-image
             :src="getImgUrl(item)"
             fit="cover"
@@ -121,31 +161,53 @@ onMounted(() => {
     </section>
     <section class="top_block">
       <div class="tit">评论</div>
-      <el-input
-        :rows="3"
-        resize="none"
-        v-model="comment" type="textarea">
-      </el-input>
+      <el-input :rows="3" resize="none" v-model="comment" type="textarea"> </el-input>
 
       <div class="btn_group" mt-2 w-full="" flex justify-end>
-        <el-button size="small">提交</el-button>
+        <el-button @click="onSendComments" size="small">提交</el-button>
       </div>
 
-      <div class="msg_item">
-        <div class="msg_title">xxx说：</div>
-        <p>223323232323233</p>
-        <MageMessageDotsRound />
+      <div class="msg_item" :key="index" v-for="(item, index) in drawerData.commentsData.comments">
+        <div class="msg_title">{{ useGetUserNameFromUserId(item.fromUser) }}：</div>
+        <p>{{ item.content }}</p>
+        <div class="time">{{ item.insertTime }} </div>
+        <div @click="onReply(item, '', item.fromUser)" class="reply" flex items-center cursor-pointer>
+          <MageMessageDotsRound mr-1 />
+          回复
+        </div>
+        <div class="reply_content"
+             :key="idx"
+             v-for='(it, idx) in item.reply'>
+          <div class="reply_item">
+            <div class="msg_title">{{ useGetUserNameFromUserId(it.fromUser) }} 回复 {{ useGetUserNameFromUserId(it.replyUser) }}：</div>
+            <p>{{ it.content }}</p>
+            <div class="time">{{ it.insertTime }}</div>
+
+            <div @click="onReply(item, it.id,  it.fromUser)" class="reply" flex items-center cursor-pointer>
+              <MageMessageDotsRound mr-1 />
+              回复
+            </div>
+
+          </div>
+        </div>
       </div>
 
-      <div class="msg_item" p-l>
-        <div class="msg_title">xxx说：</div>
-        <p>
-          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet culpa, dolor error iusto
-          non quia tempora. Aliquam eligendi facilis laboriosam nam nulla numquam perspiciatis
-          possimus quae, qui recusandae, totam vero.
-        </p>
-      </div>
+      <!--      <div class="msg_item" p-l>-->
+      <!--        <div class="msg_title">xxx说：</div>-->
+      <!--        <p>-->
+      <!--          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet culpa, dolor error iusto-->
+      <!--          non quia tempora. Aliquam eligendi facilis laboriosam nam nulla numquam perspiciatis-->
+      <!--          possimus quae, qui recusandae, totam vero.-->
+      <!--        </p>-->
+      <!--      </div>-->
     </section>
+
+    <ReplyComments
+      @reply-success="onReplySuccess"
+      @drawer-close="showComments.show = false"
+      :reply-props="replyProps"
+      v-model:drawer="showComments"
+    />
   </el-drawer>
 </template>
 
@@ -223,5 +285,39 @@ onMounted(() => {
       object-fit: scale-down;
     }
   }
+}
+
+.msg_item {
+  max-height: 300px;
+  overflow: auto;
+  padding: 5px;
+  margin-top: 5px;
+  border-radius: var(--tran-round);
+  background-color: var(--tran-dark);
+  p {
+    max-height: 100px;
+    overflow: auto;
+    padding: 10px 5px;
+    border-radius: var(--tran-round);
+    background-color: #353535;
+  }
+  &:after {
+    margin-top: 10px;
+    content: '';
+    display: block;
+    width: 100%;
+    height: 1px;
+    background-color: #404040;
+  }
+  .time {
+    color: #717171;
+    font-size: 12px;
+    text-align: right;
+  }
+}
+
+.reply_content {
+  margin: 5px 0;
+  padding-left: 10px;
 }
 </style>
