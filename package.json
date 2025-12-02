@@ -45,6 +45,7 @@
     "vue3-emoji": "^3.0.5"
   },
   "devDependencies": {
+    "@iconify-json/fluent-mdl2": "^1.2.1",
     "@iconify-json/heroicons-outline": "^1.2.1",
     "@iconify-json/mage": "^1.2.4",
     "@iconify-json/material-symbols-light": "^1.2.48",

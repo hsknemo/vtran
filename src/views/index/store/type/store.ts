@@ -3,6 +3,10 @@ export interface Data {
   onlineList: InterfaceOnlineUser[]
 }
 
+export interface OnlineUserListResponse {
+  data: InterfaceOnlineUser[]
+}
+
 export interface InterfaceOnlineUser {
   id: string
   username: string

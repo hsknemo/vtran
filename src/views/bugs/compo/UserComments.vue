@@ -19,6 +19,7 @@ import type {
 } from '@/service/issue/issueServiceDataType'
 import ReplyComments from '@/views/bugs/compo/ReplyComments.vue'
 import { useGetUserNameFromUserId } from '@/hook/issue.ts'
+import TimeDiff from '@/views/bugs/compo/TimeDiff.vue'
 const showComments = ref({
   show: false,
 })
@@ -164,13 +165,16 @@ onMounted(() => {
       <el-input :rows="3" resize="none" v-model="comment" type="textarea"> </el-input>
 
       <div class="btn_group" mt-2 w-full="" flex justify-end>
-        <el-button @click="onSendComments" size="small">提交</el-button>
+        <el-button @click="onSendComments" size="small">评论</el-button>
       </div>
 
       <div class="msg_item" :key="index" v-for="(item, index) in drawerData.commentsData.comments">
-        <div class="msg_title">{{ useGetUserNameFromUserId(item.fromUser) }}：</div>
+        <div class="msg_title">{{ useGetUserNameFromUserId(item.fromUser) }}</div>
         <p>{{ item.content }}</p>
-        <div class="time">{{ item.insertTime }} </div>
+        <TimeDiff
+          class="time"
+          :time="item.insertTime"
+        />
         <div @click="onReply(item, '', item.fromUser)" class="reply" flex items-center cursor-pointer>
           <MageMessageDotsRound mr-1 />
           回复
@@ -179,9 +183,13 @@ onMounted(() => {
              :key="idx"
              v-for='(it, idx) in item.reply'>
           <div class="reply_item">
-            <div class="msg_title">{{ useGetUserNameFromUserId(it.fromUser) }} 回复 {{ useGetUserNameFromUserId(it.replyUser) }}：</div>
+            <div class="msg_title">{{ useGetUserNameFromUserId(it.fromUser) }} 回复 {{ useGetUserNameFromUserId(it.replyUser) }}</div>
             <p>{{ it.content }}</p>
-            <div class="time">{{ it.insertTime }}</div>
+
+            <TimeDiff
+              class="time"
+              :time="it.insertTime"
+            />
 
             <div @click="onReply(item, it.id,  it.fromUser)" class="reply" flex items-center cursor-pointer>
               <MageMessageDotsRound mr-1 />
@@ -193,7 +201,7 @@ onMounted(() => {
       </div>
 
       <!--      <div class="msg_item" p-l>-->
-      <!--        <div class="msg_title">xxx说：</div>-->
+      <!--        <div class="msg_title">xxx说</div>-->
       <!--        <p>-->
       <!--          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet culpa, dolor error iusto-->
       <!--          non quia tempora. Aliquam eligendi facilis laboriosam nam nulla numquam perspiciatis-->
@@ -294,11 +302,15 @@ onMounted(() => {
   margin-top: 5px;
   border-radius: var(--tran-round);
   background-color: var(--tran-dark);
+
+  .msg_title {
+    margin-bottom: 5px;
+  }
+
   p {
     max-height: 100px;
     overflow: auto;
     padding: 10px 5px;
-    border-radius: var(--tran-round);
     background-color: #353535;
   }
   &:after {
@@ -313,6 +325,23 @@ onMounted(() => {
     color: #717171;
     font-size: 12px;
     text-align: right;
+    :deep {
+      span {
+        position: relative;
+        top:1px;
+      }
+    }
+  }
+
+  &:hover {
+    .reply {
+      opacity: 1;
+    }
+  }
+
+  .reply {
+    transition: opacity .3s ease;
+    opacity: 0;
   }
 }
 

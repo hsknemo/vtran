@@ -5,21 +5,28 @@ import { onlineUser } from '@/api/user/user.ts'
 import { ElMessage } from 'element-plus'
 import { emitter } from '@/event/eventBus.ts'
 import { onLineUserList, useStoreOnlineUserList } from '@/views/index/store/store.ts'
-import type { InterfaceOnlineUser } from '@/views/index/store/type/store.ts'
+import type { OnlineUserListResponse } from '@/views/index/store/type/store.ts'
+import { useLocalStorage } from '@vueuse/core'
 
 const emit = defineEmits(['click-user'])
 const onRefresh = async (cb: () => void) => {
   try {
-    const res: InterfaceOnlineUser[] = await onlineUser({})
+    const res: OnlineUserListResponse = await onlineUser({})
     onLineUserList.onlineList = res.data || []
     const onlineUserStore = useStoreOnlineUserList()
-    onlineUserStore.updateOnlineList(onLineUserList.onlineList)
-    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+    const data = res.data.map(item => ({
+      id: item.id,
+      username: item.username,
+    }))
+    useLocalStorage('onlineUserList', JSON.stringify(data))
+    onlineUserStore.updateOnlineList()
+
     if (typeof cb == 'function') {
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       cb && cb()
     }
   } catch (e) {
-    ElMessage.error(e)
+    ElMessage.error('在线用户列表获取失败')
   }
 }
 
