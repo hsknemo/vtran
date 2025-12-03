@@ -47,7 +47,6 @@ const router = createRouter({
             activeColor: '#ffa034',
             icon: 'StreamlineAnnoncementMegaphone',
             title: '提个issue',
-            mode: 'development'
           },
           component: () => import('../views/bugs/bugs.vue'),
         },

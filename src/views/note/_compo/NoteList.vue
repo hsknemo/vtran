@@ -173,33 +173,36 @@ onMounted(() => {
 
 <template>
   <div class="note_container" v-loading="noteLoading">
-    <template v-for="(it, index) in lastRes">
-      <div class="tipShow">{{index}}</div>
-      <div class="note_list" >
-        <div
-          class="note_list_item"
-          @click.stop="getNote(item)"
-          :key="idx"
-          v-for="(item, idx) in it"
-        >
-          <div class="top">
-            <div class="note_title">{{ item.name }}</div>
-            <el-icon @click.stop="onDelete(item)"><Close /></el-icon>
-          </div>
-          <div class="mid">
-            {{ item.desc }}
-          </div>
-          <footer class="note-footer note_time update_time">
-            <div
-              class="rec"
-              :style="{
+    <template :key="index" v-for="(it, index) in lastRes">
+      <div class="note_block" flex>
+        <div class="tipShow">{{index}}</div>
+        <div class="note_list" >
+          <div
+            class="note_list_item"
+            @click.stop="getNote(item)"
+            :key="idx"
+            v-for="(item, idx) in it"
+          >
+            <div class="top">
+              <div class="note_title">{{ item.name }}</div>
+              <el-icon @click.stop="onDelete(item)"><Close /></el-icon>
+            </div>
+            <div class="mid">
+              {{ item.desc }}
+            </div>
+            <footer class="note-footer note_time update_time">
+              <div
+                class="rec"
+                :style="{
             '--rec-color': item.markColor,
           }"
-            ></div>
-            <span>最近更新于：{{ item.updateTime }}</span>
-          </footer>
+              ></div>
+              <span>最近更新于：{{ item.updateTime }}</span>
+            </footer>
+          </div>
         </div>
       </div>
+
     </template>
 
   </div>
@@ -296,18 +299,19 @@ onMounted(() => {
 
 @mixin tipShow() {
   position: relative;
-  font-size: 40px;
+  font-size: 22px;
   font-weight: bold;
   border-radius: 5px;
   background-color: #1d1d1d;
   width: fit-content;
   padding: 5px 10px;
-  margin-bottom: 10px;
+  height: 45px;
+  margin-right: 10px;
   &:before {
     content: '';
     position: absolute;
     width: 100%;
-    height: 3px;
+    height: 2px;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
@@ -316,6 +320,25 @@ onMounted(() => {
 }
 .tipShow {
   @include tipShow();
+}
+
+.note_block {
+  position: relative;
+  &:last-child {
+    &:before {
+      display: none;
+    }
+  }
+  &:before {
+    position: absolute;
+    content: '';
+    left: 39px;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    height: auto;
+    background-color: #3f3f3f;
+  }
 }
 
 .note_container {

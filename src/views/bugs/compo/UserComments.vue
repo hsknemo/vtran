@@ -42,7 +42,11 @@ const onOpenDrawer = async (row: IssueItem) => {
   comment_drawer.value = true
   const d = await useIssueFindService(row.id)
   drawerData.data = d
-  const commentsData = await useIssueCommentsFindService(row.id)
+  await refresheCommentsList(row.id)
+}
+
+const refresheCommentsList = async (issueId: string) => {
+  const commentsData = await useIssueCommentsFindService(issueId)
   drawerData.commentsData = commentsData
 }
 
@@ -57,6 +61,7 @@ const onSendComments = async () => {
   })
   if (status) {
     comment.value = ''
+    await refresheCommentsList(drawerData.commentsData.issueId)
   }
 }
 const replyProps = ref<IssueReplyType>({
@@ -129,14 +134,14 @@ onMounted(() => {
     <el-tag m-y-2>{{ drawerData.data.issueType }}</el-tag>
     <section class="top_block">
       <div class="tit">佐证</div>
-      <ul>
+      <ul class="seconds_title">
         <li>标题</li>
       </ul>
       <div class="issue_titl">
         {{ drawerData.data.content }}
       </div>
 
-      <ul>
+      <ul class="seconds_title">
         <li>正文内容</li>
       </ul>
 
@@ -270,8 +275,32 @@ onMounted(() => {
     border-radius: calc(var(--tran-round) - 3px);
   }
 
-  ul {
+
+  .seconds_title {
     padding-left: 1rem;
+
+    li {
+      color: #a5a5a5;
+      @include flexStyle(center);
+      &::marker {
+        font-size: 0;
+      }
+
+      &:before {
+        content: '';
+        font-weight: bold;
+        --size: 8px;
+        width: var(--size);
+        height: var(--size);
+        border: 1px solid;
+        border-radius: 50%;
+        margin-right: 5px;
+      }
+    }
+  }
+
+  .issue_titl {
+    padding-left: 2rem;
   }
 }
 
