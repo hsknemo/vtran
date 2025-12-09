@@ -15,7 +15,8 @@ import { useRouter } from 'vue-router'
 import { version as v } from '../../../package.json'
 import TranDiaglog from '@/components/TranDiaglog.vue'
 import { ElMessage } from 'element-plus'
-import { getVersionList, saveVersionList } from '@/api/version/version.ts'
+import { saveVersionList } from '@/api/version/version.ts'
+import { useFetchGetVersionList, versionList } from '@/service/transfer/transferService.ts'
 const router = useRouter()
 const versionOption = ref([
   {
@@ -32,23 +33,24 @@ const versionOption = ref([
   },
 ])
 const version = ref('当前版本' + v)
-const versionList = ref([])
 const userAuth = computed(() => {
-  const auth = JSON.parse(useLocalStorage('user').value).auth || []
+  const auth = JSON.parse(useLocalStorage('user', '{}').value).auth || []
   return auth
 })
 
 const versionPop = ref({
   show: false,
 })
-const versionForm = ref({
+const lastVersion = ref({
+  versionContent: [] as TransferNamespace.VersionData[],
   versionTitle: v,
+})
+const versionForm = ref({
   versionDesc: '',
   versionType: '',
-  versionContent: [],
 })
 
-const getTagType = (type) => {
+const getTagType = (type: TransferNamespace.VersionTag) => {
   switch (type) {
     default:
       return 'primary'
@@ -60,7 +62,7 @@ const getTagType = (type) => {
       return 'warning'
   }
 }
-const getColor = type => {
+const getColor = (type: TransferNamespace.VersionTag) => {
   switch (type) {
     default:
       return '--el-color-primary'
@@ -78,10 +80,11 @@ const onAddVersion = () => {
   version_list_cut.value = true
 }
 const onAddVersionItem = () => {
-  versionForm.value.versionContent.push({
+  const prop = {
     type: versionForm.value.versionType,
     content: versionForm.value.versionDesc,
-  })
+  } as TransferNamespace.VersionData
+  lastVersion.value.versionContent.push(prop)
   versionForm.value.versionType = ''
   versionForm.value.versionDesc = ''
 }
@@ -91,12 +94,12 @@ const onAddVersionItem = () => {
  */
 const onAddVersionSubmit = async () => {
   try {
-    if (!versionForm.value.versionTitle) return ElMessage.error('版本标题数据为空')
-    if (!versionForm.value.versionContent.length) return ElMessage.error('版本描述数据为空')
+    if (!lastVersion.value.versionTitle) return ElMessage.error('版本标题数据为空')
+    if (!lastVersion.value.versionContent.length) return ElMessage.error('版本描述数据为空')
 
     await saveVersionList({
-      versionTitle: versionForm.value.versionTitle,
-      versionList: versionForm.value.versionContent,
+      versionTitle: lastVersion.value.versionTitle,
+      versionList: lastVersion.value.versionContent,
     })
     ElMessage.success('添加成功')
     version_list_cut.value = false
@@ -108,8 +111,8 @@ const onAddVersionSubmit = async () => {
   }
 }
 
-const onDeleteItem = (item) => {
-  versionForm.value.versionContent = versionForm.value.versionContent.filter((it) => it !== item)
+const onDeleteItem = (item: TransferNamespace.VersionData) => {
+  lastVersion.value.versionContent = lastVersion.value.versionContent.filter((it) => it.content !== item.content)
 }
 const version_list_cut = ref(false)
 const onVersionClick = () => {
@@ -126,7 +129,7 @@ const isTableShow = ref(true)
 const initWS = () => {
   if (!socketReacktive.ws) {
     socketReacktive.ws = new Socket({
-      url: 'ws://' + window.location.hostname + ':' + import.meta.env.VITE_WS_LINK_ADDR,
+      url: 'ws://' + window.location.hostname + ':' + import.meta.env.VITE_WS_LINK_ADDR + '/tranWs?token=' + localStorage.getItem('Auth'),
       name: '',
       isHeart: true, // 是否心跳
       isReconnection: true, // 是否断开重连
@@ -183,7 +186,7 @@ const checkAuth = () => {
   onClosePage()
   fetchGetVersionList()
 
-  const user = JSON.parse(useLocalStorage('user').value)
+  const user = JSON.parse(useLocalStorage('user', '{}').value)
   emitter.on(`refresh-user-list-${user.username}`, () => {
     emitter.emit('refresh-user')
   })
@@ -232,12 +235,7 @@ const get_all_table_list = () => {
  * 获取版本列表
  */
 const fetchGetVersionList = async () => {
-  try {
-    const list = await getVersionList()
-    versionList.value = list.data
-  } catch (e) {
-    ElMessage.error('获取版本列表失败')
-  }
+  await useFetchGetVersionList()
 }
 
 onMounted(() => {
@@ -328,7 +326,7 @@ onMounted(() => {
       <div class="version_form" v-else>
         <el-form :model="versionForm" label-width="auto">
           <el-form-item label="版本号" prop="versionTitle">
-            <el-input v-model="versionForm.versionTitle"></el-input>
+            <el-input v-model="lastVersion.versionTitle"></el-input>
           </el-form-item>
           <el-form-item label="版本描述">
             <el-select w-50 mb-5 v-model="versionForm.versionType">
@@ -349,7 +347,7 @@ onMounted(() => {
               <div
                 class="version_item_wrap"
                 :key="index"
-                v-for="(item, index) in versionForm.versionContent"
+                v-for="(item, index) in lastVersion.versionContent"
               >
                 <div class="item">
                   <el-tag :type="getTagType(item.type)">{{ item.type }}</el-tag>

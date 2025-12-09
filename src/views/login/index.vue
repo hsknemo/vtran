@@ -1,12 +1,9 @@
 <script setup lang="ts">
-import { reactive, defineEmits } from 'vue'
-import { loginUser } from '@/api/user/user.ts'
-import { ElMessage } from 'element-plus'
-import { loginOrRegisAction } from '@/utils/LoginAndRegis.ts'
+import { defineEmits } from 'vue'
 import { emitter } from '@/event/eventBus.ts'
-import { face_smile_to_life } from '@/utils/happyiness.ts'
 const emit = defineEmits(['close-login-page', 'show-create-page'])
 import { useRouter } from 'vue-router'
+import { useLoginService, userData } from '@/service/login/loginService.ts'
 const router = useRouter()
 
 // 显式定义组件名（解决ESLint警告）
@@ -14,25 +11,14 @@ defineOptions({
   name: 'UserLogin'
 })
 
-const userData = reactive({
-  username: '',
-})
 
 
 const onLogin = async () => {
-  try {
-    if (!userData.username) {
-      throw new Error('请填写用户名')
-    }
-    const res = await loginUser(userData)
+  const bool = await useLoginService()
+  if (bool) {
     emit('close-login-page')
-    loginOrRegisAction(res.data.token, res.data.data)
-    ElMessage.success(res.msg)
-    face_smile_to_life()
     emitter.emit('refresh-user')
-    router.push('/')
-  } catch (e) {
-    ElMessage.error(e.message)
+    await router.push('/')
   }
 }
 

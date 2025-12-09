@@ -18,7 +18,7 @@ const router = createRouter({
             icon: 'StreamlineFreehandSendEmailPaperPlane1',
             title: '传个东西'
           },
-          component: () => import('../views/index/index.vue'),
+          component: () => import('../views/index/transfer.vue'),
         },
         {
           path: '/tran/note',
