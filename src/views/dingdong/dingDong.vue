@@ -1,66 +1,39 @@
 <script setup lang="ts">
 import OnlineUser from '@/views/index/compo/OnlineUser.vue'
 import TranDiaglog from '@/components/TranDiaglog.vue'
-import { ElMessage } from 'element-plus'
-import { deleteDing, getDingList, sendDing } from '@/api/ding/ding.ts'
 import { onMounted } from 'vue'
-interface DingItem {
-  id: string
-  fromUserName: string
-  dingMsg: string
-  insertTime: string
-  toUser: string
-}
+import {
+  dingForm,
+  dingResult,
+  useDeleteDingService,
+  useGetDingListService,
+  useSendDingService
+} from '@/service/ding/dingServcie.ts'
+
 const dingPop = ref({
   show: false,
 })
-const dingMsg = ref('')
-const dingUserId = ref('')
 
-const onClickUser = (userId) => {
+const onClickUser = (userId:string) => {
   dingPop.value.show = true
-  dingUserId.value = userId
+  dingForm.toUserId =  userId
 }
 
 const onSubmitDing = async () => {
   dingPop.value.show = false
-  try {
-    await sendDing({
-      toUserId: dingUserId.value,
-      dingMsg: dingMsg.value,
-    })
-    ElMessage.success('通知成功')
-  } catch (e) {
-    ElMessage.error('通知失败')
-  }
-  dingUserId.value = ''
-  dingMsg.value = ''
+  await useSendDingService()
 }
 const dingLoading = ref(false)
-const dingResult:Array<DingItem> = ref([])
+// const dingResult:Array<DingItem> = ref([])
 const getDingListFetch = async () => {
   dingLoading.value = true
-  try {
-    const data = await getDingList()
-    dingResult.value = data.data
-  } catch (e) {
-    ElMessage.error('获取 叮 列表失败')
-  } finally {
-    dingLoading.value = false
-  }
+  await useGetDingListService()
+  dingLoading.value = false
+
 }
 
-const onDeleteDing = async (ding:DingItem) => {
-  try {
-    await deleteDing({
-      id: ding.id
-    })
-    ElMessage.success('删除成功')
-  } catch (e) {
-    ElMessage.error('删除失败')
-  } finally {
-    getDingListFetch()
-  }
+const onDeleteDing = async (ding:DingServiceNamespace.DingItem) => {
+  await useDeleteDingService( ding.id)
 }
 
 onMounted(() => {
@@ -120,7 +93,7 @@ onMounted(() => {
       <div>
         <label block mb-2 for="">消息：</label>
         <el-input
-          v-model="dingMsg"
+          v-model="dingForm.dingMsg"
           type="textarea"
           :rows="5"
           maxlength="300"

@@ -245,6 +245,11 @@ onMounted(() => {
 
   emitter.on('slide-table-list', slide_table_list)
 })
+
+onUnmounted(() => {
+  emitter.off('slide-table-list', slide_table_list)
+  emitter.off('refresh-file', get_all_table_list)
+})
 </script>
 
 <template>
