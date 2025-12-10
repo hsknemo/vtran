@@ -142,23 +142,17 @@ onMounted(() => {
     margin-right: 10px !important;
   }
   &:last-child {
-    margin-right: 0px;
+    margin-right: 0;
   }
 }
 
-@mixin tranDingTop() {
-  .tran_ding_top {
-    .user_name {
-    }
-  }
-}
 
 @mixin main_content() {
   .main_content {
     text-indent: 2em;
     max-height: calc(100% - 10px - 20px);
     display: -webkit-box;
-    -webkit-line-clamp: 4;
+    line-clamp: 4;
     -webkit-box-orient: vertical;
     word-break: break-all;
     overflow: hidden;
@@ -203,7 +197,6 @@ onMounted(() => {
       border: 1px solid gold;
     }
 
-    @include tranDingTop();
     @include main_content();
 
     &.active {
