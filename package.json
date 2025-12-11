@@ -1,6 +1,6 @@
 {
   "name": "vtran",
-  "version": "1.1.9",
+  "version": "1.2.0",
   "private": true,
   "type": "module",
   "engines": {
@@ -50,6 +50,7 @@
     "@iconify-json/mage": "^1.2.4",
     "@iconify-json/marketeq": "^1.2.2",
     "@iconify-json/material-symbols-light": "^1.2.48",
+    "@iconify-json/meteor-icons": "^1.2.1",
     "@iconify-json/streamline": "^1.2.5",
     "@iconify-json/streamline-freehand": "^1.2.1",
     "@shikijs/themes": "^3.15.0",

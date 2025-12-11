@@ -102,6 +102,9 @@ importers:
       '@iconify-json/material-symbols-light':
         specifier: ^1.2.48
         version: 1.2.48
+      '@iconify-json/meteor-icons':
+        specifier: ^1.2.1
+        version: 1.2.1
       '@iconify-json/streamline':
         specifier: ^1.2.5
         version: 1.2.5
@@ -1432,6 +1435,9 @@ packages:
 
   '@iconify-json/material-symbols-light@1.2.48':
     resolution: {integrity: sha512-0P41Do7AuBSZKvhxrJxug+OzZ3JPB6Qi44jn3sRKGPOB9XJM6dcH4mZnSsJsIzYk0KwOvZXq9VIQULVpfIXOzQ==}
+
+  '@iconify-json/meteor-icons@1.2.1':
+    resolution: {integrity: sha512-SdYI7XPdqhfnbsDpAtyW1471KS/kqn0hu3VfuTHZmGpNw1hFbtKrIIPykk67Nj2M72ScqMrhuPBA1HKQPbDfQQ==}
 
   '@iconify-json/streamline-freehand@1.2.1':
     resolution: {integrity: sha512-3Pq1cEsAtSkilrbCM9KzcVFuET+XD/WhSOOEpOzD2nUq8t3D8XB/klBQ2emu6SYv7FUnszhTrfdinYWaDFQbKw==}
@@ -5947,6 +5953,10 @@ snapshots:
       '@iconify/types': 2.0.0
 
   '@iconify-json/material-symbols-light@1.2.48':
+    dependencies:
+      '@iconify/types': 2.0.0
+
+  '@iconify-json/meteor-icons@1.2.1':
     dependencies:
       '@iconify/types': 2.0.0
 

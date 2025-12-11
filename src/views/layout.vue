@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import router from '@/router'
 import { useRoute } from 'vue-router'
+import MeteorIconsList from '~icons/meteor-icons/list'
 import { computed } from 'vue'
 // 创建一个图标组件映射
 import iconComponents from '@/router/icon/icons.ts'
 import DownloadShow from '@/components/DownloadShow.vue'
 import { emitter } from '@/event/eventBus.ts'
 import type { DownloadItem, ProcessReturnParams } from '@/api/download/dowloadProxy.ts'
-
 const route = useRoute()
 const hilightIndex = ref(route.meta.title)
 
@@ -41,11 +41,22 @@ const filterMenu = computed({
   }
 })
 
+const tranList = ref()
+const onMenuClick = () => {
+  tranList.value.classList.toggle('show')
+}
+
+
+
+
 </script>
 
 <template>
   <div class="tran_layout">
-    <div class="tran_list">
+    <div sm="hidden!"  class="tran_menu_control">
+      <MeteorIconsList @click="onMenuClick" />
+    </div>
+    <div ref="tranList" class="tran_list ">
       <div class="tran_menu_item mb-3 w-fit whitespace-nowrap"
            @click="hilightIndex = item.meta.title"
            :key="index"
@@ -84,6 +95,22 @@ const filterMenu = computed({
   justify-content: $justContent;
 }
 
+@mixin tran_menu_control {
+  .tran_menu_control {
+    @apply w-full
+      h-10
+      bg-black
+      flex
+      items-center
+      pl-4
+      text-xl
+    ;
+    position: fixed;
+    top: 0;
+    left: 0;
+  }
+}
+
 @mixin tran_list {
   .tran_list {
     position: fixed;
@@ -101,6 +128,31 @@ const filterMenu = computed({
 
     &:hover {
       opacity: 1;
+    }
+  }
+
+  @media screen and (max-width: 750px) {
+    .tran_list {
+      display: none;
+      top: 40px;
+      left: 0;
+      transform: unset;
+      @apply w-full;;
+      opacity: 1;
+      &:hover {
+        opacity: unset;
+      }
+
+      &.show {
+        display: flex;
+      }
+
+      .tran_menu_item {
+        @apply w-full;
+        a {
+          @apply w-full justify-center;
+        }
+      }
     }
   }
 
@@ -141,6 +193,7 @@ const filterMenu = computed({
   width: 100%;
   @include flexStyle();
   @include tran_list();
+  @include tran_menu_control();
 
   @include tran_container();
 }
