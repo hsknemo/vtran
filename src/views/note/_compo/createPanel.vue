@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
-import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import MonacoEditor from '@/views/index/pageComponent/MonacoEditor.vue'
-import { saveNote } from '@/api/note/note.ts'
 import MarkdownMsg from '@/views/index/chatCompo/MarkdownMsg.vue'
+import { useSaveNodeService } from '@/service/note/noteService.ts'
+import type {
+  FormInstance,
+  FormItemRule,
+} from 'element-plus'
 const ruleFormRef = ref<FormInstance>()
 const monoEditorRef = ref()
-const ruleForm = reactive({
+const ruleForm:noteServiceNamespace.NoteForm = reactive({
   name: '',
   content: '',
   desc: '',
@@ -31,50 +34,37 @@ const predefineColors = [
 ]
 
 
-const validateName = (rule: any, value: any, callback: any) => {
-  if (value === '') {
+const validateName = (rule: FormItemRule, value: string, callback: (error?: string | Error) => void) => {
+  if (!value || value.trim() === '') {
     callback(new Error('请输入标签名称🏷'))
   } else {
-    if (ruleForm.name !== '') {
-      return true
-    }
+    callback() // 验证通过必须调用 callback()
   }
 }
 
-const validateContent = (rule: any, value: any, callback: any) => {
-  if (value === '') {
+const validateContent = (rule: FormItemRule, value: string, callback: (error?: string | Error) => void) => {
+  if (!value || value.trim() === '') {
     callback(new Error('请输入内容🏷'))
   } else {
-    if (ruleForm.content !== '') {
-      return true
-    }
+    callback()
   }
 }
 
-const rules = reactive<FormRules<typeof ruleForm>>({
+const rules = reactive({
   name: [{ required: true, validator: validateName, trigger: 'blur' }],
-  content: [{ required: true, validator: validateContent}],
+  content: [{ required: true, validator: validateContent, trigger: 'blur' }],
 })
 
 const onCreateNoteFetch = async (formEl: FormInstance | undefined) => {
   ruleForm.content = monoEditorRef.value.getValue()
   if (!formEl) return
-  formEl.validate(valide => {
-    if (valide) {
-      console.log(ruleForm)
-      saveNodeFetch()
+  await formEl.validate(valid => {
+    if (valid) {
+      useSaveNodeService(ruleForm)
     }
   })
 }
 
-const saveNodeFetch = async () => {
-  try {
-    await saveNote(ruleForm)
-    ElMessage.success('保存成功')
-  } catch (e) {
-    ElMessage.error('保存失败')
-  }
-}
 
 const editingText = ref('左侧输入，这边展示😄')
 const onEditMarkdown = (value: string) => {
@@ -114,9 +104,9 @@ const onEditMarkdown = (value: string) => {
           show-alpha
           :predefine="predefineColors"
         />
-        <section class="colro_model"
+        <section class="color_model"
                  :style="{
-                    '--raduis-color': ruleForm.markColor
+                    '--radius-color': ruleForm.markColor
                  }"
         >
           model 演示
@@ -167,7 +157,7 @@ const onEditMarkdown = (value: string) => {
   .color_div {
     width: 100%;
     @include flexStyle( center, space-around);
-    .colro_model {
+    .color_model {
       position: relative;
       @include flexStyle(center, center);
       color: #696d69;
@@ -183,7 +173,7 @@ const onEditMarkdown = (value: string) => {
         width: 10px;
         height: 10px;
         border-radius: 50%;
-        background-color: var(--raduis-color);
+        background-color: var(--radius-color);
       }
 
     }

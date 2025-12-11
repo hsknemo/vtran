@@ -1,69 +1,31 @@
 <script setup lang="ts">
-import { deleteNoteFile, getNoteList, updateNoteList } from '@/api/note/note.ts'
+import { updateNoteList } from '@/api/note/note.ts'
 import { ElMessage } from 'element-plus'
 import { Check, Close, Edit } from '@element-plus/icons-vue'
 import MarkdownMsg from '@/views/index/chatCompo/MarkdownMsg.vue'
 import { ref } from 'vue'
 import MonacoEditor from '@/views/index/pageComponent/MonacoEditor.vue'
 import { delay } from '@/utils/sleep.ts'
-import moment from 'moment'
-const noteLoading = ref(false)
+import { lastRes, noteLoading, useDeleteNoteService, useNoteListService } from '@/service/note/noteService.ts'
 const mdLoading = ref(false)
 const note_drawer = ref(false)
 const direction = ref('rtl')
 const mdContent = ref('')
-const lastRes = ref({})
 const handleClose = (done: () => void) => {
   done()
 }
 
-const noteList = ref([])
 
 const getNoteListFetch = async () => {
-  try {
-    noteLoading.value = true
-    const data = await getNoteList()
-    noteList.value = data.data
-    const yearList = {}
-    const yearSet = new Set()
-    data.data.forEach(item => {
-      yearSet.add(moment(item.createTime).format('YYYY'))
-    })
-    const arr = Array.from(yearSet).sort((a, b) => parseInt(b) - parseInt(a))
-    arr.forEach(item => {
-      yearList[item] = []
-    })
-
-    data.data.forEach(item => {
-      const y = moment(item.createTime).format('YYYY')
-      if (yearList[y]) {
-        yearList[y].push(item)
-      }
-    })
-
-    console.log(yearList)
-    lastRes.value = yearList
-  } catch (e) {
-    ElMessage.error('获取笔记列表失败')
-  } finally {
-    noteLoading.value = false
-  }
-}
-interface NoteItem {
-  id: string
-  name: string
-  desc: string
-  markColor: string
-  updateTime: string
-  createTime: string
-  contentUrl: string
+  await useNoteListService()
 }
 
-const curSelectRow = ref({} as NoteItem)
+
+const curSelectRow = ref({} as noteServiceNamespace.NoteItem)
 const drawerEdit = ref(false)
 const monoEditorRef = ref()
 
-const getNote = async (item: NoteItem) => {
+const getNote = async (item: noteServiceNamespace.NoteItem) => {
   drawerEdit.value = false
   mdContent.value = ''
   note_drawer.value = true
@@ -71,18 +33,8 @@ const getNote = async (item: NoteItem) => {
   await getStreamFileContent(item.contentUrl)
 }
 
-const onDelete = async (item: NoteItem) => {
-  try {
-    await deleteNoteFile({
-      id: item.id,
-      fileName: item.contentUrl,
-    })
-    ElMessage.success('删除成功')
-  } catch (e) {
-    ElMessage.error('删除失败')
-  } finally {
-    getNoteListFetch()
-  }
+const onDelete = async (item: noteServiceNamespace.NoteItem) => {
+  await useDeleteNoteService(item)
 }
 
 /**
@@ -135,7 +87,6 @@ const getStreamFileContent = async (fileId: string) => {
       mdContent.value += chunk
     }
   } catch (e) {
-    noteLoading.value = false
     ElMessage.error('获取文件内容失败')
   }
 }
@@ -181,7 +132,7 @@ onMounted(() => {
             class="note_list_item"
             @click.stop="getNote(item)"
             :key="idx"
-            v-for="(item, idx) in it"
+            v-for="(item, idx) in it as noteServiceNamespace.NoteItem[]"
           >
             <div class="top">
               <div class="note_title">{{ item.name }}</div>
@@ -247,13 +198,26 @@ onMounted(() => {
 }
 
 @mixin note_body {
+  &:hover {
+    .top {
+      .el-icon {
+
+        opacity: 1;
+        pointer-events: auto;
+      }
+    }
+  }
   .top {
     @include flexStyle(center, space-between);
     .note_title {
       font-weight: bold;
     }
+
     .el-icon {
-      color: #fc3333;
+      color: var(--el-color-danger);
+      transition: opacity .3s;
+      opacity: 0;
+      pointer-events: none;
     }
   }
 

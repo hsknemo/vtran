@@ -2,7 +2,7 @@ import { request } from '@/api'
 import { useLocalStorage } from '@vueuse/core'
 const getToken = () => useLocalStorage('Auth', '{}').value
 
-export const saveNote = (data:object) => request({
+export const saveNote = (data:noteServiceNamespace.NoteForm) => request({
   method: 'post',
   headers: {
     Authorization: getToken(),

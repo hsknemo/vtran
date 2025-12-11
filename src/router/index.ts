@@ -28,7 +28,7 @@ const router = createRouter({
             icon: 'StreamlineFreehandGraphicTabletDraw1',
             title: '写个便签'
           },
-          component: () => import('../views/note/index.vue'),
+          component: () => import('../views/note/note.vue'),
         },
         {
           path: '/tran/dingDong',
