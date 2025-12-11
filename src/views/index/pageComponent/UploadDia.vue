@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import { ref } from 'vue'
 import type { UploadRequestOptions } from 'element-plus/es/components/upload/src/upload'
 import { ElMessage } from 'element-plus'
 import { useLocalStorage } from '@vueuse/core'
@@ -10,6 +10,7 @@ import type { ChunkDefine } from '@/type/upload'
 import { v4 as uuidv4 } from 'uuid'
 import { UploadFilled } from '@element-plus/icons-vue'
 const emit = defineEmits(['upload-msg'])
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = defineProps({
     popControl: {
       type: Object,
