@@ -8,6 +8,7 @@ import { chatMsgList } from '@/views/index/store/chat.ts'
 import { delay } from '@/utils/sleep.ts'
 import type { ChunkDefine } from '@/type/upload'
 import { v4 as uuidv4 } from 'uuid'
+import { UploadFilled } from '@element-plus/icons-vue'
 const emit = defineEmits(['upload-msg'])
 const props = defineProps({
     popControl: {

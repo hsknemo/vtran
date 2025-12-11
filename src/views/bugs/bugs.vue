@@ -12,6 +12,7 @@ import { ElMessage, type UploadFile } from 'element-plus'
 import ImageList from '@/views/bugs/compo/ImageList.vue'
 import { useIssueAddService } from '@/service/issue/issueService'
 import type { IssueAddItem } from '@/service/issue/issueServiceDataType'
+import { UploadFilled } from '@element-plus/icons-vue'
 const showTip = ref<boolean>(false)
 const mark_select = ref()
 const content = ref('')

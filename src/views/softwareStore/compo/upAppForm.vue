@@ -8,6 +8,7 @@ import { useLocalStorage } from '@vueuse/core'
 import { delay } from '@/utils/sleep.ts'
 import { appRecordAdd, uploadSoftware } from '@/api/softwareStore/software.ts'
 import { categoryReactive } from '@/hook/category.ts'
+import { UploadFilled } from '@element-plus/icons-vue'
 const emit = defineEmits(['upload-success'])
 const fileList = ref<UploadFile[]>([])
 const lockUpdateFile = ref(false)

@@ -8,6 +8,7 @@ import { useLocalStorage } from '@vueuse/core'
 import { delay } from '@/utils/sleep.ts'
 import type { ChunkDefine, isUploaded } from '@/type/upload'
 import { v4 as uuidv4 } from 'uuid';
+import { UploadFilled } from '@element-plus/icons-vue'
 
 const fileList = ref<UploadFile[]>([])
 
