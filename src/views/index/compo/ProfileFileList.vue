@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { deleteFile, dowloadFile, getFileList } from '@/api/file/file.ts'
+import { deleteFile, getFileList } from '@/api/file/file.ts'
 import { onMounted, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { emitter } from '@/event/eventBus.ts'
