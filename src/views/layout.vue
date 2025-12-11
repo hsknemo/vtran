@@ -4,14 +4,33 @@ import { useRoute } from 'vue-router'
 import { computed } from 'vue'
 // 创建一个图标组件映射
 import iconComponents from '@/router/icon/icons.ts'
+import DownloadShow from '@/components/DownloadShow.vue'
+import { emitter } from '@/event/eventBus.ts'
 
 const route = useRoute()
 const hilightIndex = ref(route.meta.title)
 
 const route_menu =  router.options.routes[0]?.children
+const downLoadQue = ref([
 
+])
 
-
+emitter.on('download-process', (data) => {
+  if (!downLoadQue.value.filter(item => item.uuid === data.uuid).length) {
+    downLoadQue.value.push(data)
+  } else {
+    downLoadQue.value = downLoadQue.value.map(item => {
+      if (item.uuid === data.uuid) {
+        item.percent = data.percent
+      }
+      return item
+    })
+  }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  setTimeout(_ => {
+    downLoadQue.value = downLoadQue.value.filter(item => item.percent !== 100)
+  }, 500)
+})
 
 
 const filterMenu = computed({
@@ -52,6 +71,8 @@ const filterMenu = computed({
       <Transition name="fade">
       <router-view></router-view>
       </Transition>
+
+      <DownloadShow :download-queue="downLoadQue" v-if="downLoadQue.length"></DownloadShow>
     </div>
   </div>
 

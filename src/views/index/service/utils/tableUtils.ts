@@ -1,6 +1,8 @@
 import type { DefaultRow } from 'element-plus/es/components/table/src/table/defaults'
-import { dowloadFile } from '@/api/file/file.ts'
+import { downloadFile } from '@/api/file/file.ts'
 import { ElMessage } from 'element-plus'
+import { emitter } from '@/event/eventBus.ts'
+import { v4 as uuidv4 } from 'uuid'
 
 export const changeFileName = (fileName:string) => {
   const index = fileName.lastIndexOf('.')
@@ -11,10 +13,15 @@ export const changeFileName = (fileName:string) => {
 
 export const onDownload = async (row:DefaultRow) => {
   try {
-    await dowloadFile({
+    await downloadFile({
       fileId: row.id,
       fileName: row.fileName,
       toUserId: row.toUser
+    }, {
+      uuid: uuidv4(),
+      processFunc: (processConfig) => {
+        emitter.emit('download-process', processConfig)
+      }
     })
 
   } catch (e) {

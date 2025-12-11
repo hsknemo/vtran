@@ -8,6 +8,10 @@ import UpAppForm from '@/views/softwareStore/compo/upAppForm.vue'
 import AddCategory from '@/views/softwareStore/compo/addCategory.vue'
 import { categoryReactive, requestGetCategoryList } from '@/hook/category.ts'
 import iconComponents from '@/router/icon/icons.ts'
+import { emitter } from '@/event/eventBus.ts'
+import { v4 as uuidv4 } from 'uuid'
+import { useRoute } from 'vue-router'
+
 const route = useRoute()
 const uploadDia = ref({
   show: false,
@@ -69,23 +73,15 @@ type appData = {
 }
 const onDownload = async (item: appData) => {
   try {
-    const res = await downloadSoftware({
+    await downloadSoftware({
       uploadUserId: item.appUploadUser,
       fileName: item.appRealName,
+    }, {
+      uuid: uuidv4(),
+      processFunc: (processConfig) => {
+        emitter.emit('download-process', processConfig)
+      }
     })
-    const blob = new Blob([res.data])
-    const a = document.createElement('a')
-    a.href = URL.createObjectURL(blob)
-    let fileStr = ''
-    const cutArr = item.appRealName.split('_').slice(1)
-    // 针对用户的名称下划线处理
-    if (cutArr.length > 1) {
-      fileStr = cutArr.join('_')
-    } else {
-      fileStr = cutArr.join('')
-    }
-    a.download = fileStr
-    a.click()
   } catch (e) {
     console.log(e)
     ElMessage.error('下载失败' + e)
