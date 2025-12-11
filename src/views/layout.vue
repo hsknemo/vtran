@@ -6,16 +6,15 @@ import { computed } from 'vue'
 import iconComponents from '@/router/icon/icons.ts'
 import DownloadShow from '@/components/DownloadShow.vue'
 import { emitter } from '@/event/eventBus.ts'
+import type { DownloadItem, ProcessReturnParams } from '@/api/download/dowloadProxy.ts'
 
 const route = useRoute()
 const hilightIndex = ref(route.meta.title)
 
 const route_menu =  router.options.routes[0]?.children
-const downLoadQue = ref([
+const downLoadQue = ref<DownloadItem[]>([])
 
-])
-
-emitter.on('download-process', (data) => {
+emitter.on('download-process', (data:ProcessReturnParams) => {
   if (!downLoadQue.value.filter(item => item.uuid === data.uuid).length) {
     downLoadQue.value.push(data)
   } else {

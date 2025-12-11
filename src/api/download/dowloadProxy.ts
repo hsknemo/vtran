@@ -6,7 +6,13 @@ export declare interface RequestItem {
   fileName: string;
 }
 
-// 配置进度残局
+export declare interface DownloadItem {
+  fileName: string
+  percent: number,
+  uuid: string
+}
+
+// 配置进度返回值
 export declare interface ProcessReturnParams  {
   // 百分比
   percent?: number;

@@ -1,10 +1,8 @@
 <script setup lang="ts">
-  interface DownloadItem {
-    fileName: string
-    percent: number,
-    uuid: string
-  }
+
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  import type { DownloadItem } from '@/api/download/dowloadProxy.ts'
+
   const props = withDefaults(defineProps<{
     downloadQueue?: DownloadItem[]
   }>(), {
