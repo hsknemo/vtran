@@ -22,6 +22,7 @@ axios.interceptors.response.use(
     const { response } = error;
     if (!response) return
     if (response.status === 401) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       window._user_online_timeout && clearTimeout(window._user_online_timeout)
       router.push('/login')
     }

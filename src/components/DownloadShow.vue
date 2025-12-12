@@ -17,7 +17,7 @@
          v-for="(item, index) in downloadQueue"
     >
      <span class="tit" w-full="" absolute text-center="">
-        {{ item.fileName }}434444444444444
+        {{ item.fileName }}
      </span>
 <!--      :stroke-dasharray="[item.percent * 2.21, 600].join(' ')" -->
      <svg mt-5>
