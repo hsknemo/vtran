@@ -17,6 +17,7 @@ import TranDiaglog from '@/components/TranDiaglog.vue'
 import { ElMessage } from 'element-plus'
 import { saveVersionList } from '@/api/version/version.ts'
 import { useFetchGetVersionList, versionList } from '@/service/transfer/transferService.ts'
+import { v4 as uuidv4 } from 'uuid'
 const router = useRouter()
 const versionOption = ref([
   {
@@ -75,7 +76,6 @@ const getColor = (type: TransferNamespace.VersionTag) => {
   }
 }
 
-
 const onAddVersion = () => {
   version_list_cut.value = true
 }
@@ -112,7 +112,9 @@ const onAddVersionSubmit = async () => {
 }
 
 const onDeleteItem = (item: TransferNamespace.VersionData) => {
-  lastVersion.value.versionContent = lastVersion.value.versionContent.filter((it) => it.content !== item.content)
+  lastVersion.value.versionContent = lastVersion.value.versionContent.filter(
+    (it) => it.content !== item.content,
+  )
 }
 const version_list_cut = ref(false)
 const onVersionClick = () => {
@@ -127,9 +129,17 @@ const reactive_data = reactive({
 const isTableShow = ref(true)
 
 const initWS = () => {
+  const curAccessToken = uuidv4()
   if (!socketReacktive.ws) {
     socketReacktive.ws = new Socket({
-      url: 'ws://' + window.location.hostname + ':' + import.meta.env.VITE_WS_LINK_ADDR + '/tranWs?token=' + localStorage.getItem('Auth'),
+      url:
+        'ws://' +
+        window.location.hostname +
+        ':' +
+        import.meta.env.VITE_WS_LINK_ADDR +
+        '/tranWs?token=' +
+        localStorage.getItem('Auth') +
+        `&curAccessToken=${curAccessToken}`,
       name: '',
       isHeart: true, // 是否心跳
       isReconnection: true, // 是否断开重连
@@ -278,8 +288,7 @@ onUnmounted(() => {
     <template v-if="!reactive_data.showPage">
       <div class="tip">选择发送给用户</div>
       <online-user />
-      <div class="tip">选择/拖拽文件
-      </div>
+      <div class="tip">选择/拖拽文件</div>
       <TranUpload />
 
       <section class="layout_list" v-show="isTableShow">
@@ -320,9 +329,12 @@ onUnmounted(() => {
             </div>
             <div class="version_list_item" :key="idx" v-for="(it, idx) in item.versionList">
               <el-tag :type="getTagType(it.type)">{{ it.type }}</el-tag>
-              <span :style="{
-                color: 'var(' + getColor(it.type) + ')'
-              }">{{ it.content }}</span>
+              <span
+                :style="{
+                  color: 'var(' + getColor(it.type) + ')',
+                }"
+                >{{ it.content }}</span
+              >
             </div>
           </div>
         </template>
