@@ -1,4 +1,4 @@
-import { request } from '@/api/index.ts'
+import request from '@/api/index.ts'
 import { useLocalStorage } from '@vueuse/core'
 export const addUser = (data:object) => request({
   method: 'post',

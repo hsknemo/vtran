@@ -1,4 +1,4 @@
-import { request } from '@/api/index.ts'
+import request from '@/api/index.ts'
 import { useLocalStorage } from '@vueuse/core'
 import { downloadProxy, type DownloadProxyConfig, type RequestItem } from '@/api/download/dowloadProxy.ts'
 const getToken = () => useLocalStorage('Auth', '{}').value
