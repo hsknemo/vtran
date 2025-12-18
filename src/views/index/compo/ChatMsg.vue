@@ -15,6 +15,36 @@ const onSend = () => {
 
   userMsg.value = ''
 }
+const collectKey = ref<Set<string>>(new Set())
+/*
+ * 监听组合键
+ */
+const onKeydown = (...args: any[]) => {
+  const code = args[0].code
+  if (['MetaLeft', 'MetaRight', 'ControlLeft', 'ControlRight', 'Enter'].includes(code)) {
+    collectKey.value.add(code)
+
+    setTimeout(() => {
+      collectKey.value.clear()
+    }, 500)
+  }
+
+  const arr = Array.from(collectKey.value)
+  if (arr[0] === 'Enter') {
+    collectKey.value.clear()
+  }
+  if (collectKey.value.size === 2) {
+    const str = arr.join('-')
+    if (str.endsWith('Enter')) {
+      onSend()
+    }
+    collectKey.value.clear()
+  }
+}
+
+const onBlur = () => {
+  collectKey.value.clear()
+}
 </script>
 
 <template>
@@ -24,6 +54,8 @@ const onSend = () => {
     </section>
     <section class="footer_item input_area">
       <el-input
+        @blur="onBlur"
+        @keydown="onKeydown"
         :autosize="{
           maxRows: 2,
         }"
@@ -34,7 +66,7 @@ const onSend = () => {
         v-model="userMsg"
       ></el-input>
       <div class="input_botm">
-        <el-button @click="onSend" :icon="Promotion"></el-button>
+        <el-button @click="onSend" :icon="Promotion">(Ctrl | Command) + Enter</el-button>
       </div>
     </section>
   </footer>
