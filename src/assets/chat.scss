@@ -98,21 +98,42 @@ $block_bg_color: #1d1d1d;
     height: calc(100% - 80%);
     padding-top: 10px;
     .footer_item {
-      @include flexStyle(center, end);
       &.none_flex_end {
         justify-content: unset;
       }
       &.input_area {
-        height: calc(100% - 50%);
+        @apply: rounded pr-2 relative;
+        border: var(--el-border);
+        height: calc(100% - 15%);
+        textarea {
+          outline: none !important;
+          border: none !important;
+        }
       }
+
       :deep {
         .el-textarea {
           margin-right: 10px;
+          --el-input-focus-border-color: unset;
+          --el-input-hover-border: unset;
+          --el-input-hover-border-color: unset;
+          --el-border: unset;
+          --el-input-border-radius: unset;
+
         }
         .el-textarea__inner {
-          border: 1px solid transparent !important;
           height: 100%;
+          border-radius: unset !important;
+          box-shadow: unset;
+          &:focus-visible {
+            outline: unset;
+          }
         }
+      }
+
+      .input_botm {
+          @apply absolute bottom-3 right-3;
+          @include flexStyle(center, flex-end)
       }
     }
   }
@@ -149,7 +170,7 @@ $block_bg_color: #1d1d1d;
       &.user_left_pop {
         .msg {
           padding: 1px;
-          @apply bg-green;
+          @apply bg-green ;
         }
       }
 
@@ -180,7 +201,7 @@ $block_bg_color: #1d1d1d;
 @mixin tran_chat_area {
   .tran_chat_area {
     margin-top: 10px;
-    height: calc(100% - 25%);
+    height: calc(100% - 30%);
     @include radius_box(#141414);
     overflow: auto;
   }

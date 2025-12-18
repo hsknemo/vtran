@@ -13,6 +13,7 @@ import ChatUtilsBar from '@/views/index/compo/ChatUtilsBar.vue'
 import { codeGroupReactive } from '@/views/index/service/ChatUtilsService/chatUtils.ts'
 import MonoDialog from '@/views/index/pageComponent/MonoDialog.vue'
 import MarkdownMsg from '@/views/index/chatCompo/MarkdownMsg.vue'
+import ChatMsg from '@/views/index/compo/ChatMsg.vue'
 
 const emit = defineEmits(['update:value'])
 const isSaveGroup = ref(false)
@@ -86,11 +87,10 @@ const scrollToView = async () => {
   })
 }
 
-const onSend = () => {
-  if (userMsg.value === '') return ElMessage.warning('输入内容为空')
+const onSend = (msg) => {
   const ifUserList = chatMsgList.currentGroup.userList.length == 1
   chatMsgList.currentGroup.session_id = chatMsgList.currentGroup.id
-  chatMsgList.currentGroup.sendMsg = userMsg
+  chatMsgList.currentGroup.sendMsg = msg
   chatMsgList.currentGroup.from = JSON.parse(useLocalStorage('user', '{}').value)
   // 有群用户的情况下 推送消息给其他用户
   if (!ifUserList) {
@@ -110,7 +110,6 @@ const onSend = () => {
   })
 
   scrollToView()
-  userMsg.value = ''
   saveGroupInfo()
 }
 
@@ -221,12 +220,9 @@ const addGroupFromUser = async ({ data }) => {
 
 // 点击编辑器
 const onCodeEditorEnter = (val) => {
-  userMsg.value = val
+  onSend(val)
 }
 
-const onEmojiTextSelect = (emoji) => {
-  userMsg.value += emoji
-}
 
 onMounted(() => {
   findOwnGroupFetch()
@@ -339,17 +335,7 @@ onMounted(() => {
               </div>
             </section>
           </main>
-          <footer class="tran_chat_footer">
-            <section class="footer_item none_flex_end">
-              <ChatUtilsBar :is-group="true" @emoji-text-select="onEmojiTextSelect" />
-            </section>
-            <section class="footer_item input_area">
-              <el-input
-                resize="none"
-                id="tran_input" type="textarea"  v-model="userMsg"></el-input>
-              <el-button @click="onSend" :icon="Promotion"></el-button>
-            </section>
-          </footer>
+          <ChatMsg @send-message="onSend" />
         </template>
 
         <div v-else class="tran_chat_logo_panel" @click="onMsgTip"></div>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { defineComponent, nextTick, onMounted, reactive, ref } from 'vue'
-import { Promotion, CloseBold, HomeFilled } from '@element-plus/icons-vue'
+import { CloseBold, HomeFilled } from '@element-plus/icons-vue'
 import { onLineUserList } from '@/views/index/store/store.ts'
 import { chatMsgList } from '@/views/index/store/chat.ts'
 import { ElMessage, ElNotification } from 'element-plus'
@@ -8,15 +8,14 @@ import socketReactive from '@/stores/socket.ts'
 import { useLocalStorage } from '@vueuse/core'
 import { emitter } from '@/event/eventBus.ts'
 import GroupChat from '@/views/index/compo/GroupChat.vue'
-import ChatUtilsBar from '@/views/index/compo/ChatUtilsBar.vue'
 import { codeReactive } from '@/views/index/service/ChatUtilsService/chatUtils.ts'
 import MonoDialog from '@/views/index/pageComponent/MonoDialog.vue'
 import MarkdownMsg from '@/views/index/chatCompo/MarkdownMsg.vue'
 import UploadDia from '@/views/index/pageComponent/UploadDia.vue'
 import IconUploadHistory from '@/components/icons/iconUploadHistory.vue'
 import UploadHistory from '@/views/index/pageComponent/UploadHistory.vue'
-import TranDiaglog from '@/components/TranDiaglog.vue'
 import EmojiSymbol from '@/components/EmojiSymbol/EmojiSymbol.vue'
+import ChatMsg from '@/views/index/compo/ChatMsg.vue'
 
 const highlightIndex = ref(-1)
 const userMsg = ref('')
@@ -61,13 +60,11 @@ const scrollToView = async () => {
   })
 }
 
-const onSend = async () => {
-  if (userMsg.value === '') return ElMessage.warning('输入内容为空')
-
+const onSend = async (msg) => {
   // session_id 用户存储当前用户聊天信息 每组用户唯一
   // TODO 刷新页面数据暂时消失
   chatMsgList.currentUser.session_id = chatMsgList.currentUser.id
-  chatMsgList.currentUser.sendMsg = userMsg
+  chatMsgList.currentUser.sendMsg = msg
   chatMsgList.currentUser.from = JSON.parse(useLocalStorage('user').value)
   socketReactive?.ws?.ws?.send(
     JSON.stringify({
@@ -82,8 +79,6 @@ const onSend = async () => {
   })
 
   scrollToView()
-
-  userMsg.value = ''
 
   saveUserInfo()
 }
@@ -163,11 +158,7 @@ const clearChatAllOnExit = () => {
 
 // 点击编辑器
 const onCodeEditorEnter = (val) => {
-  userMsg.value = val
-}
-
-const onEmojiTextSelect = (emoji) => {
-  userMsg.value += emoji
+  onSend(val)
 }
 
 const uploadHis = reactive({
@@ -178,8 +169,7 @@ const onClickShowHistory = () => {
 }
 
 const onUploadSuccess = () => {
-  userMsg.value = '提示：双方互传文件，请打开历史文件进行查看！'
-  onSend()
+  onSend('提示：双方互传文件，请打开历史文件进行查看！')
 }
 
 onMounted(() => {
@@ -280,15 +270,7 @@ onMounted(() => {
               </div>
             </section>
           </main>
-          <footer class="tran_chat_footer">
-            <section class="footer_item none_flex_end">
-              <ChatUtilsBar @emoji-text-select="onEmojiTextSelect" />
-            </section>
-            <section class="footer_item input_area">
-              <el-input resize="none" id="tran_input" type="textarea" v-model="userMsg"></el-input>
-              <el-button @click="onSend" :icon="Promotion"></el-button>
-            </section>
-          </footer>
+          <ChatMsg @send-message="onSend" />
         </template>
         <div v-else class="tran_chat_logo_panel" @click="onMsgTip"></div>
       </div>

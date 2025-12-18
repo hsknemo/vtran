@@ -76,27 +76,24 @@ const props = defineProps({
 const chatUtilsBarReactive = reactive({
   iconList: [
     {
-      id: 'tran_screenshot',
-      icon: defineAsyncComponent(() => import('@/components/icons/iconCutScreen.vue')),
-      text: '截图',
-      type: 'icon',
-    },
-    {
       id: 'tran_emoji',
       icon: defineAsyncComponent(() => import('@/components/EmojiSymbol/EmojiSymbol.vue')),
       text: '特殊符号',
+      alias: '表情',
       type: 'icon',
     },
     {
       id: 'tran_code',
       icon: defineAsyncComponent(() => import('@/components/icons/iconCode.vue')),
       text: '代码',
+      alias: '发送代码',
       type: 'icon',
     },
     {
       id: 'tran_upload',
       icon: defineAsyncComponent(() => import('@/components/icons/iconChatUpload.vue')),
       text: '上传',
+      alias: '上传文件',
       type: 'icon',
     },
   ],
@@ -110,7 +107,7 @@ onMounted(() => {
 <template>
   <div class="tran_chat_utils_bar">
     <template :key="index" v-for="(item, index) in chatUtilsBarReactive.iconList">
-      <el-tooltip :content="item.text" effect="light" placement="top">
+      <el-tooltip :content="item.alias" effect="light" placement="top">
         <div class="control_item" v-if="item.type === 'icon'">
           <component
             :id="item.id"
