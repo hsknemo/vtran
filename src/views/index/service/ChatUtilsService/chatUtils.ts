@@ -1,14 +1,10 @@
   import { reactive } from 'vue'
   import { ElMessage } from 'element-plus'
-
-  const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
-
   export const codeReactive = reactive({
     code: '',
     show: false,
     showEmoji: false,
     showUpload: false,
-    showEmoji: false,
   })
 
   export const codeGroupReactive = reactive({
@@ -19,7 +15,7 @@
 
 
 
-  const sendCode = (isGroup) => {
+  const sendCode = (isGroup: boolean) => {
     if (isGroup) {
       codeGroupReactive.show = true
       return
@@ -27,7 +23,7 @@
     codeReactive.show = true
   }
 
-  const uploadFile = (isGroup) => {
+  const uploadFile = (isGroup: boolean) => {
     if (isGroup) {
       // codeGroupReactive.show = true
       return
