@@ -129,12 +129,14 @@ $block_bg_color: #1d1d1d;
         width: fit-content;
         word-break: break-all;
         max-width: 700px;
-        @include radius_box(#353535, 10px 10px, 5px);
-
+        .markdown-body {
+          background-color: unset !important;
+        }
         .tran_markdown_show_area {
           max-height: 300px;
           max-width: 700px;
           overflow: auto;
+
         }
       }
       .dict {
@@ -146,14 +148,15 @@ $block_bg_color: #1d1d1d;
       }
       &.user_left_pop {
         .msg {
-          background-color: #388e3c;
+          padding: 1px;
+          @apply bg-green;
         }
       }
 
       &.group_chat_pop {
-        &.user_right_pop {
-          flex-direction: row-reverse;
-        }
+        //&.user_right_pop {
+        //  flex-direction: row-reverse;
+        //}
 
         .time {
           font-size: 12px;

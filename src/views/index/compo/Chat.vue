@@ -15,6 +15,8 @@ import MarkdownMsg from '@/views/index/chatCompo/MarkdownMsg.vue'
 import UploadDia from '@/views/index/pageComponent/UploadDia.vue'
 import IconUploadHistory from '@/components/icons/iconUploadHistory.vue'
 import UploadHistory from '@/views/index/pageComponent/UploadHistory.vue'
+import TranDiaglog from '@/components/TranDiaglog.vue'
+import EmojiSymbol from '@/components/EmojiSymbol/EmojiSymbol.vue'
 
 const highlightIndex = ref(-1)
 const userMsg = ref('')
@@ -31,8 +33,6 @@ const props = defineProps({
     }),
   },
 })
-
-
 
 const chat_area = ref('chat_area')
 const groupPopControl = reactive({
@@ -53,9 +53,9 @@ const onMsgTip = () => {
 }
 
 const scrollToView = async () => {
-  await nextTick(_ => {
+  await nextTick((_) => {
     // 滚动到底部
-    setTimeout(_ => {
+    setTimeout((_) => {
       chat_area.value.scrollIntoView({ behavior: 'smooth', block: 'end' })
     }, 50)
   })
@@ -84,8 +84,6 @@ const onSend = async () => {
   scrollToView()
 
   userMsg.value = ''
-
-
 
   saveUserInfo()
 }
@@ -117,8 +115,6 @@ const getCurChatMsg = ({ data }) => {
 const onClosePop = () => {
   chatMsgList.currentUser = ''
 }
-
-
 
 const onOpenGroup = () => {
   groupPopControl.show = true
@@ -154,8 +150,6 @@ const mountedGetUserChatMsgData = () => {
     let userChatMsgData = localStorage.getItem('userChatData')
     if (userChatMsgData) {
       chatMsgList.list = JSON.parse(userChatMsgData)
-
-
     }
   }
 }
@@ -172,13 +166,12 @@ const onCodeEditorEnter = (val) => {
   userMsg.value = val
 }
 
-
-const onEmojiTextSelect = emoji => {
+const onEmojiTextSelect = (emoji) => {
   userMsg.value += emoji
 }
 
 const uploadHis = reactive({
-  show: false
+  show: false,
 })
 const onClickShowHistory = () => {
   uploadHis.show = true
@@ -189,21 +182,17 @@ const onUploadSuccess = () => {
   onSend()
 }
 
-
 onMounted(() => {
   emitter.on('client-chat-message', getCurChatMsg)
 
   emitter.on('clear-chat-all', clearChatAllOnExit)
-
 
   mountedGetUserChatMsgData()
 })
 </script>
 
 <template>
-  <GroupChat
-    v-model:group-pop-control="groupPopControl"
-  />
+  <GroupChat v-model:group-pop-control="groupPopControl" />
   <el-dialog
     draggable
     overflow
@@ -221,12 +210,7 @@ onMounted(() => {
         <header class="tran_chat_header">
           <span>用户列</span>
           <div class="btn_group">
-            <el-tooltip
-              class="box-item"
-              effect="light"
-              content="进入组"
-              placement="bottom"
-            >
+            <el-tooltip class="box-item" effect="light" content="进入组" placement="bottom">
               <el-button @click="onOpenGroup" text :icon="HomeFilled"></el-button>
             </el-tooltip>
 
@@ -255,16 +239,13 @@ onMounted(() => {
             v-for="(item, index) in onLineUserList.onlineList"
             @click="onChatToUser(item, index)"
           >
-
             <section :username="item.username.slice(0, 1)" class="user_name">
               {{ item.username }}
             </section>
             <div class="avtor_msg_total" v-if="chatMsgList.list[item.id]">
-              <el-badge :value="chatMsgList.list[item.id].length">
-              </el-badge>
+              <el-badge :value="chatMsgList.list[item.id].length"> </el-badge>
             </div>
           </div>
-
         </main>
       </div>
 
@@ -275,9 +256,7 @@ onMounted(() => {
             <div class="user_name">
               {{ chatMsgList.currentUser.username }}
               <div class="group_btn">
-                <el-tooltip content="文件历史记录"
-                            effect="light"
-                >
+                <el-tooltip content="文件历史记录" effect="light">
                   <icon-upload-history @click="onClickShowHistory" id="tran_file_his" />
                 </el-tooltip>
               </div>
@@ -295,31 +274,23 @@ onMounted(() => {
                 v-for="(item, index) in chatMsgList.list[chatMsgList.currentUser.id]"
               >
                 <div class="msg">
-<!--                  {{ item.msg }}-->
-                  <component
-                    :value="item.msg"
-                    :is="MarkdownMsg"></component>
+                  <!--                  {{ item.msg }}-->
+                  <component :value="item.msg" :is="MarkdownMsg"></component>
                 </div>
               </div>
             </section>
           </main>
           <footer class="tran_chat_footer">
             <section class="footer_item none_flex_end">
-              <ChatUtilsBar
-               @emoji-text-select="onEmojiTextSelect"
-              />
+              <ChatUtilsBar @emoji-text-select="onEmojiTextSelect" />
             </section>
             <section class="footer_item input_area">
-              <el-input
-                resize="none"
-                id="tran_input" type="textarea"  v-model="userMsg"></el-input>
+              <el-input resize="none" id="tran_input" type="textarea" v-model="userMsg"></el-input>
               <el-button @click="onSend" :icon="Promotion"></el-button>
             </section>
-
           </footer>
         </template>
-        <div v-else class="tran_chat_logo_panel" @click="onMsgTip">
-        </div>
+        <div v-else class="tran_chat_logo_panel" @click="onMsgTip"></div>
       </div>
     </main>
   </el-dialog>
@@ -329,21 +300,16 @@ onMounted(() => {
     v-model:pop-control="codeReactive"
   ></mono-dialog>
 
-  <UploadDia
-    v-model="codeReactive.showUpload"
-    @upload-msg="onUploadSuccess"
-  >
-  </UploadDia>
+  <UploadDia v-model="codeReactive.showUpload" @upload-msg="onUploadSuccess"> </UploadDia>
 
   <upload-history
     v-if="uploadHis.show"
     :curUserInfo="chatMsgList.currentUser"
     v-model:pop-control="uploadHis"
   ></upload-history>
-
-
+  <EmojiSymbol v-if="codeReactive.showEmoji" />
 </template>
 
 <style scoped lang="scss">
-@use "@/assets/chat";
+@use '@/assets/chat';
 </style>

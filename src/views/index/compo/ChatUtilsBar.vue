@@ -6,71 +6,71 @@ import { defineAsyncComponent, onMounted, reactive } from 'vue'
 import { onUtilsFunc } from '@/views/index/service/ChatUtilsService/chatUtils.ts'
 import Emoji from '@/views/index/pageComponent/Emoji.vue'
 const emit = defineEmits(['emoji-text-select'])
-import { driver } from "driver.js";
-import { type Config as DriverConfig } from "driver.js";
-import "driver.js/dist/driver.css";
+import { driver } from 'driver.js'
+import { type Config as DriverConfig } from 'driver.js'
+import 'driver.js/dist/driver.css'
 const startDriver = () => {
-  const isStartDriver = localStorage.getItem('startDriver');
+  const isStartDriver = localStorage.getItem('startDriver')
   if (isStartDriver == 'false') {
     return
   }
   const driverObj = new driver({
-    prevBtnText: "上一步",
-    nextBtnText: "下一步",
-    doneBtnText: "我知道了",
-    closeBtnText: "关闭",
+    prevBtnText: '上一步',
+    nextBtnText: '下一步',
+    doneBtnText: '我知道了',
+    closeBtnText: '关闭',
     onCloseClick: (ele: any) => {
-      localStorage.setItem('startDriver', 'false');
+      localStorage.setItem('startDriver', 'false')
       driverObj.destroy()
     },
-  } as DriverConfig);
+  } as DriverConfig)
 
   const steps = [
     {
-      element: "#tran_emoji",
+      element: '#tran_emoji',
       popover: {
-        title: "表情功能---同样支持群聊哟~",
-        description: "点击此处可选择表情发送给对方",
-      }
+        title: '表情功能---同样支持群聊哟~',
+        description: '点击此处可选择表情发送给对方',
+      },
     },
     {
-      element: "#tran_code",
+      element: '#tran_code',
       popover: {
-        title: "代码功能---同样支持群聊哟~",
-        description: "可以编写代码进行文本发送",
-      }
+        title: '代码功能---同样支持群聊哟~',
+        description: '可以编写代码进行文本发送',
+      },
     },
     {
-      element: "#tran_input",
+      element: '#tran_input',
       popover: {
-        title: "输入框升级---同样支持群聊哟~",
-        description: "支持发送markdown 语法，取消了回车键事件，暂时使用鼠标点击发送消息",
-      }
+        title: '输入框升级---同样支持群聊哟~',
+        description: '支持发送markdown 语法，取消了回车键事件，暂时使用鼠标点击发送消息',
+      },
     },
     {
-      element: "#tran_upload",
+      element: '#tran_upload',
       popover: {
-        title: "20251112输入框升级---支持文件发送",
-        description: "支持文件发送，大文件可能会超时",
-      }
+        title: '20251112输入框升级---支持文件发送',
+        description: '支持文件发送，大文件可能会超时',
+      },
     },
     {
-      element: "#tran_file_his",
+      element: '#tran_file_his',
       popover: {
-        title: "20251112聊天界面升级---支持文件查看",
-        description: "双方文件查看历史",
-      }
-    }
+        title: '20251112聊天界面升级---支持文件查看',
+        description: '双方文件查看历史',
+      },
+    },
   ]
 
-  driverObj.setSteps(steps);
-  driverObj.drive();
+  driverObj.setSteps(steps)
+  driverObj.drive()
 }
 const props = defineProps({
   isGroup: {
     type: Boolean,
     default: false,
-  }
+  },
 })
 
 const chatUtilsBarReactive = reactive({
@@ -79,25 +79,25 @@ const chatUtilsBarReactive = reactive({
       id: 'tran_screenshot',
       icon: defineAsyncComponent(() => import('@/components/icons/iconCutScreen.vue')),
       text: '截图',
-      type: 'el-icon',
+      type: 'icon',
     },
     {
       id: 'tran_emoji',
-      icon: Emoji,
-      text: '表情',
-      type: 'el-icon',
+      icon: defineAsyncComponent(() => import('@/components/EmojiSymbol/EmojiSymbol.vue')),
+      text: '特殊符号',
+      type: 'icon',
     },
     {
       id: 'tran_code',
       icon: defineAsyncComponent(() => import('@/components/icons/iconCode.vue')),
       text: '代码',
-      type: 'el-icon',
+      type: 'icon',
     },
     {
       id: 'tran_upload',
       icon: defineAsyncComponent(() => import('@/components/icons/iconChatUpload.vue')),
       text: '上传',
-      type: 'el-icon',
+      type: 'icon',
     },
   ],
 })
@@ -111,19 +111,13 @@ onMounted(() => {
   <div class="tran_chat_utils_bar">
     <template :key="index" v-for="(item, index) in chatUtilsBarReactive.iconList">
       <el-tooltip :content="item.text" effect="light" placement="top">
-        <div class="control_item">
+        <div class="control_item" v-if="item.type === 'icon'">
           <component
             :id="item.id"
-            @emoji-text-select="val => emit('emoji-text-select', val)"
+            @select-emoji="(val) => emit('emoji-text-select', val)"
             @click="onUtilsFunc(item.text, props.isGroup)"
-            v-if="item.type === 'el-icon'"
             :is="item.icon"
           ></component>
-          <span
-            :id="item.id"
-            @click="onUtilsFunc(item.text, props.isGroup)" class="custom_icon_text" v-else>{{
-            item.icon
-          }}</span>
         </div>
       </el-tooltip>
     </template>
@@ -158,7 +152,8 @@ onMounted(() => {
     }
     #tran_emoji {
       position: relative;
-      top: -2px;
+      top: -1px;
+      font-size: 20px;
     }
   }
 }

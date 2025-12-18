@@ -8,6 +8,7 @@
     show: false,
     showEmoji: false,
     showUpload: false,
+    showEmoji: false,
   })
 
   export const codeGroupReactive = reactive({
@@ -44,6 +45,8 @@
         case '表情':
           return
         case '上传':
-           return uploadFile(isGroup)
+          return uploadFile(isGroup)
+        case '特殊符号':
+          return
       }
   }
