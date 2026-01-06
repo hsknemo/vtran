@@ -9,14 +9,13 @@ const inputMsg = ref<HTMLInputElement>()
 const onEmojiTextSelect = (emoji: string) => {
   userMsg.value += emoji
 }
-
+const isFocus = ref<boolean>(false)
 const onSend = () => {
   if (userMsg.value === '') return ElMessage.warning('输入内容为空')
   emits('send-message', userMsg)
 
   userMsg.value = ''
 }
-const collectKey = ref<Set<string>>(new Set())
 /*
  * 监听组合键
  */
@@ -24,7 +23,7 @@ ShortcutManager.addShortcut({
   key: 'Enter',
   ctrl: true,
   callback: () => {
-    if (inputMsg.value?.focus()) onSend()
+    if (isFocus.value) onSend()
   },
 })
 
@@ -32,13 +31,10 @@ ShortcutManager.addShortcut({
   key: 'Enter',
   meta: true,
   callback: () => {
-    if (inputMsg.value?.focus()) onSend()
+    if (isFocus.value) onSend()
   },
 })
 
-const onBlur = () => {
-  collectKey.value.clear()
-}
 </script>
 
 <template>
@@ -50,10 +46,11 @@ const onBlur = () => {
       <!--        @keydown="onKeydown"-->
       <el-input
         ref="inputMsg"
-        @blur="onBlur"
+        @blur="isFocus.value = false"
         :autosize="{
           maxRows: 2,
         }"
+        @focus="isFocus = true"
         :rows="1"
         resize="none"
         id="tran_input"

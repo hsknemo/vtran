@@ -63,8 +63,9 @@ export const ShortcutManager = {
 
   // 键盘按下事件处理函数
   handleKeyDown(e:KeyboardEvent) {
-    // 标准化按键名称（统一小写，兼容不同浏览器）
-    const pressedKey = e.key.toLowerCase()
+    if (!this.shortcuts.size) return
+      // 标准化按键名称（统一小写，兼容不同浏览器）
+      const pressedKey = e.key.toLowerCase()
 
     // 遍历所有快捷键，匹配是否触发
     for (const [keyId, config] of this.shortcuts) {
