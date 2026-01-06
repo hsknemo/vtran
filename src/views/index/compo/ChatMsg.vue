@@ -46,7 +46,7 @@ ShortcutManager.addShortcut({
       <!--        @keydown="onKeydown"-->
       <el-input
         ref="inputMsg"
-        @blur="isFocus.value = false"
+        @blur="isFocus = false"
         :autosize="{
           maxRows: 2,
         }"
