@@ -69,7 +69,7 @@ export const ShortcutManager = {
 
     // 遍历所有快捷键，匹配是否触发
     for (const [keyId, config] of this.shortcuts) {
-      // 判断修饰键是否匹配
+      // 判断修饰键是否匹配, 这里注意，如果修饰键按下的时候，keyBoardEvent 对象会设置对应的属性为true
       const modifierMatch =
         config.ctrl === e.ctrlKey &&
         config.shift === e.shiftKey &&
