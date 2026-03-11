@@ -1,6 +1,15 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
-import { Bell, ChatDotRound, Connection, Expand, Mug, Setting, SwitchButton } from '@element-plus/icons-vue'
+import {
+  Bell,
+  ChatDotRound,
+  Connection,
+  Expand,
+  Mug,
+  Refresh,
+  Setting,
+  SwitchButton,
+} from '@element-plus/icons-vue'
 import { emitter } from '@/event/eventBus.ts'
 import Chat from '@/views/index/compo/Chat.vue'
 import { ElNotification } from 'element-plus'
@@ -23,6 +32,7 @@ import ProfileInfo from '@/views/index/pageComponent/ProfileInfo.vue'
 import { connectStatus } from '@/views/index/store/store.ts'
 import { onSponserMe, sponserReactive } from '@/views/index/service/Sponser/sponser.ts'
 import SponsorMe from '@/views/index/pageComponent/SponsorMe.vue'
+import socketReacktive from '@/stores/socket.ts'
 const user = reactive({
   username: '',
   ip: '',
@@ -93,6 +103,13 @@ const playAudio = () => {
   }
 }
 
+const onRefreshWsConnect = () => {
+  socketReacktive.ws.close()
+  socketReacktive.ws.connect({
+    type: 'init',
+  })
+}
+
 onMounted((_) => {
   checkAllowAudioPlay()
 
@@ -136,6 +153,8 @@ onMounted((_) => {
       <el-tag :type="connectStatus.status">
         <el-icon><Connection /></el-icon>
         <span>{{ connectStatus.statusText }}</span>
+
+        <el-icon @click="onRefreshWsConnect"><refresh /></el-icon>
       </el-tag>
       <el-button @click="onChatClick" class="ani_bell" text :icon="ChatDotRound">
         <span class="success">{{ chatLen }}</span>
@@ -204,11 +223,7 @@ onMounted((_) => {
     <ProfileInfo @refresh-user-info="onInit" :userInfo="user" />
   </TranDiaglog>
 
-  <TranDiaglog
-    title="赞赏我"
-    v-if="sponserReactive.show"
-    v-model:pop-control="sponserReactive"
-  >
+  <TranDiaglog title="赞赏我" v-if="sponserReactive.show" v-model:pop-control="sponserReactive">
     <SponsorMe />
   </TranDiaglog>
 </template>
@@ -308,7 +323,7 @@ onMounted((_) => {
     @include flexStyle(center);
     cursor: pointer;
     font-size: 12px;
-    transition: color .1s linear;
+    transition: color 0.1s linear;
     margin-bottom: 5px;
 
     &:last-child {
@@ -318,7 +333,7 @@ onMounted((_) => {
       margin-right: 5px;
     }
     &:hover {
-      color: rgb(128, 128, 128)
+      color: rgb(128, 128, 128);
     }
   }
 }

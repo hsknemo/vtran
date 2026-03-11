@@ -223,7 +223,6 @@ const onCodeEditorEnter = (val) => {
   onSend(val)
 }
 
-
 onMounted(() => {
   findOwnGroupFetch()
 
@@ -430,7 +429,7 @@ onMounted(() => {
       }
 
       .user_name {
-        @include flexStyle(center);
+
 
         &.is_group_creator {
           --color: gold;

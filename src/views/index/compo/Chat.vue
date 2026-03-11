@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineComponent, nextTick, onMounted, reactive, ref } from 'vue'
+import { defineComponent, nextTick, onMounted, onUnmounted, reactive, ref } from 'vue'
 import { CloseBold, HomeFilled } from '@element-plus/icons-vue'
 import { onLineUserList } from '@/views/index/store/store.ts'
 import { chatMsgList } from '@/views/index/store/chat.ts'
@@ -191,6 +191,10 @@ const findTargetUserLength = (currentUserChatList) => {
   }).length
 }
 
+onUnmounted(() => {
+  console.log('销毁。。。')
+  emitter.off('client-chat-message')
+})
 onMounted(() => {
   emitter.on('client-chat-message', getCurChatMsg)
 
@@ -263,11 +267,17 @@ onMounted(() => {
         <template v-if="chatMsgList.currentUser">
           <header class="tran_chat_msg_header">
             <div class="user_name">
-              {{ chatMsgList.currentUser.username }}
-              <div class="group_btn">
-                <el-tooltip content="文件历史记录" effect="light">
-                  <icon-upload-history @click="onClickShowHistory" id="tran_file_his" />
-                </el-tooltip>
+              <div class="top">
+                <img src="" alt="">
+                {{ chatMsgList.currentUser.username }}
+                <div class="group_btn">
+                  <el-tooltip content="文件历史记录" effect="light">
+                    <icon-upload-history @click="onClickShowHistory" id="tran_file_his" />
+                  </el-tooltip>
+                </div>
+              </div>
+              <div class="botm" v-if="chatMsgList.currentUser.desc">
+                {{ chatMsgList.currentUser.desc || '' }}
               </div>
             </div>
             <div class="btn_group">

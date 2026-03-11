@@ -147,7 +147,7 @@ $block_bg_color: #1d1d1d;
       @include flexStyle(center);
       margin-bottom: 10px;
       .time {
-        font-size: 12px;
+        font-size: 10px;
         color: #021c26;
         text-align: right;
       }
@@ -174,11 +174,20 @@ $block_bg_color: #1d1d1d;
       }
       &.user_right_pop {
         justify-content: flex-end;
+        :deep .tran_markdown_show_area p {
+          color: #eee !important;
+          background-color: #4a4a4a !important;
+        }
       }
       &.user_left_pop {
         .msg {
           padding: 1px;
           @apply bg-green ;
+        }
+
+        :deep .tran_markdown_show_area p {
+          color: #353535 !important;
+          background-color: unset;
         }
       }
 
@@ -210,7 +219,7 @@ $block_bg_color: #1d1d1d;
   .tran_chat_area {
     margin-top: 10px;
     height: calc(100% - 30%);
-    @include radius_box(#141414);
+    @include radius_box(unset);
     overflow: auto;
   }
 }
@@ -220,7 +229,12 @@ $block_bg_color: #1d1d1d;
     padding-left: 4px;
     @include flexStyle(center, space-between);
     .user_name {
-      @include flexStyle(center, center);
+      .top {
+        @include flexStyle(center);
+      }
+      .botm {
+        font-size: 8px;
+      }
     }
 
     .group_btn {
