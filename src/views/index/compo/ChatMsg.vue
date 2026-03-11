@@ -43,7 +43,6 @@ ShortcutManager.addShortcut({
       <ChatUtilsBar @emoji-text-select="onEmojiTextSelect" />
     </section>
     <section class="footer_item input_area">
-      <!--        @keydown="onKeydown"-->
       <el-input
         ref="inputMsg"
         @blur="isFocus = false"

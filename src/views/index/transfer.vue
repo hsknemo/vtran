@@ -160,6 +160,7 @@ const initWS = () => {
             break
           // 聊天事件
           case 'client-chat-message':
+            console.log('触发聊天信息。。。。')
             emitter.emit('client-chat-message', parseData)
             break
           // 组聊天事件

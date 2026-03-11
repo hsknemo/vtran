@@ -16,6 +16,7 @@ import IconUploadHistory from '@/components/icons/iconUploadHistory.vue'
 import UploadHistory from '@/views/index/pageComponent/UploadHistory.vue'
 import EmojiSymbol from '@/components/EmojiSymbol/EmojiSymbol.vue'
 import ChatMsg from '@/views/index/compo/ChatMsg.vue'
+import { v4 as uuidv4 } from 'uuid'
 
 const highlightIndex = ref(-1)
 const userMsg = ref('')
@@ -83,12 +84,19 @@ const onSend = async (msg) => {
   saveUserInfo()
 }
 
+const findUserIndex = (username) => {
+  return onLineUserList.onlineList.findIndex((item) => {
+    return item.username === username
+  })
+}
+
 const getCurChatMsg = ({ data }) => {
-  console.log('获取当前的聊天信息...', data.sendMsg)
   chatMsgList.list[data.fromUser.id] = chatMsgList.list[data.fromUser.id] || []
   chatMsgList.list[data.fromUser.id].push({
     isFrom: true,
     msg: data.sendMsg,
+    id: data.uuid,
+    time: data.time,
   })
 
   // 消息提醒数字增加
@@ -96,9 +104,14 @@ const getCurChatMsg = ({ data }) => {
 
   if (!props.popControl.show) {
     ElNotification({
-      title: `有一条新的消息！---- 来自${data.fromUser.username}`,
+      title: `${data.fromUser.username}`,
       message: data.sendMsg,
       type: 'info',
+      onClick() {
+        // eslint-disable-next-line vue/no-mutating-props
+        props.popControl.show = true
+        onChatToUser(data.fromUser, findUserIndex(data.fromUser.username))
+      },
     })
   } else {
     scrollToView()
@@ -172,6 +185,12 @@ const onUploadSuccess = () => {
   onSend('提示：双方互传文件，请打开历史文件进行查看！')
 }
 
+const findTargetUserLength = (currentUserChatList) => {
+  return currentUserChatList.filter((item) => {
+    return item.isFrom
+  }).length
+}
+
 onMounted(() => {
   emitter.on('client-chat-message', getCurChatMsg)
 
@@ -198,7 +217,7 @@ onMounted(() => {
       <!--      用户列表区域-->
       <div class="left">
         <header class="tran_chat_header">
-          <span>用户列</span>
+          <span>所有用户</span>
           <div class="btn_group">
             <el-tooltip class="box-item" effect="light" content="进入组" placement="bottom">
               <el-button @click="onOpenGroup" text :icon="HomeFilled"></el-button>
@@ -233,7 +252,7 @@ onMounted(() => {
               {{ item.username }}
             </section>
             <div class="avtor_msg_total" v-if="chatMsgList.list[item.id]">
-              <el-badge :value="chatMsgList.list[item.id].length"> </el-badge>
+              <el-badge :value="findTargetUserLength(chatMsgList.list[item.id])"> </el-badge>
             </div>
           </div>
         </main>
@@ -266,6 +285,7 @@ onMounted(() => {
                 <div class="msg">
                   <!--                  {{ item.msg }}-->
                   <component :value="item.msg" :is="MarkdownMsg"></component>
+                  <div class="time">{{ item.time }}</div>
                 </div>
               </div>
             </section>
