@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { updateNoteList } from '@/api/note/note.ts'
 import { ElMessage } from 'element-plus'
-import { Check, Close, Edit } from '@element-plus/icons-vue'
+import { Check, Close, Download, Edit } from '@element-plus/icons-vue'
 import MarkdownMsg from '@/views/index/chatCompo/MarkdownMsg.vue'
 import { ref } from 'vue'
 import MonacoEditor from '@/views/index/pageComponent/MonacoEditor.vue'
@@ -117,6 +117,40 @@ const onSubmitEdit = async () => {
   }
 }
 
+const onExportNote = async () => {
+  try {
+    const fileName = curSelectRow.value.contentUrl
+    const response = await fetch(import.meta.env.VITE_API_URL + '/api/note/export', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: localStorage.getItem('Auth'),
+      },
+      body: JSON.stringify({
+        fileName,
+      }),
+    })
+
+    if (!response.ok) {
+      throw new Error('导出失败')
+    }
+
+    const blob = await response.blob()
+    const url = window.URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = curSelectRow.value.name + '.md'
+    document.body.appendChild(a)
+    a.click()
+    window.URL.revokeObjectURL(url)
+    document.body.removeChild(a)
+
+    ElMessage.success('导出成功')
+  } catch (e) {
+    ElMessage.error('导出失败')
+  }
+}
+
 onMounted(() => {
   getNoteListFetch()
 })
@@ -173,6 +207,7 @@ onMounted(() => {
   >
     <div class="btn_group">
       <el-icon @click="onEditMardown"><Edit /></el-icon>
+      <el-icon @click="onExportNote"><Download /></el-icon>
     </div>
     <MarkdownMsg v-if="!drawerEdit" v-loading="noteLoading" :value="mdContent" />
     <monaco-editor

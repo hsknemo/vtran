@@ -42,6 +42,7 @@ const groupPopControl = reactive({
 const onChatToUser = (row, index) => {
   highlightIndex.value = index
   chatMsgList.currentUser = row
+  scrollToView()
 }
 
 const onCloseLinkPanel = () => {
