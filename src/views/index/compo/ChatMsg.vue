@@ -9,6 +9,12 @@ const inputMsg = ref<HTMLInputElement>()
 const onEmojiTextSelect = (emoji: string) => {
   userMsg.value += emoji
 }
+defineProps({
+  isGroup: {
+    type: Boolean,
+    default: false,
+  },
+})
 const isFocus = ref<boolean>(false)
 const onSend = () => {
   if (userMsg.value === '') return ElMessage.warning('输入内容为空')
@@ -34,13 +40,12 @@ ShortcutManager.addShortcut({
     if (isFocus.value) onSend()
   },
 })
-
 </script>
 
 <template>
   <footer class="tran_chat_footer">
     <section class="footer_item none_flex_end">
-      <ChatUtilsBar @emoji-text-select="onEmojiTextSelect" />
+      <ChatUtilsBar :is-group="isGroup" @emoji-text-select="onEmojiTextSelect" />
     </section>
     <section class="footer_item input_area">
       <el-input
@@ -57,7 +62,9 @@ ShortcutManager.addShortcut({
         v-model="userMsg"
       ></el-input>
       <div class="input_botm">
-        <el-button @click="onSend" :icon="Promotion">(Ctrl | Command) + Enter</el-button>
+        <el-tooltip content="Ctrl | Command + Enter" placement="top" effect="dark">
+          <el-button @click="onSend" :icon="Promotion"></el-button>
+        </el-tooltip>
       </div>
     </section>
   </footer>

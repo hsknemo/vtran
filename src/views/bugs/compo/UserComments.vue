@@ -71,7 +71,7 @@ const replyProps = ref<IssueReplyType>({
   replyId: '',
   replyUser: '',
 })
-const onReply = (row: commentsItem, replyId:string = '', replyUser:string = '') => {
+const onReply = (row: commentsItem, replyId: string = '', replyUser: string = '') => {
   showComments.value = {
     show: true,
   }
@@ -80,7 +80,6 @@ const onReply = (row: commentsItem, replyId:string = '', replyUser:string = '') 
   replyProps.value.replyId = replyId
   replyProps.value.replyUser = replyUser
 }
-
 
 onMounted(() => {
   useIssueListService()
@@ -176,31 +175,37 @@ onMounted(() => {
       <div class="msg_item" :key="index" v-for="(item, index) in drawerData.commentsData.comments">
         <div class="msg_title">{{ useGetUserNameFromUserId(item.fromUser) }}</div>
         <p>{{ item.content }}</p>
-        <TimeDiff
-          class="time"
-          :time="item.insertTime"
-        />
-        <div @click="onReply(item, '', item.fromUser)" class="reply" flex items-center cursor-pointer>
+        <TimeDiff class="time" :time="item.insertTime" />
+        <div
+          @click="onReply(item, '', item.fromUser)"
+          class="reply"
+          flex
+          items-center
+          cursor-pointer
+        >
           <MageMessageDotsRound mr-1 />
           回复
         </div>
-        <div class="reply_content"
-             :key="idx"
-             v-for='(it, idx) in item.reply'>
+        <div class="reply_content" :key="idx" v-for="(it, idx) in item.reply">
           <div class="reply_item">
-            <div class="msg_title">{{ useGetUserNameFromUserId(it.fromUser) }} 回复 {{ useGetUserNameFromUserId(it.replyUser) }}</div>
+            <div class="msg_title">
+              {{ useGetUserNameFromUserId(it.fromUser) }} 回复
+              {{ useGetUserNameFromUserId(it.replyUser) }}
+            </div>
             <p>{{ it.content }}</p>
 
-            <TimeDiff
-              class="time"
-              :time="it.insertTime"
-            />
+            <TimeDiff class="time" :time="it.insertTime" />
 
-            <div @click="onReply(item, it.id,  it.fromUser)" class="reply" flex items-center cursor-pointer>
+            <div
+              @click="onReply(item, it.id, it.fromUser)"
+              class="reply"
+              flex
+              items-center
+              cursor-pointer
+            >
               <MageMessageDotsRound mr-1 />
               回复
             </div>
-
           </div>
         </div>
       </div>
@@ -275,7 +280,6 @@ onMounted(() => {
     border-radius: calc(var(--tran-round) - 3px);
   }
 
-
   .seconds_title {
     padding-left: 1rem;
 
@@ -315,12 +319,10 @@ onMounted(() => {
   .img_item {
     margin: 5px;
   }
-  :deep {
-    img {
-      max-width: 150px;
-      max-height: 150px;
-      object-fit: scale-down;
-    }
+  :deep(img) {
+    max-width: 150px;
+    max-height: 150px;
+    object-fit: scale-down;
   }
 }
 
@@ -354,11 +356,9 @@ onMounted(() => {
     color: #717171;
     font-size: 12px;
     text-align: right;
-    :deep {
-      span {
-        position: relative;
-        top:1px;
-      }
+    :deep(span) {
+      position: relative;
+      top: 1px;
     }
   }
 
@@ -369,7 +369,7 @@ onMounted(() => {
   }
 
   .reply {
-    transition: opacity .3s ease;
+    transition: opacity 0.3s ease;
     opacity: 0;
   }
 }

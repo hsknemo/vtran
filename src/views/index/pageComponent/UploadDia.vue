@@ -19,6 +19,10 @@ const props = defineProps({
           show: false
         }
       }
+    },
+    isGroup: {
+      type: Boolean,
+      default: false,
     }
 })
 const onHttpRequest = (option:UploadRequestOptions) => {

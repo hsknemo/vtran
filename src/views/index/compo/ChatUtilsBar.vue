@@ -158,9 +158,7 @@ onMounted(() => {
   @include flexStyle(center);
   margin: 10px 0;
 
-  background-color: #1d1d1d;
   width: 100%;
-  border-radius: 5px;
 
   @include control_item();
 
@@ -168,7 +166,7 @@ onMounted(() => {
     cursor: pointer;
   }
 
-  :deep {
+  :deep() {
     @include custom_icon_text();
   }
 }

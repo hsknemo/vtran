@@ -4,9 +4,29 @@
   justify-content: $justContent;
 }
 
-$block_bg_color: #1d1d1d;
+// 动画定义
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
 
-@mixin radius_box($bgColor: $block_bg_color, $padding: 8px 8px, $radius: 5px) {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// 深黑色为主的配色方案
+$block_bg_color: #0a0a0a;
+$secondary_bg_color: #1a1a1a;
+$accent_color: #2a2a2a;
+$text_color: #e94560;
+$light_text: #f0f0f0;
+$online_color: #4ade80;
+$offline_color: #9ca3af;
+
+@mixin radius_box($bgColor: $block_bg_color, $padding: 8px 8px, $radius: 8px) {
   background-color: $bgColor;
   padding: $padding;
   border-radius: $radius;
@@ -16,6 +36,7 @@ $block_bg_color: #1d1d1d;
   .tran_chat_header {
     @include flexStyle(center);
     @include radius_box();
+
     span {
       white-space: nowrap;
     }
@@ -24,67 +45,78 @@ $block_bg_color: #1d1d1d;
 
 @mixin tran_chat_user_list {
   .tran_chat_user_list {
-    @include radius_box();
+    @include radius_box($secondary_bg_color);
     margin-top: 10px;
     height: calc(100% - 58px);
     overflow: auto;
 
     .user_list_item {
       position: relative;
-      @include radius_box(#262626, 10px 10px);
-      margin-bottom: 10px;
-      transition: all 0.3s linear;
+      @include radius_box($secondary_bg_color, 12px 12px);
+      margin-bottom: 8px;
+      transition: all 0.3s ease;
       border: 2px solid transparent;
 
       .avtor_msg_total {
         position: absolute;
         top: 0;
         right: 0;
+        transform: translate(30%, -30%);
       }
 
       &:hover,
       &.active {
         cursor: pointer;
-        background-color: #424242;
-        border: 2px solid #313030;
+        background-color: $accent_color;
+        border: 2px solid rgba(233, 69, 96, 0.3);
+        transform: translateX(5px);
       }
 
       &.online {
         .user_name {
           &:after {
-            background-color: #74f574;
+            background-color: $online_color;
+            box-shadow: 0 0 10px $online_color;
           }
         }
       }
 
-      .user_name, .group_name {
+      .user_name,
+      .group_name {
         @include flexStyle(center);
         justify-content: space-between;
         white-space: nowrap;
+        color: $light_text;
+
         &:before {
           content: attr(username);
-          width: 25px;
-          height: 25px;
-          margin-right: 10px;
-          background-color: #3d3d3d;
+          width: 32px;
+          height: 32px;
+          margin-right: 12px;
+          background-color: $accent_color;
           text-align: center;
-          border-radius: 5px;
+          border-radius: 50%;
           font-weight: bold;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: $light_text;
         }
 
         &:after {
           content: '';
-          width: 5px;
-          height: 5px;
+          width: 8px;
+          height: 8px;
           border-radius: 50%;
           margin-left: 10px;
-          background-color: #696d69;
+          background-color: $offline_color;
+          border: 2px solid $secondary_bg_color;
         }
       }
 
-
       .group_name {
         justify-content: unset;
+
         &:after {
           display: none;
         }
@@ -96,44 +128,69 @@ $block_bg_color: #1d1d1d;
 @mixin tran_chat_footer {
   .tran_chat_footer {
     height: calc(100% - 80%);
-    padding-top: 10px;
+    padding: 15px 20px 20px;
+
     .footer_item {
       &.none_flex_end {
         justify-content: unset;
       }
+
       &.input_area {
-        @apply: rounded pr-2 relative;
-        border: var(--el-border);
+        @apply rounded pr-2 relative;
+        border: 1px solid $accent_color;
+        border-radius: 25px;
         height: calc(100% - 15%);
+        background-color: $secondary_bg_color;
+        padding: 10px 20px;
+
         textarea {
           outline: none !important;
           border: none !important;
+          background-color: transparent;
+          color: $light_text;
         }
       }
 
-      :deep {
-        .el-textarea {
-          margin-right: 10px;
-          --el-input-focus-border-color: unset;
-          --el-input-hover-border: unset;
-          --el-input-hover-border-color: unset;
-          --el-border: unset;
-          --el-input-border-radius: unset;
+      :deep(.el-textarea__inner) {
+        height: 100%;
+        border-radius: 20px !important;
+        box-shadow: unset;
+        background-color: transparent;
+        color: $light_text;
+        font-size: 14px;
 
+        &:focus-visible {
+          outline: unset;
         }
-        .el-textarea__inner {
-          height: 100%;
-          border-radius: unset !important;
-          box-shadow: unset;
-          &:focus-visible {
-            outline: unset;
-          }
-        }
+      }
+
+      :deep(.el-textarea) {
+        margin-right: 10px;
+        --el-input-focus-border-color: $text_color;
+        --el-input-hover-border: $accent_color;
+        --el-input-hover-border-color: $accent_color;
+        --el-border: $accent_color;
+        --el-input-border-radius: 20px;
       }
 
       .input_botm {
-          @apply absolute bottom-3 right-3;
-          @include flexStyle(center, flex-end)
+        @apply absolute bottom-3 right-3;
+        @include flexStyle(center, flex-end);
+
+        button {
+          margin-left: 10px;
+          border-radius: 50%;
+          width: 36px;
+          height: 36px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+
+          &:hover {
+            background-color: $text_color;
+            color: white;
+          }
+        }
       }
     }
   }
@@ -142,60 +199,87 @@ $block_bg_color: #1d1d1d;
 @mixin section_pop_chat() {
   .section_pop_chat {
     width: 100%;
+    padding: 10px;
+
     .chat_pop {
       width: 100%;
       @include flexStyle(center);
-      margin-bottom: 10px;
+      margin-bottom: 15px;
+      animation: fadeIn 0.3s ease-out;
+
       .time {
-        font-size: 10px;
-        color: #021c26;
+        font-size: 12px;
+        color: rgba(240, 240, 240, 0.6);
         text-align: right;
+        margin-top: 4px;
+        opacity: 0;
+        transform: translateY(10px);
+        transition: all 0.3s ease;
+      }
+
+      &:hover .time {
+        opacity: 1;
+        transform: translateY(0);
       }
 
       .msg {
         width: fit-content;
         word-break: break-all;
-        max-width: 700px;
-        border-radius: 5px;
+        max-width: 70%;
+        border-radius: 18px;
+        padding: 10px 15px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+        transition: all 0.3s ease;
+        transform-origin: center;
+
+        &:hover {
+          transform: scale(1.02);
+        }
+
         .markdown-body {
           padding: 2px;
           background-color: unset !important;
         }
+
         .tran_markdown_show_area {
           max-height: 300px;
-          max-width: 700px;
+          max-width: 100%;
           overflow: auto;
-
         }
       }
+
       .dict {
-        font-size: 10px;
-        color: #eee;
+        font-size: 12px;
+        color: $light_text;
       }
+
       &.user_right_pop {
         justify-content: flex-end;
-        :deep .tran_markdown_show_area p {
-          color: #eee !important;
-          background-color: #4a4a4a !important;
-        }
-      }
-      &.user_left_pop {
+
         .msg {
-          padding: 1px;
-          @apply bg-green ;
+          background-color: $text_color;
+          border-bottom-right-radius: 4px;
         }
 
-        :deep .tran_markdown_show_area p {
-          color: #353535 !important;
+        :deep(.tran_markdown_show_area p) {
+          color: $light_text !important;
+          background-color: unset !important;
+        }
+      }
+
+      &.user_left_pop {
+        .msg {
+          background-color: $online_color;
+          border-bottom-left-radius: 4px;
+        }
+
+        :deep(.tran_markdown_show_area p) {
+          color: #0a0a0a !important;
           background-color: unset;
         }
       }
 
       &.group_chat_pop {
-        //&.user_right_pop {
-        //  flex-direction: row-reverse;
-        //}
-
         .time {
           font-size: 12px;
         }
@@ -205,10 +289,11 @@ $block_bg_color: #1d1d1d;
         }
 
         .user_show {
-          font-weight:  bold;
+          font-weight: bold;
           --size: 30px;
           width: fit-content;
           height: var(--size);
+          color: $light_text;
         }
       }
     }
@@ -217,42 +302,86 @@ $block_bg_color: #1d1d1d;
 
 @mixin tran_chat_area {
   .tran_chat_area {
-    margin-top: 10px;
-    height: calc(100% - 30%);
-    @include radius_box(unset);
+    margin-top: 15px;
+    height: calc(100% - 35%);
+    @include radius_box($secondary_bg_color, 15px);
     overflow: auto;
+    scrollbar-width: thin;
+    scrollbar-color: $accent_color $block_bg_color;
+
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: $block_bg_color;
+      border-radius: 3px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: $accent_color;
+      border-radius: 3px;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+      background: $text_color;
+    }
   }
 }
 
 @mixin tran_chat_msg_header {
   .tran_chat_msg_header {
-    padding-left: 4px;
+    padding: 15px 20px;
     @include flexStyle(center, space-between);
+
     .user_name {
+      color: $light_text;
+
       .top {
         @include flexStyle(center);
+        font-size: 18px;
+        font-weight: 600;
       }
+
       .botm {
-        font-size: 8px;
+        font-size: 12px;
+        color: rgba(240, 240, 240, 0.7);
+        margin-top: 4px;
       }
     }
 
     .group_btn {
       @include flexStyle(center);
-      margin-left: 5px;
+      margin-left: 10px;
+
       svg {
         cursor: pointer;
+        color: $light_text;
+        transition: color 0.3s ease;
+
+        &:hover {
+          color: $text_color;
+        }
+      }
+    }
+
+    .btn_group {
+      button {
+        color: $light_text;
+
+        &:hover {
+          color: $text_color;
+        }
       }
     }
 
     &.group {
-
       .drawer_control {
         margin-left: 10px;
         @include flexStyle(center, center);
         cursor: pointer;
+        color: $light_text;
       }
-
     }
   }
 }
@@ -262,12 +391,13 @@ $block_bg_color: #1d1d1d;
     font-size: 120px;
     height: 100%;
     @include flexStyle(center, center);
-
     color: #565656;
     transition: all 0.3s;
     user-select: none;
+
     &:hover {
       color: #fff;
+
       &:before {
         content: '不止于此';
       }
@@ -284,29 +414,27 @@ $block_bg_color: #1d1d1d;
   .tran_chat_main {
     height: 700px;
     @include flexStyle(center);
+
     .left,
     .right {
       height: 100%;
     }
+
     .left {
       width: 20%;
       @include tran_chat_header();
       @include tran_chat_user_list();
     }
+
     .right {
       width: calc(100% - 20%);
       flex: 1;
       margin-left: 10px;
       @include radius_box();
-
       @include tran_chat_msg_header();
-
       @include tran_chat_area();
-
       @include tran_chat_footer();
-
       @include section_pop_chat();
-
       @include tran_chat_logo_panel();
     }
   }

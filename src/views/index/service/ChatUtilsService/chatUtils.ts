@@ -5,6 +5,7 @@
     show: false,
     showEmoji: false,
     showUpload: false,
+    showGroupUpload: false,
   })
 
   export const codeGroupReactive = reactive({
@@ -25,7 +26,7 @@
 
   const uploadFile = (isGroup: boolean) => {
     if (isGroup) {
-      // codeGroupReactive.show = true
+      codeReactive.showGroupUpload = true
       return
     }
     codeReactive.showUpload = true

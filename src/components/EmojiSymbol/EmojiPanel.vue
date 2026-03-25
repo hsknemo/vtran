@@ -1,14 +1,15 @@
 <script setup lang="ts">
 import type { TabsPaneContext } from 'element-plus'
-import { onMounted, reactive } from 'vue'
+import { onMounted, reactive, ref } from 'vue'
 import { useStoreHistory } from '@/components/EmojiSymbol/store/emojiStore.ts'
 const emits = defineEmits<(e: 'select-emoji', value: string) => void>()
-const activeName = ref('worker')
+type EmojiTabName = keyof EmojiListType
+const activeName = ref<EmojiTabName>('worker')
 // 初始化emoji数据
 const storeHistory = useStoreHistory()
 interface EmojiTab {
   label: string
-  name: string
+  name: EmojiTabName
 }
 interface EmojiListType {
   happy: string[]
@@ -34,7 +35,7 @@ const emojiList = reactive({
     '(❀╹◡╹)',
     "( ✌︎'ω')✌︎",
     '(๑╹◡╹๑)',
-    'ᕙ(˵ ಠ ਊ ಠ ˵)ᕗ',
+    'ᕙ(˵ ಠ ಊ ಠ ˵)ᕗ',
     '(͡ ͡° ͜ つ ͡͡°)',
     '⁽⁽ଘ( ˙꒳˙ )ଓ⁾⁾',
     '⁄(⁄ ⁄•⁄ω⁄•⁄ ⁄)⁄',
@@ -43,7 +44,7 @@ const emojiList = reactive({
     '٩(๑•̀ω•́๑)۶',
     '(๑¯∀¯๑)',
     'XD',
-    ':P'
+    ':P',
   ],
   sad: [
     '(〒︿〒)',
@@ -66,7 +67,7 @@ const emojiList = reactive({
     '（╬ಠ益ಠ)',
     '٩(ŏ﹏ŏ、)۶',
     '(╬▼дﾟ)▄︻┻┳═一',
-    '(ノ▼Д▼)ノ',
+    '(ノ▼▼Д▼)ノ',
     'ᕕ༼ ͠ຈ Ĺ̯ ͠ຈ ༽┌∩┐',
     '(╬ﾟдﾟ)╭∩╮',
     "( ╯' - ')╯ ┻━┻",

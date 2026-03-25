@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ElMessage, ElNotification } from 'element-plus'
-import { CloseBold, Plus, Promotion, Switch, User, Back } from '@element-plus/icons-vue'
+import { CloseBold, Plus, Switch, User, Back } from '@element-plus/icons-vue'
 import CreateGroupForm from '@/views/index/compo/CreateGroupForm.vue'
 import { nextTick, onMounted, reactive, ref } from 'vue'
 import { findOwnGroup, findOwnGroupUser } from '@/api/group/group.ts'
@@ -9,17 +9,19 @@ import { chatMsgList } from '@/views/index/store/chat.ts'
 import InvitionUser from '@/views/index/compo/InvitionUser.vue'
 import socketReactive from '@/stores/socket.ts'
 import { emitter } from '@/event/eventBus.ts'
-import ChatUtilsBar from '@/views/index/compo/ChatUtilsBar.vue'
-import { codeGroupReactive } from '@/views/index/service/ChatUtilsService/chatUtils.ts'
+import {
+  codeGroupReactive,
+  codeReactive,
+} from '@/views/index/service/ChatUtilsService/chatUtils.ts'
 import MonoDialog from '@/views/index/pageComponent/MonoDialog.vue'
 import MarkdownMsg from '@/views/index/chatCompo/MarkdownMsg.vue'
 import ChatMsg from '@/views/index/compo/ChatMsg.vue'
+import UploadDia from '@/views/index/pageComponent/UploadDia.vue'
 
 const emit = defineEmits(['update:value'])
 const isSaveGroup = ref(false)
 const groupShow = ref(false)
 const highlightIndex = ref(-1)
-const userMsg = ref('')
 const groupChat = reactive({
   list: [],
   curGroupUserList: [],
@@ -163,6 +165,8 @@ const getCurChatMsg = ({ data }) => {
     isFrom: true,
     username: data.fromUser.username,
     msg: data.sendMsg,
+    time: data.time,
+    uuid: data.uuid,
   })
 
   scrollToView()
@@ -210,17 +214,23 @@ const addGroupFromUser = async ({ data }) => {
   if (data.createUserId == userId) {
     return
   }
+
+  await findOwnGroupFetch()
+
   ElNotification({
     title: `有一条新的消息！---- 来自群聊添加`,
     message: `您被添加到新的群聊【${data.name}】，正在刷新群列表...`,
     type: 'success',
   })
-  await findOwnGroupFetch()
 }
 
 // 点击编辑器
 const onCodeEditorEnter = (val) => {
   onSend(val)
+}
+
+const onUploadSuccess = () => {
+  onSend('提示：接收到文件！请打开历史文件进行查看！')
 }
 
 onMounted(() => {
@@ -247,6 +257,10 @@ onMounted(() => {
     style="--el-dialog-margin-top: 4vh"
     width="1000px"
   >
+    <UploadDia
+      :is-group="true"
+      v-model="codeReactive.showGroupUpload" @upload-msg="onUploadSuccess"> </UploadDia>
+
     <CreateGroupForm
       @group-created="findOwnGroupFetch"
       @form-reback="onCloseCreateGroup"
@@ -329,12 +343,15 @@ onMounted(() => {
                   <div class="msg">
                     <!--                    {{ item.msg }}-->
                     <component :value="item.msg" :is="MarkdownMsg"></component>
+                    <div class="time">{{ item.time }}</div>
                   </div>
                 </div>
               </div>
             </section>
           </main>
-          <ChatMsg @send-message="onSend" />
+          <ChatMsg
+            :isGroup="true"
+            @send-message="onSend" />
         </template>
 
         <div v-else class="tran_chat_logo_panel" @click="onMsgTip"></div>
@@ -429,8 +446,6 @@ onMounted(() => {
       }
 
       .user_name {
-
-
         &.is_group_creator {
           --color: gold;
 
