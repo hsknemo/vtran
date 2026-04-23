@@ -4,6 +4,8 @@ import {
   Bell,
   ChatDotRound,
   Connection,
+  Delete,
+  Message,
   Expand,
   Mug,
   Refresh,
@@ -33,6 +35,7 @@ import { connectStatus } from '@/views/index/store/store.ts'
 import { onSponserMe, sponserReactive } from '@/views/index/service/Sponser/sponser.ts'
 import SponsorMe from '@/views/index/pageComponent/SponsorMe.vue'
 import socketReacktive from '@/stores/socket.ts'
+import { dingResult, useGetDingListService, useDeleteDingService, useGetDingUnreadCountService } from '@/service/ding/dingServcie.ts'
 const user = reactive({
   username: '',
   ip: '',
@@ -49,6 +52,10 @@ const msg = ref('')
 const bellLen = ref(0)
 const bellV = ref(true)
 const chatLen = ref(0)
+const dingLen = ref(0)
+const dingPop = ref({
+  show: false,
+})
 const onBellClick = (_) => {
   bellV.value = !bellV.value
   emitter.emit('slide-table-list', bellV.value)
@@ -56,6 +63,11 @@ const onBellClick = (_) => {
 
 const onChatClick = (arg) => {
   dialogSet.show = true
+}
+
+const onDingClick = async () => {
+  await useGetDingListService()
+  dingPop.value.show = true
 }
 
 const onInit = async () => {
@@ -115,8 +127,34 @@ onMounted((_) => {
 
   onInit()
 
+  // 获取初始未读消息数量
+  const initDingCount = async () => {
+    dingLen.value = await useGetDingUnreadCountService()
+  }
+  initDingCount()
+
+  // 定时5秒请求一次统计接口
+  const fetchDingCount = async () => {
+    try {
+      dingLen.value = await useGetDingUnreadCountService()
+    } catch (e) {
+      console.error('获取ding消息数量失败:', e)
+    } finally {
+      // 使用setTimeout递归调用，避免setInterval的问题
+      setTimeout(fetchDingCount, 5000)
+    }
+  }
+
+  // 启动定时请求
+  fetchDingCount()
+
   emitter.on('refresh-bell-length', (len: number) => {
     bellLen.value = len
+  })
+
+  // 监听刷新ding消息数量
+  emitter.on('refresh-ding-length', async () => {
+    dingLen.value = await useGetDingUnreadCountService()
   })
 
   emitter.on('profile-message', (data) => {
@@ -132,6 +170,11 @@ onMounted((_) => {
 
   emitter.on('chat-message-bell', (data) => {
     chatLen.value += 1
+    playAudio()
+  })
+
+  emitter.on('ding-message-bell', (data) => {
+    dingLen.value += 1
     playAudio()
   })
 
@@ -161,6 +204,9 @@ onMounted((_) => {
       </el-button>
       <el-button @click="onBellClick" class="ani_bell" text :icon="Bell">
         <span class="success">{{ bellLen }}</span>
+      </el-button>
+      <el-button @click="onDingClick" class="ani_bell" text :icon="Message">
+        <span class="success">{{ dingLen }}</span>
       </el-button>
 
       <div ref="profile_setting" cursor-pointer class="img_author">
@@ -225,6 +271,26 @@ onMounted((_) => {
 
   <TranDiaglog title="赞赏我" v-if="sponserReactive.show" v-model:pop-control="sponserReactive">
     <SponsorMe />
+  </TranDiaglog>
+
+  <TranDiaglog title="来自叮一叮的消息" v-model:pop-control="dingPop">
+    <div class="ding_list">
+      <div v-if="dingResult.length === 0" class="no_data">
+        暂无来自叮一叮的消息
+      </div>
+      <div class="ding_item" v-for="(item, index) in dingResult" :key="index">
+        <div class="ding_header">
+          <span class="from_user">来自：{{ item.fromUserName }}</span>
+          <div class="ding_actions">
+            <span class="time">{{ item.insertTime }}</span>
+            <el-button size="small" type="danger" circle @click="useDeleteDingService(item.id)">
+              <el-icon><Delete /></el-icon>
+            </el-button>
+          </div>
+        </div>
+        <div class="ding_content">{{ item.dingMsg }}</div>
+      </div>
+    </div>
   </TranDiaglog>
 </template>
 
@@ -334,6 +400,56 @@ onMounted((_) => {
     }
     &:hover {
       color: rgb(128, 128, 128);
+    }
+  }
+}
+
+.ding_list {
+  max-height: 400px;
+  overflow-y: auto;
+
+  .no_data {
+    text-align: center;
+    color: #999;
+    padding: 20px 0;
+  }
+
+  .ding_item {
+    background-color: #1a1a1a;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 10px;
+
+    .ding_header {
+      @include flexStyle(center, space-between);
+      margin-bottom: 8px;
+
+      .from_user {
+        font-weight: 600;
+        color: #e94560;
+      }
+
+      .ding_actions {
+        @include flexStyle(center);
+        gap: 8px;
+
+        .time {
+          font-size: 12px;
+          color: #999;
+        }
+
+        .el-button {
+          --el-button-size: 20px;
+          padding: 0;
+        }
+      }
+    }
+
+    .ding_content {
+      font-size: 14px;
+      line-height: 1.5;
+      color: #f0f0f0;
+      word-break: break-all;
     }
   }
 }

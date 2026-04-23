@@ -1,6 +1,8 @@
-import { deleteDing, getDingList, sendDing } from '@/api/ding/ding.ts'
+
+import { deleteDing, getDingList, getDingUnreadCount, sendDing } from '@/api/ding/ding.ts'
 import { reactive } from 'vue'
 import { ElMessage } from 'element-plus'
+import { emitter } from '@/event/eventBus.ts'
 
 
 /**
@@ -35,7 +37,7 @@ export const useSendDingService = async () => {
 export const useGetDingListService = async () => {
   try {
     const res:DingServiceNamespace.DingListResponse = await getDingList()
-    dingResult = res.data
+    dingResult.splice(0, dingResult.length, ...res.data)
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (e) {
     ElMessage.error('获取通知列表失败')
@@ -58,5 +60,22 @@ export const useDeleteDingService = async (id:string) => {
     ElMessage.error('删除失败')
   } finally {
     await useGetDingListService()
+    await useGetDingUnreadCountService()
+    // 通知首页更新ding消息数量
+    emitter.emit('refresh-ding-length')
+  }
+}
+
+/**
+ * 获取未读ding消息数量
+ */
+export const useGetDingUnreadCountService = async () => {
+  try {
+    const res = await getDingUnreadCount()
+    return res.data.count
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  } catch (e) {
+    ElMessage.error('获取未读消息数量失败')
+    return 0
   }
 }

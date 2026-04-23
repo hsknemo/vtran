@@ -14,6 +14,7 @@ const ruleForm:noteServiceNamespace.NoteForm = reactive({
   content: '',
   desc: '',
   markColor: 'gold',
+  searchable: false,
 })
 
 const predefineColors = [

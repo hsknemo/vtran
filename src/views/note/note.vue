@@ -3,6 +3,7 @@
 import CreateNote from '@/views/note/_compo/createNote.vue'
 import CreatePanel from '@/views/note/_compo/createPanel.vue'
 import NoteList from '@/views/note/_compo/NoteList.vue'
+import NoteSquare from '@/views/note/_compo/NoteSquare.vue'
 const currentText = ref('标签列表')
 const onBtnClick = text => {
   currentText.value = text
@@ -22,6 +23,9 @@ const onBtnClick = text => {
 <!--  标签列表-->
   <NoteList
     v-if="currentText === '标签列表'"
+  />
+  <NoteSquare
+    v-if="currentText === '便签广场'"
   />
 </div>
 </template>

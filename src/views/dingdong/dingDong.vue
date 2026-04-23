@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import OnlineUser from '@/views/index/compo/OnlineUser.vue'
 import TranDiaglog from '@/components/TranDiaglog.vue'
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
+import { emitter } from '@/event/eventBus.ts'
 import {
   dingForm,
   dingResult,
@@ -22,6 +23,8 @@ const onClickUser = (userId:string) => {
 const onSubmitDing = async () => {
   dingPop.value.show = false
   await useSendDingService()
+  // 通知首页更新ding消息数量
+  emitter.emit('refresh-ding-length')
 }
 const dingLoading = ref(false)
 // const dingResult:Array<DingItem> = ref([])

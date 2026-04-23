@@ -1,5 +1,9 @@
 import axios from 'axios'
 import router from '@/router'
+import { ElMessage } from 'element-plus'
+
+// 401 全局只提示一次，避免多个接口并发失败时重复弹窗
+let hasAuthExpiredNotified = false
 const service = axios.create({
   baseURL: import.meta.env.VITE_API_URL + '/api',
   timeout: 30000,
@@ -22,13 +26,27 @@ service.interceptors.response.use(
   },
   (error) => {
     const { response } = error
-    if (!response) return
+    if (!response) {
+      return Promise.reject(error)
+    }
     if (response.status === 401) {
+      if (!hasAuthExpiredNotified) {
+        hasAuthExpiredNotified = true
+        ElMessage.error('身份过期，请重新登录')
+      }
+
       // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       window._user_online_timeout && clearTimeout(window._user_online_timeout)
-      router.push('/login')
+      localStorage.removeItem('Auth')
+      localStorage.removeItem('user')
+      if (router.currentRoute.value.path !== '/login') {
+        router.push('/login')
+      }
+
+      // 关键修复：吞掉 401，避免每个业务接口 catch 再次弹错
+      return new Promise(() => {})
     }
-    throw new Error(response.msg)
+    return Promise.reject(new Error(response?.data?.msg || error.message || '请求失败'))
   },
 )
 

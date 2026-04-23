@@ -40,3 +40,22 @@ export const deleteNoteFile = (data: object) =>
     url: 'note/delete',
     data,
   })
+
+export const updateNoteSearchable = (data: { id: string, searchable: boolean }) =>
+  request({
+    method: 'post',
+    headers: {
+      Authorization: getToken(),
+    },
+    url: 'note/searchable/update',
+    data,
+  })
+
+export const getSearchableNoteList = () =>
+  request({
+    method: 'get',
+    headers: {
+      Authorization: getToken(),
+    },
+    url: 'note/searchable/list',
+  })

@@ -26,3 +26,11 @@ export const deleteDing = (data:object) => request({
   },
   data
 })
+
+export const getDingUnreadCount = () => request({
+  method: 'get',
+  url: 'ding/unread-count',
+  headers: {
+    Authorization: getToken(),
+  },
+})

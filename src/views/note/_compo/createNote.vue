@@ -11,6 +11,11 @@ const buttons = [
     type: 'primary',
     color: 'gold'
   },
+  {
+    text: '便签广场',
+    type: 'primary',
+    color: '#67c23a'
+  },
 ]
 const highlightIndex:string = ref(buttons[0].text)
 const onClickBtn = (button: any, index: number) => {

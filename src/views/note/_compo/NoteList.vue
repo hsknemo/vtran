@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { updateNoteList } from '@/api/note/note.ts'
+import { updateNoteList, updateNoteSearchable } from '@/api/note/note.ts'
 import { ElMessage } from 'element-plus'
 import { Check, Close, Download, Edit } from '@element-plus/icons-vue'
 import MarkdownMsg from '@/views/index/chatCompo/MarkdownMsg.vue'
@@ -11,6 +11,8 @@ const mdLoading = ref(false)
 const note_drawer = ref(false)
 const direction = ref('rtl')
 const mdContent = ref('')
+const currentLoadReqId = ref(0)
+const currentLoadController = ref<AbortController | null>(null)
 const handleClose = (done: () => void) => {
   done()
 }
@@ -37,12 +39,34 @@ const onDelete = async (item: noteServiceNamespace.NoteItem) => {
   await useDeleteNoteService(item)
 }
 
+const onToggleSearchable = async (value: boolean) => {
+  try {
+    await updateNoteSearchable({
+      id: curSelectRow.value.id,
+      searchable: value,
+    })
+    curSelectRow.value.searchable = value
+    ElMessage.success(value ? '已公开到便签广场' : '已取消公开')
+    await useNoteListService()
+  } catch (e) {
+    curSelectRow.value.searchable = !value
+    ElMessage.error('更新公开状态失败')
+  }
+}
+
 /**
  *
  * @description 获取文件内容
  * @param { string } fileId 文件名称
  */
 const getStreamFileContent = async (fileId: string) => {
+  const reqId = ++currentLoadReqId.value
+  if (currentLoadController.value) {
+    currentLoadController.value.abort()
+  }
+  const controller = new AbortController()
+  currentLoadController.value = controller
+
   try {
     mdContent.value = ''
     mdLoading.value = true
@@ -56,6 +80,7 @@ const getStreamFileContent = async (fileId: string) => {
       body: JSON.stringify({
         fileName,
       }),
+      signal: controller.signal,
     } as RequestInit)
 
     if (!response.ok) {
@@ -77,8 +102,12 @@ const getStreamFileContent = async (fileId: string) => {
       const { done, value } = await reader.read()
 
       if (done) {
-        mdLoading.value = false
         console.log('流传输完成')
+        break
+      }
+
+      // 只允许最新一次请求更新内容，避免旧请求覆盖当前编辑数据
+      if (reqId !== currentLoadReqId.value) {
         break
       }
 
@@ -87,15 +116,30 @@ const getStreamFileContent = async (fileId: string) => {
       mdContent.value += chunk
     }
   } catch (e) {
-    ElMessage.error('获取文件内容失败')
+    if (!(e instanceof DOMException && e.name === 'AbortError')) {
+      ElMessage.error('获取文件内容失败')
+    }
+  } finally {
+    if (reqId === currentLoadReqId.value) {
+      mdLoading.value = false
+      currentLoadController.value = null
+    }
   }
 }
 
 const onEditMardown = () => {
+  if (mdLoading.value) {
+    ElMessage.warning('内容仍在加载中，请稍后再编辑')
+    return
+  }
   drawerEdit.value = !drawerEdit.value
 }
 
 const onSubmitEdit = async () => {
+  if (mdLoading.value) {
+    ElMessage.warning('内容仍在加载中，请稍后再提交')
+    return
+  }
   const v = monoEditorRef.value.getValue()
   const id = curSelectRow.value.id
   const fileName = curSelectRow.value.contentUrl
@@ -150,6 +194,13 @@ const onExportNote = async () => {
     ElMessage.error('导出失败')
   }
 }
+
+onUnmounted(() => {
+  if (currentLoadController.value) {
+    currentLoadController.value.abort()
+    currentLoadController.value = null
+  }
+})
 
 onMounted(() => {
   getNoteListFetch()
@@ -206,6 +257,14 @@ onMounted(() => {
     :before-close="handleClose"
   >
     <div class="btn_group">
+      <div class="searchable_switch">
+        <span>公开检索</span>
+        <el-switch
+          v-model="curSelectRow.searchable"
+          :disabled="mdLoading"
+          @change="onToggleSearchable"
+        />
+      </div>
       <el-icon @click="onEditMardown"><Edit /></el-icon>
       <el-icon @click="onExportNote"><Download /></el-icon>
     </div>
@@ -376,6 +435,18 @@ onMounted(() => {
 
 .note_drawer {
   .btn_group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    .searchable_switch {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #b4b4b4;
+      margin-right: auto;
+    }
+
     .el-icon {
       cursor: pointer;
     }

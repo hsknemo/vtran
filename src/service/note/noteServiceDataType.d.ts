@@ -4,6 +4,7 @@ declare namespace noteServiceNamespace {
     content: string,
     desc: string,
     markColor: string,
+    searchable?: boolean,
   }
 
   interface NoteItem {
@@ -14,6 +15,8 @@ declare namespace noteServiceNamespace {
     updateTime: string
     createTime: string
     contentUrl: string
+    searchable?: boolean
+    sharedBy?: string
   }
 
   interface NoteListResponse {
