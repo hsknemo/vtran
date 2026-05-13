@@ -2,14 +2,12 @@
 import { reactive, ref } from 'vue'
 import MonacoEditor from '@/views/index/pageComponent/MonacoEditor.vue'
 import MarkdownMsg from '@/views/index/chatCompo/MarkdownMsg.vue'
+import MavonEditor from '@/views/note/_compo/MavonEditor.vue'
 import { useSaveNodeService } from '@/service/note/noteService.ts'
-import type {
-  FormInstance,
-  FormItemRule,
-} from 'element-plus'
+import type { FormInstance, FormItemRule } from 'element-plus'
 const ruleFormRef = ref<FormInstance>()
-const monoEditorRef = ref()
-const ruleForm:noteServiceNamespace.NoteForm = reactive({
+const mavonEditorRef = ref()
+const ruleForm: noteServiceNamespace.NoteForm = reactive({
   name: '',
   content: '',
   desc: '',
@@ -34,8 +32,11 @@ const predefineColors = [
   '#c7158577',
 ]
 
-
-const validateName = (rule: FormItemRule, value: string, callback: (error?: string | Error) => void) => {
+const validateName = (
+  rule: FormItemRule,
+  value: string,
+  callback: (error?: string | Error) => void,
+) => {
   if (!value || value.trim() === '') {
     callback(new Error('请输入标签名称🏷'))
   } else {
@@ -43,7 +44,11 @@ const validateName = (rule: FormItemRule, value: string, callback: (error?: stri
   }
 }
 
-const validateContent = (rule: FormItemRule, value: string, callback: (error?: string | Error) => void) => {
+const validateContent = (
+  rule: FormItemRule,
+  value: string,
+  callback: (error?: string | Error) => void,
+) => {
   if (!value || value.trim() === '') {
     callback(new Error('请输入内容🏷'))
   } else {
@@ -57,91 +62,90 @@ const rules = reactive({
 })
 
 const onCreateNoteFetch = async (formEl: FormInstance | undefined) => {
-  ruleForm.content = monoEditorRef.value.getValue()
+  ruleForm.content = mavonEditorRef.value.text
   if (!formEl) return
-  await formEl.validate(valid => {
+  await formEl.validate((valid) => {
     if (valid) {
       useSaveNodeService(ruleForm)
     }
   })
 }
 
-
 const editingText = ref('左侧输入，这边展示😄')
 const onEditMarkdown = (value: string) => {
   console.log(value)
   editingText.value = value
 }
-
 </script>
 
 <template>
-<div class="create_panel">
-  <el-form
-    ref="ruleFormRef"
-    style="width: 100%"
-    :model="ruleForm"
-    status-icon
-    :rules="rules"
-    label-width="auto"
-  >
-    <el-form-item label="便签名称" prop="name">
-      <el-input v-model="ruleForm.name"
-                clearable
-                show-word-limit maxlength="30"/>
-    </el-form-item>
+  <div class="create_panel">
+    <el-form
+      ref="ruleFormRef"
+      style="width: 100%"
+      :model="ruleForm"
+      status-icon
+      :rules="rules"
+      label-width="auto"
+    >
+      <el-form-item label="便签名称" prop="name">
+        <el-input v-model="ruleForm.name" clearable show-word-limit maxlength="30" />
+      </el-form-item>
 
-    <el-form-item label="便签简述" prop="desc">
-      <el-input v-model="ruleForm.desc"
-                type="textarea"
-                clearable
-                show-word-limit maxlength="50"/>
-    </el-form-item>
-
-    <el-form-item label="便签标记颜色" prop="desc">
-      <div class="color_div">
-        <el-color-picker-panel
-          v-model="ruleForm.markColor"
-          show-alpha
-          :predefine="predefineColors"
+      <el-form-item label="便签简述" prop="desc">
+        <el-input
+          v-model="ruleForm.desc"
+          type="textarea"
+          clearable
+          show-word-limit
+          maxlength="50"
         />
-        <section class="color_model"
-                 :style="{
-                    '--radius-color': ruleForm.markColor
-                 }"
+      </el-form-item>
+
+      <el-form-item label="便签标记颜色" prop="desc">
+        <div class="color_div">
+          <el-color-picker-panel
+            v-model="ruleForm.markColor"
+            show-alpha
+            :predefine="predefineColors"
+          />
+          <section
+            class="color_model"
+            :style="{
+              '--radius-color': ruleForm.markColor,
+            }"
+          >
+            model 演示
+          </section>
+        </div>
+      </el-form-item>
+
+      <el-form-item label="便签内容" prop="content">
+        <el-tag type="primary">markdown 语法</el-tag>
+        <div class="tran_mono_editor">
+          <MavonEditor ref="mavonEditorRef" />
+        </div>
+      </el-form-item>
+      <el-form-item
+        class="fixed right-0 bottom-2 rounded bg-dark p-1 rounded-50% w-10 h-10 flex align-center text-center"
+      >
+        <span
+          line-height-snug
+          text-2xl
+          cursor-pointer
+          block
+          w-full
+          text-yellow
+          @click="onCreateNoteFetch(ruleFormRef)"
+          >+</span
         >
-          model 演示
-        </section>
-      </div>
-
-    </el-form-item>
-
-    <el-form-item label="便签内容" prop="content">
-      <el-tag type="primary">支持markdown 语法</el-tag>
-      <div class="tran_mono_editor">
-        <monaco-editor
-
-          @mardown-is-editing="onEditMarkdown"
-          ref="monoEditorRef"
-          :isNeedDefaultLang="false"
-        ></monaco-editor>
-
-        <MarkdownMsg min-w-100
-                     shadow-xl
-                     shadow-dark
-                     v-model:value="editingText"> </MarkdownMsg>
-      </div>
-    </el-form-item>
-    <el-form-item>
-      <el-button text type="primary" @click="onCreateNoteFetch(ruleFormRef)">创建便签</el-button>
-    </el-form-item>
-  </el-form>
-</div>
+      </el-form-item>
+    </el-form>
+  </div>
 </template>
 
 <style scoped lang="scss">
-
-@mixin flexStyle($align:'center', $justContent:'space-around') {
+@mixin flexStyle($align: 'center', $justContent: 'space-around') {
   display: flex;
   align-items: $align;
   justify-content: $justContent;
@@ -157,7 +161,7 @@ const onEditMarkdown = (value: string) => {
   }
   .color_div {
     width: 100%;
-    @include flexStyle( center, space-around);
+    @include flexStyle(center, space-around);
     .color_model {
       position: relative;
       @include flexStyle(center, center);
@@ -176,9 +180,7 @@ const onEditMarkdown = (value: string) => {
         border-radius: 50%;
         background-color: var(--radius-color);
       }
-
     }
   }
-
 }
 </style>

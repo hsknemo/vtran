@@ -52,7 +52,6 @@ export default class Socket {
     // 关闭连接
     this.ws.onclose = (e) => {
       this.closeSocket(e)
-      console.log('报错', e)
     }
 
     // 报错
@@ -97,19 +96,10 @@ export default class Socket {
   closeSocket(e) {
     this.resetHeart()
     console.log('closeSocket =>', this)
-
     if (this.status !== 'close') {
-      if (this.isReconnection) {
-        this.ReconnectionCount += 1
-        if (this.ReconnectionCount < 30) {
-          setTimeout(() => {
+       setTimeout(() => {
             this.connect()
           }, 1000)
-        } else {
-          this.close()
-          throw new Error('ws重连30此失败，取消重新链接')
-        }
-      }
     } else {
       console.log('手动关闭了', e)
     }

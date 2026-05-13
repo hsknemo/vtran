@@ -3,13 +3,13 @@ import { onMounted } from 'vue'
 import { clipBord } from '@/utils/clipBord.ts'
 import MarkdownIt from 'markdown-it'
 import hljs from 'highlight.js'
-import 'highlight.js/styles/atom-one-dark-reasonable.css' //样式
+import 'highlight.js/styles/monokai-sublime.min.css' //样式
 
 const mdValue = ref('')
-const markdownIt =  MarkdownIt({
-  highlight: function (str:string) {
+const markdownIt = MarkdownIt({
+  highlight: function (str: string) {
     return hljs.highlightAuto(str).value
-  }
+  },
 })
 
 const props = defineProps({
@@ -45,14 +45,22 @@ const onMarkeDownClick = function () {
   }
 }
 
+const checkMavonStyle = () => {
+  // 这个库引入的插件跟当前文件的样式冲突 因此要清掉
+  let codeStyle = document.querySelector('#md-code-style')
+  codeStyle && codeStyle.remove()
+}
+
 onMounted(() => {
   getMdValue()
+
+  checkMavonStyle()
 })
 </script>
 
 <template>
   <div
-    class="tran_markdown_show_area markdown-body"
+    class="tran_markdown_show_area tran__markdown-body"
     @click="($event) => onMarkeDownClick($event)"
     v-html="mdValue"
     v-highlight="mdValue"

@@ -19,10 +19,14 @@ service.interceptors.request.use(
 )
 service.interceptors.response.use(
   (response) => {
-    if (!response?.data?.status) {
-      throw new Error(response.data.msg)
+    const resData = response?.data || {}
+    const isSuccess = typeof resData.success === 'boolean'
+      ? resData.success
+      : !!resData.status
+    if (!isSuccess) {
+      throw new Error(resData.message || resData.msg || '请求失败')
     }
-    return response.data || []
+    return resData || []
   },
   (error) => {
     const { response } = error
@@ -46,7 +50,7 @@ service.interceptors.response.use(
       // 关键修复：吞掉 401，避免每个业务接口 catch 再次弹错
       return new Promise(() => {})
     }
-    return Promise.reject(new Error(response?.data?.msg || error.message || '请求失败'))
+    return Promise.reject(new Error(response?.data?.message || response?.data?.msg || error.message || '请求失败'))
   },
 )
 

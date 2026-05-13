@@ -11,6 +11,10 @@ import App from './App.vue'
 import router from './router'
 import { addCopyCode, highlightDir } from '@/directive'
 import regisLocalPinia from '@/views/index/store/regisLocalPinia.ts'
+import 'highlight.js/styles/hybrid.css' //样式
+
+
+
 const app = createApp(App)
 app.use(ElementPlus)
 app.use(createPinia())
