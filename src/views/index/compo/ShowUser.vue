@@ -35,7 +35,12 @@ import { connectStatus } from '@/views/index/store/store.ts'
 import { onSponserMe, sponserReactive } from '@/views/index/service/Sponser/sponser.ts'
 import SponsorMe from '@/views/index/pageComponent/SponsorMe.vue'
 import socketReacktive from '@/stores/socket.ts'
-import { dingResult, useGetDingListService, useDeleteDingService, useGetDingUnreadCountService } from '@/service/ding/dingServcie.ts'
+import {
+  dingResult,
+  useGetDingListService,
+  useDeleteDingService,
+  useGetDingUnreadCountService,
+} from '@/service/ding/dingServcie.ts'
 const user = reactive({
   username: '',
   ip: '',
@@ -122,6 +127,14 @@ const onRefreshWsConnect = () => {
   })
 }
 
+const handerIp = (ip: string) => {
+  if (ip.includes('::ffff')) {
+    let arr = ip.split('::ffff:')
+    return arr[1]
+  }
+  return ''
+}
+
 onMounted((_) => {
   checkAllowAudioPlay()
 
@@ -189,7 +202,7 @@ onMounted((_) => {
 <template>
   <div class="v_tran_user_panel">
     <h3 class="typing">
-      <span class="ip">{{ user.ip }}</span>
+      <span class="ip">{{ handerIp(user.ip) }}</span>
       <span class="desc">{{ msg }}</span>
     </h3>
     <section class="btn_group">
@@ -275,9 +288,7 @@ onMounted((_) => {
 
   <TranDiaglog title="来自叮一叮的消息" v-model:pop-control="dingPop">
     <div class="ding_list">
-      <div v-if="dingResult.length === 0" class="no_data">
-        暂无来自叮一叮的消息
-      </div>
+      <div v-if="dingResult.length === 0" class="no_data">暂无来自叮一叮的消息</div>
       <div class="ding_item" v-for="(item, index) in dingResult" :key="index">
         <div class="ding_header">
           <span class="from_user">来自：{{ item.fromUserName }}</span>
@@ -335,6 +346,7 @@ onMounted((_) => {
       .ip {
         font-size: 12px;
         margin-right: 10px;
+        @apply text-sm, text-gray, hover:text-yellow-3 transition-delay-100 transition-colors;
       }
     }
   }

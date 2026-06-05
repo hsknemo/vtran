@@ -294,7 +294,7 @@ onUnmounted(() => {
 
       <section class="layout_list" v-show="isTableShow">
         <div class="tip">
-          发送给我的文件列表
+          发送给我的文件
           <section class="btn_control_area">
             <el-button text @click="onTableRefresh" :icon="Refresh"></el-button>
           </section>
@@ -304,7 +304,7 @@ onUnmounted(() => {
 
       <section class="layout_list" v-show="isTableShow">
         <div class="tip">
-          我发送的文件列表
+          我发送的文件
           <section class="btn_control_area">
             <el-button text @click="onTableRefreshProfile" :icon="Refresh"></el-button>
           </section>
