@@ -10,7 +10,7 @@ import { emitter } from '../../event/eventBus.ts'
 import { useLocalStorage } from '@vueuse/core'
 import { CirclePlus, Delete, Refresh } from '@element-plus/icons-vue'
 import socketReacktive from '@/stores/socket.ts'
-import { onLineUserList } from '@/views/index/store/store.ts'
+import { connectStatus, onLineUserList } from '@/views/index/store/store.ts'
 import { useRouter } from 'vue-router'
 import { version as v } from '../../../package.json'
 import TranDiaglog from '@/components/TranDiaglog.vue'
@@ -128,8 +128,26 @@ const reactive_data = reactive({
 
 const isTableShow = ref(true)
 
+const syncSocketStatus = (status: string) => {
+  switch (status) {
+    case 'connecting':
+    case 'open':
+      connectStatus.status = 'warning'
+      connectStatus.statusText = '连接中'
+      break
+    case 'closed':
+    case 'close':
+      connectStatus.status = 'danger'
+      connectStatus.statusText = '未连接'
+      break
+  }
+}
+
 const initWS = () => {
   const curAccessToken = uuidv4()
+  const data = {
+    type: 'init',
+  }
   if (!socketReacktive.ws) {
     socketReacktive.ws = new Socket({
       url:
@@ -143,6 +161,7 @@ const initWS = () => {
       name: '',
       isHeart: true, // 是否心跳
       isReconnection: true, // 是否断开重连
+      statusChange: syncSocketStatus,
       received(data) {
         const parseData = JSON.parse(data)
         switch (parseData.type) {
@@ -150,6 +169,8 @@ const initWS = () => {
             break
           case 'pong':
             // 心跳回应:
+            connectStatus.status = 'success'
+            connectStatus.statusText = '已连接'
             emitter.emit('pone')
             break
           case 'refreshMessage':
@@ -174,11 +195,21 @@ const initWS = () => {
         }
       },
     })
-    const data = {
-      type: 'init',
-    }
-    socketReacktive.ws.connect(data)
   }
+  syncSocketStatus('connecting')
+  socketReacktive.ws.connect(data)
+}
+
+const reconnectWS = () => {
+  const data = {
+    type: 'init',
+  }
+  syncSocketStatus('connecting')
+  if (socketReacktive.ws) {
+    socketReacktive.ws.reconnectNow(data)
+    return
+  }
+  initWS()
 }
 
 const onPageControl = (bool: boolean) => {
@@ -188,6 +219,10 @@ const onPageControl = (bool: boolean) => {
 const checkAuth = () => {
   const token = localStorage.getItem('Auth')
   if (!token) {
+    socketReacktive.ws?.close()
+    socketReacktive.ws = null
+    connectStatus.status = 'danger'
+    connectStatus.statusText = '未连接'
     localStorage.removeItem('Auth')
     localStorage.removeItem('user')
     reactive_data.showPage = true
@@ -255,9 +290,12 @@ onMounted(() => {
   emitter.on('refresh-file', get_all_table_list)
 
   emitter.on('slide-table-list', slide_table_list)
+
+  emitter.on('reconnect-ws', reconnectWS)
 })
 
 onUnmounted(() => {
+  emitter.off('reconnect-ws', reconnectWS)
   emitter.off('slide-table-list', slide_table_list)
   emitter.off('refresh-file', get_all_table_list)
 })
@@ -294,7 +332,7 @@ onUnmounted(() => {
 
       <section class="layout_list" v-show="isTableShow">
         <div class="tip">
-          发送给我的文件列表
+          发送给我的文件
           <section class="btn_control_area">
             <el-button text @click="onTableRefresh" :icon="Refresh"></el-button>
           </section>
@@ -304,7 +342,7 @@ onUnmounted(() => {
 
       <section class="layout_list" v-show="isTableShow">
         <div class="tip">
-          我发送的文件列表
+          我发送的文件
           <section class="btn_control_area">
             <el-button text @click="onTableRefreshProfile" :icon="Refresh"></el-button>
           </section>

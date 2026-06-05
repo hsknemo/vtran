@@ -68,12 +68,14 @@ const onSend = async (msg) => {
   chatMsgList.currentUser.session_id = chatMsgList.currentUser.id
   chatMsgList.currentUser.sendMsg = msg
   chatMsgList.currentUser.from = JSON.parse(useLocalStorage('user').value)
-  socketReactive?.ws?.ws?.send(
-    JSON.stringify({
-      type: 'client-chat-message',
-      data: chatMsgList.currentUser,
-    }),
-  )
+  const isAccepted = socketReactive?.ws?.sendMsg({
+    type: 'client-chat-message',
+    data: chatMsgList.currentUser,
+  })
+  if (!isAccepted) {
+    ElMessage.warning('消息发送失败，请稍后重试')
+    return
+  }
   chatMsgList.list[chatMsgList.currentUser.id] = chatMsgList.list[chatMsgList.currentUser.id] || []
   chatMsgList.list[chatMsgList.currentUser.id].push({
     isFrom: false,
@@ -269,7 +271,7 @@ onMounted(() => {
           <header class="tran_chat_msg_header">
             <div class="user_name">
               <div class="top">
-                <img src="" alt="">
+                <img src="" alt="" />
                 {{ chatMsgList.currentUser.username }}
                 <div class="group_btn">
                   <el-tooltip content="文件历史记录" effect="light">

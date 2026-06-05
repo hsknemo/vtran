@@ -123,12 +123,12 @@ const onMenuClick = () => {
     background-color: var(--tran-dark);
     border-radius: var(--tran-round);
     z-index: 99;
-    opacity: .1;
+    opacity: 1;
     transition: opacity .3s ease;
 
-    &:hover {
-      opacity: 1;
-    }
+    //&:hover {
+    //  opacity: 1;
+    //}
   }
 
   @media screen and (max-width: 750px) {

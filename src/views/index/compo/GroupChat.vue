@@ -96,12 +96,14 @@ const onSend = (msg) => {
   chatMsgList.currentGroup.from = JSON.parse(useLocalStorage('user', '{}').value)
   // 有群用户的情况下 推送消息给其他用户
   if (!ifUserList) {
-    socketReactive?.ws?.ws?.send(
-      JSON.stringify({
-        type: 'client-chat-group-message',
-        data: chatMsgList.currentGroup,
-      }),
-    )
+    const isAccepted = socketReactive?.ws?.sendMsg({
+      type: 'client-chat-group-message',
+      data: chatMsgList.currentGroup,
+    })
+    if (!isAccepted) {
+      ElMessage.warning('消息发送失败，请稍后重试')
+      return
+    }
   }
 
   chatMsgList.groupList[chatMsgList.currentGroup.id] =
@@ -259,7 +261,10 @@ onMounted(() => {
   >
     <UploadDia
       :is-group="true"
-      v-model="codeReactive.showGroupUpload" @upload-msg="onUploadSuccess"> </UploadDia>
+      v-model="codeReactive.showGroupUpload"
+      @upload-msg="onUploadSuccess"
+    >
+    </UploadDia>
 
     <CreateGroupForm
       @group-created="findOwnGroupFetch"
@@ -349,9 +354,7 @@ onMounted(() => {
               </div>
             </section>
           </main>
-          <ChatMsg
-            :isGroup="true"
-            @send-message="onSend" />
+          <ChatMsg :isGroup="true" @send-message="onSend" />
         </template>
 
         <div v-else class="tran_chat_logo_panel" @click="onMsgTip"></div>

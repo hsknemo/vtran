@@ -208,37 +208,31 @@ $offline_color: #9ca3af;
       animation: fadeIn 0.3s ease-out;
 
       .time {
-          font-size: 12px;
-          color: rgba(240, 240, 240, 0.6);
-          text-align: right;
-          margin-top: 4px;
-          opacity: 0;
-          transform: translateY(10px);
-          transition: all 0.3s ease;
-        }
-        
-        &:hover .time {
-          opacity: 1;
-          transform: translateY(0);
-        }
-        
-        &.user_left_pop:hover .time {
-          color: #000000;
-        }
+        font-size: 12px;
+        color: rgba(240, 240, 240, 0.6);
+        text-align: right;
+        margin-top: 4px;
+        opacity: 0;
+        transform: translateY(10px);
+        transition: all 0.3s ease;
+      }
+
+      &:hover .time {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      &.user_left_pop:hover .time {
+        color: #000000;
+      }
 
       .msg {
         width: fit-content;
         word-break: break-all;
         max-width: 70%;
-        border-radius: 18px;
+        border-radius: 8px;
         padding: 10px 15px;
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
-        transition: all 0.3s ease;
-        transform-origin: center;
-
-        &:hover {
-          transform: scale(1.02);
-        }
 
         .markdown-body {
           padding: 2px;
@@ -262,7 +256,6 @@ $offline_color: #9ca3af;
 
         .msg {
           background-color: $text_color;
-          border-bottom-right-radius: 4px;
         }
 
         :deep(.tran_markdown_show_area p) {
@@ -274,11 +267,9 @@ $offline_color: #9ca3af;
       &.user_left_pop {
         .msg {
           background-color: $online_color;
-          border-bottom-left-radius: 4px;
         }
 
         :deep(.tran_markdown_show_area p) {
-          color: #0a0a0a !important;
           background-color: unset;
         }
       }
