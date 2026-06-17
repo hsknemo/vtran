@@ -4,6 +4,7 @@ import StreamlineFreehandAdvertisingAdBrowser from '~icons/streamline-freehand/a
 import HeroiconsOutlineHeart from '~icons/heroicons-outline/heart'
 import StreamlineAnnoncementMegaphone from '~icons/streamline/annoncement-megaphone'
 import StreamlineFreehandHome from '~icons/streamline-freehand/home'
+import CarbonReportData from '~icons/carbon/report-data'
 
 export default {
   StreamlineFreehandSendEmailPaperPlane1,
@@ -12,4 +13,5 @@ export default {
   HeroiconsOutlineHeart,
   StreamlineAnnoncementMegaphone,
   StreamlineFreehandHome,
+  CarbonReportData,
 }

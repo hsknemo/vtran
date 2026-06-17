@@ -16,7 +16,7 @@ const router = createRouter({
           meta: {
             activeColor: 'hsla(160, 100%, 37%, 1)',
             icon: 'StreamlineFreehandSendEmailPaperPlane1',
-            title: '传个东西'
+            title: '传个东西',
           },
           component: () => import('../views/index/transfer.vue'),
         },
@@ -26,7 +26,7 @@ const router = createRouter({
           meta: {
             activeColor: 'gold',
             icon: 'StreamlineFreehandGraphicTabletDraw1',
-            title: '写个便签'
+            title: '写个便签',
           },
           component: () => import('../views/note/note.vue'),
         },
@@ -36,7 +36,7 @@ const router = createRouter({
           meta: {
             activeColor: '#646cff',
             icon: 'StreamlineFreehandAdvertisingAdBrowser',
-            title: '叮一叮'
+            title: '叮一叮',
           },
           component: () => import('../views/dingdong/dingDong.vue'),
         },
@@ -70,13 +70,24 @@ const router = createRouter({
           },
           component: () => import('../views/sponser/sponser.vue'),
         },
+
+        {
+          path: '/tran/report',
+          name: 'report',
+          meta: {
+            activeColor: '#2a42ff',
+            icon: 'CarbonReportData',
+            title: '日报',
+          },
+          component: () => import('../views/report/report.vue'),
+        },
       ],
     },
     {
       path: '/login',
       name: 'login',
       meta: {
-        title: '登录'
+        title: '登录',
       },
       component: () => import('../views/login/index.vue'),
     },
@@ -84,7 +95,7 @@ const router = createRouter({
       path: '/regis',
       name: 'regis',
       meta: {
-        title: '注册'
+        title: '注册',
       },
       component: () => import('../views/regis/index.vue'),
     },
@@ -92,10 +103,10 @@ const router = createRouter({
       path: '/404',
       name: '404',
       meta: {
-        title: '404'
+        title: '404',
       },
       component: () => import('../views/404/404.vue'),
-    }
+    },
   ],
 })
 
@@ -104,7 +115,7 @@ router.beforeEach((to, from) => {
   let devMode = import.meta.env.MODE
 
   if (to.meta && to.meta.title) {
-    document.title =  to.meta.title + ' | Tran' as string
+    document.title = (to.meta.title + ' | Tran') as string
   }
 
   // 控制页面显示

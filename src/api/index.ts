@@ -20,9 +20,10 @@ service.interceptors.request.use(
 service.interceptors.response.use(
   (response) => {
     const resData = response?.data || {}
-    const isSuccess = typeof resData.success === 'boolean'
-      ? resData.success
-      : !!resData.status
+    if (Object.prototype.toString.call(response.data) === '[object Blob]') {
+      return response
+    }
+      const isSuccess = typeof resData.success === 'boolean' ? resData.success : !!resData.status
     if (!isSuccess) {
       throw new Error(resData.message || resData.msg || '请求失败')
     }

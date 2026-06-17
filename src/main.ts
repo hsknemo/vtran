@@ -11,11 +11,13 @@ import App from './App.vue'
 import router from './router'
 import { addCopyCode, highlightDir } from '@/directive'
 import regisLocalPinia from '@/views/index/store/regisLocalPinia.ts'
-import 'highlight.js/styles/hybrid.css' //样式
+import 'highlight.js/styles/hybrid.css'
+import { downloadBlob } from '@/utils/downloadFile.ts' //样式
 
 
 
 const app = createApp(App)
+app.provide('$downloadBlob', downloadBlob)
 app.use(ElementPlus)
 app.use(createPinia())
 app.use(router)

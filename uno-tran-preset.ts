@@ -45,6 +45,12 @@ export default definePreset((options) => {
           }
         },
       ],
+      [
+        /^bg-#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/,
+        ([, d]) => ({
+          backgroundColor: `#${d}`,
+        }),
+      ],
     ],
     variants: [
       // ...
