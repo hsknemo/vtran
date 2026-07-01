@@ -330,25 +330,27 @@ onUnmounted(() => {
       <div class="tip">选择/拖拽文件</div>
       <TranUpload />
 
-      <section class="layout_list" v-show="isTableShow">
-        <div class="tip">
-          发送给我的文件
-          <section class="btn_control_area">
-            <el-button text @click="onTableRefresh" :icon="Refresh"></el-button>
-          </section>
-        </div>
-        <ProfileFileList ref="tableRef" />
-      </section>
+      <main class="flex w-full gap-0.5" v-show="isTableShow">
+        <section class="layout_list">
+          <div class="tip">
+            发送给我的文件
+            <section class="btn_control_area">
+              <el-button text @click="onTableRefresh" :icon="Refresh"></el-button>
+            </section>
+          </div>
+          <ProfileFileList ref="tableRef" />
+        </section>
 
-      <section class="layout_list" v-show="isTableShow">
-        <div class="tip">
-          我发送的文件
-          <section class="btn_control_area">
-            <el-button text @click="onTableRefreshProfile" :icon="Refresh"></el-button>
-          </section>
-        </div>
-        <ProfileSentOtherUserList ref="profileSentRef" />
-      </section>
+        <section class="layout_list" >
+          <div class="tip">
+            我发送的文件
+            <section class="btn_control_area">
+              <el-button text @click="onTableRefreshProfile" :icon="Refresh"></el-button>
+            </section>
+          </div>
+          <ProfileSentOtherUserList ref="profileSentRef" />
+        </section>
+      </main>
     </template>
 
     <!--    <el-backtop :right="100" :bottom="200" target=".tran-transfer-container" :visibility-height="1"/>-->
@@ -451,6 +453,7 @@ onUnmounted(() => {
     padding: 5px;
     margin: 10px 0;
     border-radius: var(--tran-round);
+    @apply w-50%;
   }
 }
 </style>

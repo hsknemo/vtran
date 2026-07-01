@@ -27,22 +27,19 @@ const createTimeListItem = (row: reportServiceNamespace.WorkList) => {
 
 const workDict = ref(inject('workDict', []))
 
-const deleteFormList = (index: number) => {
-  workList.value.splice(index, 1)
-  ruleForm.value.workList = workList.value
+const deleteFormList = (index: number, timeList: reportServiceNamespace.TimeList[]) => {
+  timeList.splice(index, 1)
 }
 
 const onSubmit = () => {
   ruleForm.value.workList = workList.value
   useSaveReport(ruleForm.value)
 }
-
-
 </script>
 
 <template>
-  <section w-full="">
-    <section position="relative" flex items-center="" justify-center="">
+  <section >
+    <section rounded  position="relative" flex items-center="" justify-center="">
       <el-form
         ref="ruleFormRef"
         style="width: 50%"
@@ -61,9 +58,9 @@ const onSubmit = () => {
           </template>
 
           <template v-for="(item, index) in workList" :key="index">
-            <section mt-10px w-full="">
+            <section mb-5 w-full="">
               <div v-if="item.title">{{ item.title }} 的工作项</div>
-              <div flex gap-10>
+              <div flex gap-1 mb-2>
                 <el-date-picker
                   v-model="item.title"
                   type="date"
@@ -72,26 +69,33 @@ const onSubmit = () => {
                   placeholder="选择日期"
                   style="width: 100%"
                 />
-                <MaterialSymbolsAdd cursor-pointer @click="createTimeListItem(item)" />
+                <el-button size="small" @click="createTimeListItem(item)">添加日期项</el-button>
               </div>
 
               <template :key="idx" v-for="(it, idx) in item.timeList">
-                <MaterialSymbolsLightDeleteOutlineRounded
-                  text-sm=""
-                  text-red
-                  cursor-pointer
-                  @click="deleteFormList(index)"
-                />
-                <section mb-10px>
-                  <el-select v-model="it.reportName" placeholder="请选择工作项名称">
-                    <el-option
-                      :key="index"
-                      v-for="(item, index) in workDict"
-                      :label="item.name"
-                      :value="item.code"
-                    ></el-option>
-                  </el-select>
-                </section>
+                <div flex w-full items-center flex-justify-between mb-2>
+                  <section w-50%>
+                    <el-select v-model="it.reportName" placeholder="请选择工作项名称">
+                      <el-option
+                        :key="index"
+                        v-for="(item, index) in workDict"
+                        :label="item.name"
+                        :value="item.code"
+                      ></el-option>
+                    </el-select>
+                  </section>
+                  <el-button
+                    text-red
+                    mt-1
+                    mb-1
+                    size="small"
+                    @click="deleteFormList(idx, item.timeList)"
+                  >
+                    <MaterialSymbolsLightDeleteOutlineRounded text-sm="" cursor-pointer />
+                    <span>删除当前项</span>
+                  </el-button>
+                </div>
+
                 <section w-full="">
                   <el-input
                     :rows="5"

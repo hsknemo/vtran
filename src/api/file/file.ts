@@ -13,13 +13,15 @@ export const setFileToUserList = (data:FormData) => request({
   data
 })
 
-export const getFileList = () => request({
-  method: 'get',
-  headers: {
-    Authorization: getToken(),
-  },
-  url: 'file/list',
-})
+export const getFileList = (params: fileService.queryInfo) =>
+  request({
+    method: 'get',
+    headers: {
+      Authorization: getToken(),
+    },
+    params,
+    url: 'file/list',
+  })
 
 export const getMineFileList = () => request({
   method: 'get',
